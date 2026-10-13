@@ -5,7 +5,12 @@ namespace App\Models;
 use App\Enums\OrderEventType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon|null $created_at
+ * @property OrderEventType $type
+ */
 class OrderEvent extends Model
 {
     public const UPDATED_AT = null;
@@ -17,11 +22,13 @@ class OrderEvent extends Model
         return ['type' => OrderEventType::class];
     }
 
+    /** @return BelongsTo<Order, $this> */
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

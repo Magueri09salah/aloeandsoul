@@ -8,7 +8,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon|null $updated_at
+ * @property int|null $product_count
+ * @property int|null $products_count
+ * @property int|null $published_products_count
+ */
 class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
@@ -29,16 +36,19 @@ class Category extends Model
         ];
     }
 
+    /** @return HasMany<Product, $this> */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
     }
 
+    /** @return HasMany<Product, $this> */
     public function publishedProducts(): HasMany
     {
         return $this->products()->where('status', ProductStatus::Published);
     }
 
+    /** @param  Builder<self>  $query */
     public function scopeActive(Builder $query): void
     {
         $query->where('is_active', true)->orderBy('sort_order')->orderBy('name');

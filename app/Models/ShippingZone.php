@@ -24,6 +24,7 @@ class ShippingZone extends Model
         ];
     }
 
+    /** @param  Builder<self>  $query */
     public function scopeActive(Builder $query): void
     {
         $query->where('is_active', true)->orderBy('sort_order')->orderBy('name');

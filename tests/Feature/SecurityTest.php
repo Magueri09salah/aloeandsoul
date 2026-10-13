@@ -2,6 +2,9 @@
 
 use App\Models\ContactMessage;
 use App\Models\NewsletterSubscriber;
+use App\Models\Order;
+use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 
 it('sends baseline security headers', function () {
     $this->get('/')
@@ -29,9 +32,9 @@ it('keeps checkout, cart and tracking out of caches and search engines', functio
 
 it('protects every web route with CSRF verification', function () {
     // Laravel skips the check itself while running tests, so assert it is wired in.
-    $web = app(\Illuminate\Contracts\Http\Kernel::class)->getMiddlewareGroups()['web'];
+    $web = app(Kernel::class)->getMiddlewareGroups()['web'];
 
-    expect($web)->toContain(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
+    expect($web)->toContain(ValidateCsrfToken::class);
 });
 
 it('accepts contact messages and drops bot submissions', function () {
@@ -66,7 +69,7 @@ it('does not store raw IP addresses with orders', function () {
     addToCart(sellableVariant(), 1);
     $this->post('/checkout', checkoutPayload(zone()));
 
-    $order = \App\Models\Order::query()->sole();
+    $order = Order::query()->sole();
     expect($order->ip_hash)->toHaveLength(64)->not->toBe('127.0.0.1');
 });
 

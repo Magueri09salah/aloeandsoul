@@ -29,6 +29,10 @@ class HomeController extends Controller
         if ($featured->isEmpty()) {
             $featured = $products->published()->orderByDesc('published_at')->limit(4)->get();
         }
+        // Fill complete rows of four on desktop.
+        if ($featured->count() > 4) {
+            $featured = $featured->take(4 * intdiv($featured->count(), 4));
+        }
 
         $bestsellers = $products->published()
             ->where('is_bestseller', true)
@@ -50,7 +54,7 @@ class HomeController extends Controller
 
         $ritual = null;
         if ($home['ritual_enabled'] && ! empty($home['ritual_steps'])) {
-            $steps = collect($home['ritual_steps']);
+            $steps = collect(is_array($home['ritual_steps']) ? $home['ritual_steps'] : []);
             $ritualProducts = $products->published()->whereIn('products.id', $steps->pluck('product_id'))->get()->keyBy('id');
             $ritual = [
                 'heading' => $home['ritual_heading'],
@@ -86,7 +90,7 @@ class HomeController extends Controller
             'bestsellers' => $bestsellers->map(fn (Product $p) => ProductPresenter::card($p)),
             'categories' => $categories,
             'ritual' => $ritual,
-            'journeys' => collect($story['chapters'])->map(fn (array $c) => [
+            'journeys' => collect(is_array($story['chapters']) ? $story['chapters'] : [])->map(fn (array $c) => [
                 'key' => $c['key'],
                 'title' => $c['title'],
                 'excerpt' => Str::before($c['body'], "\n"),

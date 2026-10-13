@@ -19,6 +19,7 @@ const EXPONENTS: Record<string, number> = {
 const PREFIX_SYMBOLS: Record<string, string> = { EUR: '€', USD: '$', GBP: '£' };
 
 const grouping = new Intl.NumberFormat('en', { maximumFractionDigits: 0 });
+const NBSP = String.fromCharCode(160);
 
 export function currencyExponent(currency: string): number {
     return EXPONENTS[currency.toUpperCase()] ?? 2;
@@ -39,7 +40,7 @@ export function formatMoney(minor: number, currency: string): string {
     const number =
         grouping.format(whole) + (exponent > 0 && fraction !== 0 ? '.' + String(fraction).padStart(exponent, '0') : '');
     const symbol = PREFIX_SYMBOLS[currency.toUpperCase()];
-    const text = symbol ? `${symbol}${number}` : `${number} ${currency.toUpperCase()}`;
+    const text = symbol ? `${symbol}${number}` : `${number}${NBSP}${currency.toUpperCase()}`;
 
     return negative ? `−${text}` : text;
 }

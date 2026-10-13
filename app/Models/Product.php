@@ -10,10 +10,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
 /**
  * @property ProductStatus $status
  * @property list<array{label: string, value: string}>|null $specifications
+ * @property Carbon|null $published_at
+ * @property Carbon|null $updated_at
+ * @property int|string|null $total_stock
  */
 class Product extends Model
 {
@@ -38,36 +42,43 @@ class Product extends Model
         ];
     }
 
+    /** @return BelongsTo<Category, $this> */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /** @return HasMany<ProductVariant, $this> */
     public function variants(): HasMany
     {
         return $this->hasMany(ProductVariant::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    /** @return HasMany<ProductVariant, $this> */
     public function activeVariants(): HasMany
     {
         return $this->variants()->where('is_active', true);
     }
 
+    /** @return HasMany<ProductImage, $this> */
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    /** @return HasOne<ProductImage, $this> */
     public function primaryImage(): HasOne
     {
         return $this->hasOne(ProductImage::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    /** @return HasMany<OrderItem, $this> */
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
+    /** @param  Builder<self>  $query */
     public function scopePublished(Builder $query): void
     {
         $query->where('status', ProductStatus::Published);

@@ -3,7 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon|null $updated_at
+ */
 class Page extends Model
 {
     /** Slugs the storefront links to; these pages cannot be deleted. */

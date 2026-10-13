@@ -69,7 +69,7 @@ class CartService
 
         /** @var CartItem|null $item */
         $item = $cart->items()->where('product_variant_id', $variant->id)->first();
-        $existing = $item?->quantity ?? 0;
+        $existing = $item !== null ? $item->quantity : 0;
 
         if ($existing >= $max) {
             throw new DomainException($this->limitMessage($variant, $max), 'quantity');

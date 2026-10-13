@@ -32,11 +32,13 @@ class ProductVariant extends Model
         ];
     }
 
+    /** @return BelongsTo<Product, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
+    /** @return HasMany<InventoryMovement, $this> */
     public function movements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class)->latest('created_at')->latest('id');

@@ -83,13 +83,21 @@ enum OrderStatus: string
         return $this->allowedTransitions() === [];
     }
 
-    /** Orders that count towards "order value" (everything not cancelled). */
+    /**
+     * Orders that count towards "order value" (everything not cancelled).
+     *
+     * @return list<self>
+     */
     public static function countedInOrderValue(): array
     {
         return array_values(array_filter(self::cases(), fn (self $s) => $s !== self::Cancelled));
     }
 
-    /** Orders that still need work before they leave. */
+    /**
+     * Orders that still need work before they leave.
+     *
+     * @return list<self>
+     */
     public static function awaitingFulfilment(): array
     {
         return [self::Confirmed, self::Processing, self::ReadyToShip];

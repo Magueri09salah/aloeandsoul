@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\Audit\AuditLogger;
 use App\Services\Cart\CartService;
 use App\Services\Settings\Settings;
 use Illuminate\Auth\Events\Failed;
@@ -125,7 +126,7 @@ class AppServiceProvider extends ServiceProvider
             if ($event->user instanceof User) {
                 $event->user->forceFill(['last_login_at' => now()])->saveQuietly();
                 Log::info('auth.login', ['user_id' => $event->user->id]);
-                app(\App\Services\Audit\AuditLogger::class)->log('auth.login', $event->user, [], $event->user->id);
+                app(AuditLogger::class)->log('auth.login', $event->user, [], $event->user->id);
             }
         });
 

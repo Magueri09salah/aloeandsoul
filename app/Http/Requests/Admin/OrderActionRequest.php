@@ -52,6 +52,7 @@ class OrderActionRequest extends AdminRequest
         };
     }
 
+    /** @return list<callable(Validator): void> */
     public function after(): array
     {
         return [function (Validator $validator) {

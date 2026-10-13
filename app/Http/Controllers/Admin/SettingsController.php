@@ -58,6 +58,7 @@ class SettingsController extends Controller
                 'title' => ['required', 'string', 'max:70'],
                 'description' => ['required', 'string', 'max:170'],
             ]),
+            default => abort(404),
         };
 
         $values = array_map(fn ($v) => $v ?? '', $values);

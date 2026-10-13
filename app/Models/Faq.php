@@ -18,6 +18,7 @@ class Faq extends Model
         ];
     }
 
+    /** @param  Builder<self>  $query */
     public function scopePublished(Builder $query): void
     {
         $query->where('is_published', true)->orderBy('sort_order')->orderBy('id');

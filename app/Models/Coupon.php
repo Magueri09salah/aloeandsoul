@@ -7,7 +7,13 @@ use Database\Factories\CouponFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property CouponType $type
+ * @property Carbon|null $starts_at
+ * @property Carbon|null $ends_at
+ */
 class Coupon extends Model
 {
     /** @use HasFactory<CouponFactory> */
@@ -33,6 +39,7 @@ class Coupon extends Model
         ];
     }
 
+    /** @return HasMany<CouponRedemption, $this> */
     public function redemptions(): HasMany
     {
         return $this->hasMany(CouponRedemption::class);

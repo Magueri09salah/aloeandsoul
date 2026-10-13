@@ -24,6 +24,7 @@ class ProductQuery
 
     /**
      * @param  array{q?: string|null, availability?: string|null, on_sale?: bool|null, min_price?: int|null, max_price?: int|null, sort?: string|null}  $filters
+     * @return LengthAwarePaginator<int, Product>
      */
     public function paginate(array $filters, ?Category $category = null): LengthAwarePaginator
     {

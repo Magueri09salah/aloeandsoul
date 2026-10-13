@@ -199,6 +199,7 @@ class ProductController extends Controller
             'unpublish' => $this->setStatus($product, ProductStatus::Draft, 'Product moved back to drafts. It is no longer visible in the shop.'),
             'archive' => $this->setStatus($product, ProductStatus::Archived, 'Product archived. Its page now tells visitors it is no longer available.'),
             'restore' => $this->setStatus($product, ProductStatus::Draft, 'Product restored as a draft.'),
+            default => abort(422),
         };
 
         $this->audit->log('product.status_changed', $product, ['from' => $from->value, 'to' => $product->status->value]);
