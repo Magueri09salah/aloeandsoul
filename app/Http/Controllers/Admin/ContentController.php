@@ -35,7 +35,9 @@ class ContentController extends Controller
         return Inertia::render('admin/content/home', [
             'home' => [...$home, 'hero_image' => ContentPresenter::heroImage($home), 'has_custom_image' => ! empty($home['hero_image'])],
             'announcement' => settings()->group('announcement'),
-            'products' => $products->published()->orderBy('name')->get(['products.id', 'products.name'])
+            // Only id + name are needed for the picker, so skip the card relations.
+            'products' => $products->published()->without(['category', 'primaryImage', 'activeVariants'])
+                ->orderBy('name')->get(['products.id', 'products.name'])
                 ->map(fn (Product $p) => ['id' => $p->id, 'name' => $p->name]),
         ]);
     }

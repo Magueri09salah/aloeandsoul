@@ -17,7 +17,8 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $status = $request->session()->get('status');
-        $pending = $user->two_factor_secret !== null && $user->two_factor_confirmed_at === null;
+        $raw = $user->getAttributes();
+        $pending = ($raw['two_factor_secret'] ?? null) !== null && ($raw['two_factor_confirmed_at'] ?? null) === null;
 
         // Enabling 2FA requires a recent password confirmation (Fortify).
         $confirmedAt = (int) $request->session()->get('auth.password_confirmed_at', 0);
