@@ -1,0 +1,191 @@
+{
+    "source": "https://www.foreverliving.fr (official Forever Living Products France images)",
+    "downloaded_at": "2026-10-13",
+    "products": {
+        "arginine": {
+            "reference": "473",
+            "name": "Forever ARGI+",
+            "file": "arginine.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/473.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/473"
+        },
+        "c9": {
+            "reference": "475",
+            "name": "Programme C9 Vanille",
+            "file": "c9.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/475.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/475"
+        },
+        "c9--chocolate": {
+            "reference": "476",
+            "name": "Programme C9 Chocolat",
+            "file": "c9--chocolate.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/476.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/476"
+        },
+        "vanilla-protein-ultra": {
+            "reference": "470",
+            "name": "Forever Lite Ultra Vanille",
+            "file": "vanilla-protein-ultra.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/470.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/470"
+        },
+        "chocolate-protein-ultra": {
+            "reference": "471",
+            "name": "Forever Lite Ultra Chocolat",
+            "file": "chocolate-protein-ultra.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/471.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/471"
+        },
+        "marine-collagen": {
+            "reference": "613",
+            "name": "Forever Marine Collagen",
+            "file": "marine-collagen.png",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/613-6385e379c065935b53550845.png",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/613"
+        },
+        "aloe-cellulose-bio-mask": {
+            "reference": "664",
+            "name": "Masque Aloe Bio-Cellulose",
+            "file": "aloe-cellulose-bio-mask.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/664.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/664"
+        },
+        "eye-contour-cream": {
+            "reference": "561",
+            "name": "Crème Contour des Yeux",
+            "file": "eye-contour-cream.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/561.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/561"
+        },
+        "intense-hydrating-care": {
+            "reference": "651",
+            "name": "Soin Hydratant Intense",
+            "file": "intense-hydrating-care.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/651.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/651"
+        },
+        "three-step-routine": {
+            "reference": "673",
+            "name": "Routine 3 temps",
+            "file": "three-step-routine.png",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/673.png",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/673"
+        },
+        "firming-complex": {
+            "reference": "556",
+            "name": "Complexe Raffermissant",
+            "file": "firming-complex.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/556.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/556"
+        },
+        "deodorant": {
+            "reference": "67",
+            "name": "Stick Déodorant Aloès",
+            "file": "deodorant.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/67.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/67"
+        },
+        "toothpaste": {
+            "reference": "28",
+            "name": "Forever Bright Toothgel",
+            "file": "toothpaste.png",
+            "image_url": "https://www.foreverliving.fr/storage/productsImages/28.png",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/28"
+        },
+        "shampoo": {
+            "reference": "640",
+            "name": "Shampoing Aloe-Jojoba",
+            "file": "shampoo.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/640.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/640"
+        },
+        "after-shampoo-conditioner": {
+            "reference": "641",
+            "name": "Après-Shampoing Aloe-Jojoba",
+            "file": "after-shampoo-conditioner.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/641.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/641"
+        },
+        "aloe-body-wash": {
+            "reference": "646",
+            "name": "Aloe Body Wash",
+            "file": "aloe-body-wash.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/646.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/646"
+        },
+        "aloe-body-lotion": {
+            "reference": "647",
+            "name": "Aloe Body Lotion",
+            "file": "aloe-body-lotion.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/647.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/647"
+        },
+        "aloe-vera-gel": {
+            "reference": "815",
+            "name": "Forever Aloe Vera Gel",
+            "file": "aloe-vera-gel.png",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/815-664db7383bf343c9a20121f2.png",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/815"
+        },
+        "aloe-mango": {
+            "reference": "836",
+            "name": "Forever Aloe Mango",
+            "file": "aloe-mango.png",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/836.png",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/836"
+        },
+        "aloe-peach": {
+            "reference": "877",
+            "name": "Forever Aloe Pêche",
+            "file": "aloe-peach.png",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/877.png",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/877"
+        },
+        "aloe-berry": {
+            "reference": "834",
+            "name": "Aloe Berry Nectar",
+            "file": "aloe-berry.png",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/834-664dbe63e76f835b740a3d42.png",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/834"
+        },
+        "bee-propolis": {
+            "reference": "27",
+            "name": "Forever Bee Propolis",
+            "file": "bee-propolis.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/27.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/27"
+        },
+        "arctic-sea": {
+            "reference": "376",
+            "name": "Forever Arctic Sea",
+            "file": "arctic-sea.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/376.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/376"
+        },
+        "forever-vision": {
+            "reference": "624",
+            "name": "Forever iVision",
+            "file": "forever-vision.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/624.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/624"
+        },
+        "forever-daily": {
+            "reference": "439",
+            "name": "Forever Daily",
+            "file": "forever-daily.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/439.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/439"
+        },
+        "forever-calcium": {
+            "reference": "206",
+            "name": "Forever Calcium",
+            "file": "forever-calcium.webp",
+            "image_url": "https://www.foreverliving.fr/storage/products/images/206.webp",
+            "page": "https://www.foreverliving.fr/FR/fr/product-detail/206"
+        }
+    },
+    "missing": {
+        "heat-lotion": "Not sold on foreverliving.fr; upload an image manually."
+    }
+}

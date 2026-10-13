@@ -119,6 +119,17 @@ Full Hostinger guide: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Production never
 - **Stock** is reserved when an order is placed and returned automatically if it is cancelled (or returned, if you choose). Every change appears in Stock → History.
 - **Privacy requests**: Admin → Customers → customer → *Remove personal data* (owners).
 
+## Product photographs
+
+`database/assets/products` contains the official packshots of 25 catalogue products taken from foreverliving.fr (sources listed in `manifest.json`), converted on import to the site's WebP format on a 4:5 transparent canvas. Attach them with:
+
+```bash
+php artisan catalog:import-images            # products without photos only
+php artisan catalog:import-images --replace  # also replace existing photos (e.g. demo placeholders)
+```
+
+Images © Forever Living Products. The client must confirm her distributor agreement allows their use on this shop (PRD §17). *Heat Lotion* has no image on the French site; *Forever Vision* is matched to **Forever iVision**, its current name; the Aloe Vera Gel photo carries a French "Top Santé 2025" award badge that may be worth replacing for Morocco.
+
 ## Brand assets
 
 `database/assets` holds the source logo and founder photograph (from the client's current website). Regenerate the web renditions in `public/brand` with `php database/assets/build-brand-assets.php`.

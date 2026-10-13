@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\ImageInterface;
 use Throwable;
 
 /**
@@ -23,12 +24,28 @@ class ImageProcessor
      */
     public function store(UploadedFile $file, string $directory): array
     {
+        return $this->storeFromPath((string) $file->getRealPath(), $directory);
+    }
+
+    /**
+     * Same as store(), for a local file. $transform may adjust the decoded
+     * image first (e.g. pad a square packshot to the 4:5 product format).
+     *
+     * @param  (callable(ImageInterface): ImageInterface)|null  $transform
+     * @return array{path: string, widths: list<int>, width: int, height: int}
+     */
+    public function storeFromPath(string $path, string $directory, ?callable $transform = null): array
+    {
         $manager = new ImageManager(new Driver);
 
         try {
-            $image = $manager->read($file->getRealPath());
+            $image = $manager->read($path);
         } catch (Throwable) {
             throw new DomainException('This file could not be read as an image.', 'image');
+        }
+
+        if ($transform !== null) {
+            $image = $transform($image);
         }
 
         $width = $image->width();

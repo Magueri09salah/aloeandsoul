@@ -149,6 +149,17 @@ php artisan admin:create          # prompts for name, email and password (not ec
 
 Sign in at `https://aloeandsoul.com/admin/login`, then **Profile → Set up two-factor authentication**. There are no default credentials; nothing else creates admin users.
 
+### 3.5b Product photographs (first deployment only)
+
+The official product photographs for 25 of the 26 seeded products ship with the code in `database/assets/products` (source: foreverliving.fr, see `manifest.json`). Attach them once:
+
+```bash
+php artisan catalog:import-images --dry-run   # preview
+php artisan catalog:import-images             # attach; products stay unpublished
+```
+
+Products that already have photos are left alone (`--replace` overwrites). *Heat Lotion* has no official photo on foreverliving.fr: upload one in Admin → Products.
+
 ### 3.6 Cron (scheduler + queue)
 hPanel → *Advanced* → **Cron Jobs** → *Custom*, every minute:
 

@@ -351,7 +351,7 @@ Tests never run against production; the test environment uses its own database.
 ## 17. Open questions for the client
 
 1. **Distributor terms.** The product names correspond to Forever Living Products. Please confirm your distributor agreement permits selling through your own website, with your own prices and cash on delivery, and using product names and official images.
-2. Prices, stock levels, descriptions and official images for each product (or permission to use Forever's official images).
+2. Prices, stock levels and descriptions for each product. Official images for 25 products have been imported from foreverliving.fr at the client's request (`database/assets/products/manifest.json`); permission to use them must still be confirmed under point 1, and *Heat Lotion* still needs a photo.
 3. Delivery areas, fees, free-delivery threshold and typical delivery times.
 4. Return and exchange policy.
 5. Legal identity for the legal notice (business name, registration number / ICE, address) and CNDP declaration status.
