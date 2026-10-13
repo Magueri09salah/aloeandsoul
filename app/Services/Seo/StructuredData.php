@@ -2,6 +2,7 @@
 
 namespace App\Services\Seo;
 
+use App\Models\BlogPost;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Support\Money;
@@ -44,6 +45,29 @@ class StructuredData
             'name' => settings()->get('store.name'),
             'url' => url('/'),
         ];
+    }
+
+    /** @return array<string, mixed> */
+    public static function blogPosting(BlogPost $post, ?string $imageUrl): array
+    {
+        $publisher = [
+            '@type' => 'Organization',
+            'name' => settings()->get('store.name'),
+            'logo' => ['@type' => 'ImageObject', 'url' => asset('brand/logo-512.png')],
+        ];
+
+        return array_filter([
+            '@context' => 'https://schema.org',
+            '@type' => 'BlogPosting',
+            'headline' => Str::limit($post->title, 110, ''),
+            'description' => $post->excerpt,
+            'image' => $imageUrl,
+            'datePublished' => $post->published_at?->toIso8601String(),
+            'dateModified' => $post->updated_at?->toIso8601String(),
+            'author' => ['@type' => 'Organization', 'name' => settings()->get('store.name'), 'url' => url('/')],
+            'publisher' => $publisher,
+            'mainEntityOfPage' => route('blog.show', $post),
+        ], fn ($v) => $v !== null && $v !== '');
     }
 
     /**

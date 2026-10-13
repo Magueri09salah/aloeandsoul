@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Enums\Permission;
 use App\Http\Controllers\Storefront\SeoController;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\Product;
@@ -58,7 +59,7 @@ class AppServiceProvider extends ServiceProvider
             Cache::forget(SeoController::SITEMAP_CACHE_KEY);
         };
 
-        foreach ([Category::class, Product::class, Page::class] as $model) {
+        foreach ([Category::class, Product::class, Page::class, BlogPost::class] as $model) {
             $model::saved($flush);
             $model::deleted($flush);
         }

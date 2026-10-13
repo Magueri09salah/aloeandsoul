@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 
 const LINKS = [
     { href: '/our-story', label: 'Our story' },
+    { href: '/blog', label: 'Blog' },
     { href: '/faq', label: 'FAQ' },
     { href: '/contact', label: 'Contact' },
 ];

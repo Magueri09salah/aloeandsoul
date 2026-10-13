@@ -65,6 +65,8 @@ class ContentController extends Controller
             'home.ritual_steps.*.product_id' => ['required', 'integer', Rule::exists('products', 'id')],
             'home.ritual_steps.*.note' => ['nullable', 'string', 'max:160'],
             'home.newsletter_enabled' => ['boolean'],
+            'home.blog_enabled' => ['boolean'],
+            'home.blog_heading' => ['nullable', 'string', 'max:80'],
         ], [
             'announcement.link_url.regex' => 'Use a link starting with / (a page on this site) or https://.',
         ]);
@@ -79,6 +81,7 @@ class ContentController extends Controller
             ...array_map(fn ($v) => $v ?? '', $data['home']),
             'ritual_enabled' => $request->boolean('home.ritual_enabled'),
             'newsletter_enabled' => $request->boolean('home.newsletter_enabled'),
+            'blog_enabled' => $request->boolean('home.blog_enabled'),
             'ritual_steps' => array_values(array_map(fn ($s) => [
                 'product_id' => (int) $s['product_id'],
                 'note' => (string) ($s['note'] ?? ''),

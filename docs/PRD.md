@@ -90,11 +90,12 @@ Checkout is **closed** until at least one active delivery zone exists, so the sh
 | `/checkout/confirmation/{reference}` | Order placed (only in the session that placed it) | No |
 | `/track-order` | Look up status by order reference + phone | No |
 | `/our-story` | Founder story, editorial feature | Yes |
+| `/blog`, `/blog/{slug}` | Blog: posts written by the owner (drafts and scheduled posts hidden) | Yes |
 | `/faq`, `/contact`, `/shipping-returns` | Support | Yes |
 | `/privacy-policy`, `/terms`, `/legal-notice` | Legal **[CLIENT approval]** | Yes |
 | `/sitemap.xml`, `/robots.txt` | Crawlers | — |
 
-Legacy URLs from the Zyro site are permanently redirected (`/my-wellness-journey`, `/busnises-journey`, `/my-freedom-journey` → `/our-story#…`; `/page` → `/shop`; `/blog-list` → `/our-story`).
+Legacy URLs from the Zyro site are permanently redirected (`/my-wellness-journey`, `/busnises-journey`, `/my-freedom-journey` → `/our-story#…`; `/page` → `/shop`; `/blog-list` → `/blog`).
 
 ---
 
@@ -242,7 +243,7 @@ Dashboard revenue counts **only** `DELIVERED` + `collected` orders. "Order value
 | Customers: view | ✓ | ✓ | ✓ |
 | Customers: anonymise | ✓ | — | — |
 | Discount codes, delivery zones | ✓ | ✓ | — |
-| Content (home, story, FAQ, pages), messages, subscribers | ✓ | ✓ | — |
+| Content (home, story, blog, collaborators, FAQ, pages), messages, subscribers | ✓ | ✓ | — |
 | Store settings, admin users, audit log | ✓ | — | — |
 
 No public registration. The first owner is created with `php artisan admin:create` on the server.
@@ -260,6 +261,9 @@ No public registration. The first owner is created with `php artisan admin:creat
 - **Discount codes**: percentage / fixed, start/end, total usage limit, one-per-customer option, minimum order, active toggle.
 - **Delivery zones**: name, fee, free-delivery threshold, estimate text, active, sort order.
 - **Content**: announcement bar, home hero and sections, featured products, story chapters, FAQ entries, editable pages, contact details.
+- **Blog**: write posts (title, summary, Markdown text, cover photo, SEO fields); save as draft, publish now, or schedule with a future date; delete. Blog page title and introduction editable.
+  - [ ] Drafts and scheduled posts are never visible publicly (404) and never in the sitemap.
+- **Collaborators**: people/brands the founder works with (name, short description, photo or logo, https link, position, visible). Shown on the home page under an editable heading; the section can be switched off.
 - **Settings**: store name, contact, currency, country, order prefix, default low-stock threshold, COD instructions, social links, ordering on/off.
 - **Users** (owner): invite/create admin, change role, deactivate.
 - **Audit log** (owner): who did what, when.
@@ -313,7 +317,7 @@ See SEO.md. Summary: server-rendered meta (title, description, canonical, Open G
 
 ### MVP (this build)
 
-Everything in §§5–12, plus optional TOTP two-factor authentication for admins: storefront, four categories, product pages, cart, COD checkout, confirmation and tracking, founder story, support/legal pages, full admin (overview, products, variants, images, categories, orders, inventory, customers, discount codes, delivery zones, content, settings, users, audit log), contact form, newsletter opt-in with consent, SEO, rate limiting, tests, deployment docs.
+Everything in §§5–12, plus optional TOTP two-factor authentication for admins: storefront, four categories, product pages, cart, COD checkout, confirmation and tracking, founder story, support/legal pages, full admin (overview, products, variants, images, categories, orders, inventory, customers, discount codes, delivery zones, content, settings, users, audit log), contact form, newsletter opt-in with consent, blog, collaborators section, SEO, rate limiting, tests, deployment docs.
 
 ### Important post-MVP
 
@@ -325,7 +329,6 @@ Everything in §§5–12, plus optional TOTP two-factor authentication for admin
 ### Optional future
 
 - Product reviews (genuine, moderated, verified-purchase only).
-- Journal/blog.
 - Bundles and rituals as purchasable sets.
 - Privacy-friendly analytics dashboard.
 

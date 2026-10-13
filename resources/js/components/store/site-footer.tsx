@@ -61,6 +61,7 @@ export function SiteFooter() {
                     <h2 className="text-sm text-dune">Aloe &amp; Soul</h2>
                     <ul className="mt-4 space-y-2.5">
                         <li><Link href="/our-story" className={linkClass}>Our story</Link></li>
+                        <li><Link href="/blog" className={linkClass}>Blog</Link></li>
                         {contact?.email && (
                             <li><a href={`mailto:${contact.email}`} className={linkClass}>{contact.email}</a></li>
                         )}

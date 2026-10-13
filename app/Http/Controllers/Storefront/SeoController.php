@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
+use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Page;
 use App\Services\Catalog\ProductQuery;
@@ -20,6 +21,7 @@ class SeoController extends Controller
                 ['loc' => url('/'), 'lastmod' => null],
                 ['loc' => route('shop'), 'lastmod' => null],
                 ['loc' => route('story'), 'lastmod' => null],
+                ['loc' => route('blog'), 'lastmod' => null],
                 ['loc' => route('faq'), 'lastmod' => null],
                 ['loc' => route('contact'), 'lastmod' => null],
             ];
@@ -30,6 +32,10 @@ class SeoController extends Controller
 
             foreach ($products->published()->without(['primaryImage', 'activeVariants', 'category'])->get(['products.id', 'products.slug', 'products.updated_at']) as $product) {
                 $urls[] = ['loc' => route('products.show', $product), 'lastmod' => $product->updated_at];
+            }
+
+            foreach (BlogPost::query()->live()->latest('published_at')->get(['id', 'slug', 'updated_at']) as $post) {
+                $urls[] = ['loc' => route('blog.show', $post), 'lastmod' => $post->updated_at];
             }
 
             foreach (Page::query()->where('is_published', true)->get(['slug', 'updated_at']) as $page) {

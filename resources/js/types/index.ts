@@ -168,3 +168,27 @@ export interface Option {
     value: string;
     label: string;
 }
+
+export interface PostCard {
+    id: number;
+    title: string;
+    slug: string;
+    excerpt: string;
+    cover: ImageData | null;
+    published_at: string | null;
+    reading_minutes: number;
+}
+
+export interface PostDetail extends PostCard {
+    body_html: string;
+    updated_at: string | null;
+}
+
+export interface Collaborator {
+    id: number;
+    name: string;
+    description: string | null;
+    url: string | null;
+    image: ImageData | null;
+    image_style: 'photo' | 'logo';
+}

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\Storefront\BlogController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CheckoutController;
 use App\Http\Controllers\Storefront\ContactController;
@@ -41,6 +42,8 @@ Route::get('/track-order', [TrackOrderController::class, 'show'])->name('track-o
 Route::post('/track-order', [TrackOrderController::class, 'lookup'])->middleware('throttle:track-order')->name('track-order.lookup');
 
 Route::get('/our-story', [ContentController::class, 'story'])->name('story');
+Route::get('/blog', [BlogController::class, 'index'])->name('blog');
+Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/faq', [ContentController::class, 'faq'])->name('faq');
 Route::get('/contact', [ContactController::class, 'show'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:forms')->name('contact.store');
@@ -57,7 +60,7 @@ Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 Route::permanentRedirect('/my-wellness-journey', '/our-story#wellness');
 Route::permanentRedirect('/busnises-journey', '/our-story#business');
 Route::permanentRedirect('/my-freedom-journey', '/our-story#freedom');
-Route::permanentRedirect('/blog-list', '/our-story');
+Route::permanentRedirect('/blog-list', '/blog');
 Route::permanentRedirect('/page', '/shop');
 
 /*
@@ -148,6 +151,20 @@ Route::prefix('admin')
             Route::get('/pages', [Admin\PageController::class, 'index'])->name('pages.index');
             Route::get('/pages/{page}/edit', [Admin\PageController::class, 'edit'])->name('pages.edit');
             Route::put('/pages/{page}', [Admin\PageController::class, 'update'])->name('pages.update');
+
+            Route::get('/blog', [Admin\BlogPostController::class, 'index'])->name('blog.index');
+            Route::get('/blog/create', [Admin\BlogPostController::class, 'create'])->name('blog.create');
+            Route::post('/blog', [Admin\BlogPostController::class, 'store'])->name('blog.store');
+            Route::put('/blog/settings', [Admin\BlogPostController::class, 'updateSettings'])->name('blog.settings');
+            Route::get('/blog/{post}/edit', [Admin\BlogPostController::class, 'edit'])->name('blog.edit');
+            Route::put('/blog/{post}', [Admin\BlogPostController::class, 'update'])->name('blog.update');
+            Route::delete('/blog/{post}', [Admin\BlogPostController::class, 'destroy'])->name('blog.destroy');
+
+            Route::get('/collaborators', [Admin\CollaboratorController::class, 'index'])->name('collaborators.index');
+            Route::post('/collaborators', [Admin\CollaboratorController::class, 'store'])->name('collaborators.store');
+            Route::put('/collaborators/section', [Admin\CollaboratorController::class, 'updateSection'])->name('collaborators.section');
+            Route::put('/collaborators/{collaborator}', [Admin\CollaboratorController::class, 'update'])->name('collaborators.update');
+            Route::delete('/collaborators/{collaborator}', [Admin\CollaboratorController::class, 'destroy'])->name('collaborators.destroy');
 
             Route::get('/faqs', [Admin\FaqController::class, 'index'])->name('faqs.index');
             Route::post('/faqs', [Admin\FaqController::class, 'store'])->name('faqs.store');

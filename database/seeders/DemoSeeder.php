@@ -3,13 +3,17 @@
 namespace Database\Seeders;
 
 use App\Enums\CouponType;
+use App\Enums\PostStatus;
 use App\Enums\ProductStatus;
+use App\Models\BlogPost;
+use App\Models\Collaborator;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\ShippingZone;
 use App\Services\Media\ImageProcessor;
 use Illuminate\Database\Seeder;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 use RuntimeException;
@@ -68,6 +72,25 @@ class DemoSeeder extends Seeder
                 'estimate' => $estimate,
                 'is_active' => true,
                 'sort_order' => $i,
+            ]);
+        }
+
+        foreach (['Demo post: a slower morning', 'Demo post: notes from Essaouira'] as $i => $title) {
+            BlogPost::query()->firstOrCreate(['slug' => Str::slug($title)], [
+                'title' => $title,
+                'excerpt' => 'Placeholder post for development. Replace or delete it in Admin → Blog.',
+                'body' => "This is a **demo post** used while building the site.\n\nWrite real posts in Admin → Blog and delete this one.\n\n## A subheading\n\n- A list item\n- Another item",
+                'status' => PostStatus::Published,
+                'published_at' => now()->subDays(2 + $i * 5),
+            ]);
+        }
+
+        foreach (['Demo Collaborator One', 'Demo Studio', 'Demo Wellness Coach'] as $i => $name) {
+            Collaborator::query()->firstOrCreate(['name' => $name], [
+                'description' => 'Placeholder, replace in Admin → Collaborators',
+                'image_style' => 'photo',
+                'sort_order' => $i,
+                'is_visible' => true,
             ]);
         }
 

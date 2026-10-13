@@ -113,7 +113,15 @@ test.describe('Shopping journey', () => {
         await prepare(pages[1]!, '06 22 22 22 22');
 
         await Promise.all(pages.map((p) => p.getByRole('button', { name: 'Place order' }).filter({ visible: true }).click()));
-        await Promise.all(pages.map((p) => p.waitForLoadState('networkidle')));
+        // Wait until each shopper either reaches the confirmation or sees the refusal.
+        await Promise.all(
+            pages.map((p) =>
+                Promise.race([
+                    p.waitForURL(/\/checkout\/confirmation\//, { timeout: 60_000 }),
+                    p.getByText(/Out of stock|available/).first().waitFor({ timeout: 60_000 }),
+                ]),
+            ),
+        );
 
         const confirmed = pages.filter((p) => /\/checkout\/confirmation\//.test(p.url()));
         expect(confirmed).toHaveLength(1);

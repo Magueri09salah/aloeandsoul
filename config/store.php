@@ -95,6 +95,16 @@ return [
             'ritual_intro' => '',
             'ritual_steps' => [], // [{product_id, note}]
             'newsletter_enabled' => true,
+            'collaborators_enabled' => true,
+            'collaborators_heading' => 'In collaboration with',
+            'collaborators_intro' => '',
+            'blog_enabled' => true,
+            'blog_heading' => 'From the blog',
+        ],
+
+        'blog' => [
+            'heading' => 'Blog',
+            'intro' => 'News, stories and thoughts from Aloe & Soul.',
         ],
 
         'story' => [

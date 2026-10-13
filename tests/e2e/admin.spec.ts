@@ -25,6 +25,34 @@ test.describe('Administration', () => {
         await expect(page.locator('#product-title + p')).toContainText('199.50 MAD');
     });
 
+    test('an administrator publishes a blog post and adds a collaborator', async ({ page }) => {
+        await signIn(page);
+
+        await page.goto('/admin/blog/create');
+        await page.getByLabel('Title', { exact: true }).fill('Notes from the dunes');
+        await page.getByLabel('Text', { exact: true }).fill('A first post written from Essaouira.\n\nSecond paragraph.');
+        await page.getByRole('radio', { name: /Published/ }).check();
+        await page.getByRole('button', { name: 'Publish post' }).click();
+        await expect(page.getByText('Post published.')).toBeVisible();
+
+        await page.goto('/blog');
+        await expect(page.getByRole('heading', { name: 'Notes from the dunes' }).first()).toBeVisible();
+        await page.goto('/blog/notes-from-the-dunes');
+        await expect(page.getByText('A first post written from Essaouira.')).toBeVisible();
+
+        await page.goto('/admin/collaborators');
+        await page.getByRole('button', { name: 'Add collaborator' }).click();
+        const dialog = page.getByRole('dialog');
+        await dialog.getByLabel('Name', { exact: true }).fill('Atelier Mogador');
+        await dialog.getByLabel('Short description').fill('Ceramics studio, Essaouira');
+        await dialog.getByRole('button', { name: 'Add collaborator' }).click();
+        await expect(page.getByText('Atelier Mogador added.')).toBeVisible();
+
+        await page.goto('/');
+        await expect(page.getByRole('heading', { name: 'In collaboration with' })).toBeVisible();
+        await expect(page.getByText('Atelier Mogador')).toBeVisible();
+    });
+
     test('an administrator processes an order through valid steps', async ({ page, browser }) => {
         const shopper = await browser.newContext();
         const shop = await shopper.newPage();

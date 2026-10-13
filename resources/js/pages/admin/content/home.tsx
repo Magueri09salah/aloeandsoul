@@ -27,6 +27,8 @@ interface Props {
         ritual_intro: string;
         ritual_steps: { product_id: number; note: string }[];
         newsletter_enabled: boolean;
+        blog_enabled: boolean;
+        blog_heading: string;
     };
     announcement: { enabled: boolean; text: string; link_label: string; link_url: string };
     products: { id: number; name: string }[];
@@ -48,6 +50,8 @@ export default function ContentHome({ home, announcement, products }: Props) {
             ritual_intro: home.ritual_intro,
             ritual_steps: home.ritual_steps,
             newsletter_enabled: home.newsletter_enabled,
+            blog_enabled: home.blog_enabled,
+            blog_heading: home.blog_heading,
         },
     });
 
@@ -181,6 +185,23 @@ export default function ContentHome({ home, announcement, products }: Props) {
                                 )
                             )}
                         </div>
+                    </Panel>
+
+                    <Panel
+                        title="Latest blog posts"
+                        description="Shows the three newest posts when the blog has published posts."
+                        actions={<Switch aria-label="Show latest blog posts" checked={form.data.home.blog_enabled} onCheckedChange={(v) => setHome('blog_enabled', v)} />}
+                    >
+                        <Field label="Heading" name="home.blog_heading" error={err('home.blog_heading')} optional className="max-w-md">
+                            {(p) => <Input {...p} value={form.data.home.blog_heading} onChange={(e) => setHome('blog_heading', e.target.value)} maxLength={80} />}
+                        </Field>
+                        <p className="mt-3 text-sm text-stone">
+                            The collaborators section is managed under{' '}
+                            <a href="/admin/collaborators" className="underline underline-offset-4">
+                                Collaborators
+                            </a>
+                            .
+                        </p>
                     </Panel>
 
                     <Panel title="Newsletter">

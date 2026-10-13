@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Http\Presenters\ContentPresenter;
+use App\Http\Presenters\PostPresenter;
 use App\Http\Presenters\ProductPresenter;
+use App\Models\BlogPost;
 use App\Models\Category;
+use App\Models\Collaborator;
 use App\Models\Faq;
 use App\Models\Product;
 use App\Services\Catalog\ProductQuery;
@@ -98,6 +101,15 @@ class HomeController extends Controller
             'storyImage' => ContentPresenter::storyImage($story),
             'faqs' => Faq::query()->published()->where('show_on_home', true)->limit(4)->get(['id', 'question', 'answer']),
             'newsletterEnabled' => (bool) $home['newsletter_enabled'],
+            'collaborators' => $home['collaborators_enabled'] ? [
+                'heading' => $home['collaborators_heading'],
+                'intro' => $home['collaborators_intro'],
+                'items' => Collaborator::query()->visible()->get()->map(fn (Collaborator $c) => PostPresenter::collaborator($c)),
+            ] : null,
+            'latestPosts' => $home['blog_enabled'] ? [
+                'heading' => $home['blog_heading'],
+                'items' => BlogPost::query()->live()->latest('published_at')->limit(3)->get()->map(fn (BlogPost $p) => PostPresenter::card($p)),
+            ] : null,
         ], $seo);
     }
 }

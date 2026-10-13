@@ -2,9 +2,9 @@
 
 Online shop for **Aloe & Soul** — wellness, beauty, fitness and nutrition, founded by a woman whose journey led from London to Marrakech. *Nourish the Body. Inspire the Soul.*
 
-- Storefront with four categories, product variants, search and filters, a founder-story feature and policy pages
+- Storefront with four categories, product variants, search and filters, a founder-story feature, a blog, a collaborators section and policy pages
 - Guest checkout, **cash on delivery only** (no payment gateway, no card data)
-- Admin for orders, products, stock, customers, discount codes, delivery areas, content, settings and team roles
+- Admin for orders, products, stock, customers, discount codes, delivery areas, blog posts, collaborators, content, settings and team roles
 - Built to run on Hostinger PHP hosting: no Node.js, Redis or worker process in production
 
 | Docs | |

@@ -1,12 +1,14 @@
 import { Link } from '@inertiajs/react';
 import { Banknote, PackageSearch, UserRoundCheck } from 'lucide-react';
 
-import type { ImageData, Motif as MotifName, ProductCard as ProductCardData } from '@/types';
+import type { Collaborator, ImageData, Motif as MotifName, PostCard as PostCardData, ProductCard as ProductCardData } from '@/types';
 
 import { Motif } from '@/components/brand/motif';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { ResponsiveImage } from '@/components/ui/responsive-image';
+import { Collaborators } from '@/components/store/collaborators';
+import { PostCard } from '@/components/store/post-card';
 import { ProductCard } from '@/components/store/product-card';
 import { SectionHeading } from '@/components/store/section-heading';
 import { cn } from '@/lib/utils';
@@ -22,9 +24,11 @@ interface HomeProps {
     journeys: { key: string; title: string; excerpt: string }[];
     storyImage: ImageData;
     faqs: { id: number; question: string; answer: string }[];
+    collaborators: { heading: string; intro: string; items: Collaborator[] } | null;
+    latestPosts: { heading: string; items: PostCardData[] } | null;
 }
 
-export default function Home({ hero, intro, featuredHeading, featured, bestsellers, categories, ritual, journeys, faqs }: HomeProps) {
+export default function Home({ hero, intro, featuredHeading, featured, bestsellers, categories, ritual, journeys, faqs, collaborators, latestPosts }: HomeProps) {
     return (
         <>
             {/* Hero: the founder in the riad arch — the page's one bold gesture. */}
@@ -178,6 +182,19 @@ export default function Home({ hero, intro, featuredHeading, featured, bestselle
                     </ul>
                 </div>
             </section>
+
+            {collaborators && <Collaborators heading={collaborators.heading} intro={collaborators.intro} items={collaborators.items} />}
+
+            {latestPosts && latestPosts.items.length > 0 && (
+                <section className="container-page pt-20 lg:pt-28">
+                    <SectionHeading title={latestPosts.heading} link={{ href: '/blog', label: 'All posts' }} />
+                    <div className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+                        {latestPosts.items.map((post) => (
+                            <PostCard key={post.id} post={post} />
+                        ))}
+                    </div>
+                </section>
+            )}
 
             {faqs.length > 0 && (
                 <section className="container-page grid gap-10 pt-20 lg:grid-cols-12 lg:pt-28">

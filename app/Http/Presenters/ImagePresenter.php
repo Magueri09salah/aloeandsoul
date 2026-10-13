@@ -39,6 +39,24 @@ final class ImagePresenter
     }
 
     /**
+     * An image stored as settings/JSON ({path, widths, width, height}), or null.
+     *
+     * @param  array<string, mixed>|null  $stored
+     * @return array{src: string, srcset: string, width: int, height: int, alt: string}|null
+     */
+    public static function fromArray(?array $stored, string $alt): ?array
+    {
+        if (! is_array($stored) || ! isset($stored['path'], $stored['widths']) || ! is_array($stored['widths'])) {
+            return null;
+        }
+
+        /** @var list<int> $widths */
+        $widths = array_values(array_map('intval', $stored['widths']));
+
+        return self::fromStored((string) $stored['path'], $widths, (int) ($stored['width'] ?? 0), (int) ($stored['height'] ?? 0), $alt);
+    }
+
+    /**
      * Images shipped with the theme under public/brand (pre-generated renditions).
      *
      * @param  list<int>  $widths

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\BlogPost;
+use App\Models\Collaborator;
 use App\Models\ContactMessage;
 use App\Models\Coupon;
 use App\Models\Customer;
@@ -26,6 +28,10 @@ beforeEach(function () {
     Coupon::factory()->create();
     ContactMessage::query()->create(['name' => 'Amina', 'email' => 'a@example.com', 'message' => 'Hello there, a question']);
     NewsletterSubscriber::query()->create(['email' => 'reader@example.com', 'consented_at' => now(), 'consent_text' => 'I agree']);
+
+    $this->post = BlogPost::factory()->published()->create();
+    BlogPost::factory()->scheduled()->create();
+    Collaborator::factory()->create();
 
     settings()->update('home', ['ritual_enabled' => true, 'ritual_steps' => [['product_id' => $variant->product_id, 'note' => 'Morning']]]);
 
@@ -61,6 +67,11 @@ it('opens every admin page', function () {
         '/admin/pages',
         '/admin/pages/'.Page::query()->value('id').'/edit',
         '/admin/faqs',
+        '/admin/blog',
+        '/admin/blog?status=scheduled',
+        '/admin/blog/create',
+        "/admin/blog/{$this->post->id}/edit",
+        '/admin/collaborators',
         '/admin/messages',
         '/admin/messages?unread=1',
         '/admin/subscribers',
@@ -78,7 +89,7 @@ it('opens every admin page', function () {
 it('opens every storefront page with the same data', function () {
     $product = $this->variant->product;
 
-    foreach (['/', '/shop', "/shop/{$product->category->slug}", "/products/{$product->slug}", '/cart', '/our-story', '/faq', '/contact', '/track-order', '/privacy-policy', '/terms', '/legal-notice', '/shipping-returns'] as $url) {
+    foreach (['/', '/shop', "/shop/{$product->category->slug}", "/products/{$product->slug}", '/cart', '/our-story', '/faq', '/contact', '/track-order', '/blog', "/blog/{$this->post->slug}", '/privacy-policy', '/terms', '/legal-notice', '/shipping-returns'] as $url) {
         $response = $this->get($url);
         expect($response->status())->toBe(200, "{$url} returned {$response->status()}");
     }

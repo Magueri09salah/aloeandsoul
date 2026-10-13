@@ -40,6 +40,8 @@ settings · pages · faqs · contact_messages · newsletter_subscribers
 | `Coupon`, `CouponRedemption` | Usage limits enforced transactionally. |
 | `Setting` | Key/value JSON for store, contact, home and story content. Avoids a full CMS. |
 | `Page`, `Faq` | Editable legal/support pages and FAQ entries. |
+| `BlogPost` | Owner-written posts; `status` + `published_at` give draft / published / scheduled. |
+| `Collaborator` | People and brands shown on the home page. |
 | `ContactMessage`, `NewsletterSubscriber` | Inbound contact and consented opt-ins. |
 | `AuditLog` | Administrative accountability. |
 | *Not created:* `Address` | No accounts, so no reusable address book. |
@@ -149,6 +151,10 @@ settings · pages · faqs · contact_messages · newsletter_subscribers
 ### pages, faqs
 - `pages`: `slug` (**unique**), `title`, `body` (longtext Markdown), `seo_title`, `seo_description`, `is_published`, `needs_review` (bool — legal text awaiting client approval), timestamps.
 - `faqs`: `question` (255), `answer` (text), `sort_order`, `is_published`, `show_on_home`, timestamps.
+
+### blog_posts, collaborators
+- `blog_posts`: `title` (160), `slug` (**unique**), `excerpt` (300, null), `body` (longtext Markdown, rendered with HTML stripped), `cover` (json `{path, widths, width, height}`, null), `cover_alt`, `status` (`draft` / `published`), `published_at` (null; in the future = scheduled), `seo_title`, `seo_description`, `user_id` (author, nullOnDelete), timestamps. Index `(status, published_at)`. Public = `status = published AND published_at <= now()`.
+- `collaborators`: `name` (120), `description` (255, null), `url` (https only, null), `image` (json, null), `image_style` (`photo` / `logo`), `sort_order`, `is_visible`, timestamps. Index `(is_visible, sort_order)`.
 
 ### contact_messages, newsletter_subscribers
 - `contact_messages`: `name`, `email`, `phone` (null), `message` (text), `read_at` (null), `ip_hash`, timestamps.

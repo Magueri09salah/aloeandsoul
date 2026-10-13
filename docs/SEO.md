@@ -22,6 +22,8 @@ On client-side navigation, the storefront layout updates title, description, rob
 | `/shop`, `/shop/{category}` (no filters) | Yes | Self; page 2+ canonical to itself (`?page=n`) |
 | `/shop…?q=…`, any filter or non-default sort | **noindex,follow** | Unfiltered listing |
 | `/products/{slug}` (published) | Yes | Self |
+| `/blog` (page 2+ canonical to itself) | Yes | Self |
+| `/blog/{slug}` (published, date passed) | Yes | Self; drafts and scheduled posts return 404 |
 | Draft product | 404 | — |
 | Archived (discontinued) product | **410 Gone**, noindex, links to its category | — |
 | Out-of-stock product | Yes (200), `availability: OutOfStock` | Self |
@@ -34,14 +36,15 @@ Tests: `tests/Feature/Storefront/CatalogTest.php`, `tests/e2e/storefront.spec.ts
 
 - **Organization** (home): name, URL, logo, email, telephone, country, `sameAs` from configured social links.
 - **WebSite** (home).
-- **BreadcrumbList**: shop, category and product pages, story.
+- **BreadcrumbList**: shop, category and product pages, story, blog and posts.
+- **BlogPosting** (each post): headline, description, cover image, `datePublished`, `dateModified`, author and publisher (the store organisation), `mainEntityOfPage`. Open Graph type `article`.
 - **Product**: name, description (plain text), images, SKU (single-variant), category, URL, and an `Offer` (one variant) or `AggregateOffer` (several) with real price, currency, availability and condition.
 
 Never emitted: ratings, reviews, `aggregateRating`, brand (unknown), shipping details or return policy (not yet confirmed by the client) — nothing is fabricated. A product with no priced variant gets no Product schema. ✓T `shows a published product with structured data and no invented ratings`.
 
 ## Sitemap and robots
 
-- `/sitemap.xml`: home, shop, story, FAQ, contact, active categories, published products (with `lastmod`), published policy pages. Cached for one hour and flushed automatically whenever a product, category or page is saved or deleted.
+- `/sitemap.xml`: home, shop, story, blog, FAQ, contact, active categories, published products, live blog posts (with `lastmod`), published policy pages. Cached for one hour and flushed automatically whenever a product, category or page is saved or deleted.
 - `/robots.txt`: in production disallows `/admin`, `/cart`, `/checkout`, `/track-order` and search URLs, and points to the sitemap. **Outside production it disallows everything**, so a staging copy can never be indexed.
 
 ## Migration from the old site
@@ -53,7 +56,7 @@ Permanent (301) redirects keep the old Zyro URLs' value:
 | `/my-wellness-journey` | `/our-story#wellness` |
 | `/busnises-journey` | `/our-story#business` |
 | `/my-freedom-journey` | `/our-story#freedom` |
-| `/blog-list` | `/our-story` |
+| `/blog-list` | `/blog` |
 | `/page` (store) | `/shop` |
 
 After launch: submit the sitemap in Google Search Console and request indexing of the home page.
