@@ -1,0 +1,29 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Enums\CouponType;
+use App\Models\Coupon;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<Coupon>
+ */
+class CouponFactory extends Factory
+{
+    /** @return array<string, mixed> */
+    public function definition(): array
+    {
+        return [
+            'code' => strtoupper(fake()->unique()->bothify('CODE##??')),
+            'type' => CouponType::Percent,
+            'value' => 10,
+            'is_active' => true,
+        ];
+    }
+
+    public function fixed(int $minor): static
+    {
+        return $this->state(['type' => CouponType::Fixed, 'value' => $minor]);
+    }
+}

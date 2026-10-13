@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\ProductStatus;
+use Database\Factories\ProductFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
+/**
+ * @property ProductStatus $status
+ * @property list<array{label: string, value: string}>|null $specifications
+ */
+class Product extends Model
+{
+    /** @use HasFactory<ProductFactory> */
+    use HasFactory;
+
+    protected $fillable = [
+        'category_id', 'name', 'slug', 'summary', 'description', 'specifications',
+        'option_label', 'status', 'is_featured', 'is_bestseller', 'sort_order',
+        'seo_title', 'seo_description', 'published_at',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'specifications' => 'array',
+            'status' => ProductStatus::class,
+            'is_featured' => 'boolean',
+            'is_bestseller' => 'boolean',
+            'sort_order' => 'integer',
+            'published_at' => 'datetime',
+        ];
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function activeVariants(): HasMany
+    {
+        return $this->variants()->where('is_active', true);
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function primaryImage(): HasOne
+    {
+        return $this->hasOne(ProductImage::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function scopePublished(Builder $query): void
+    {
+        $query->where('status', ProductStatus::Published);
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->status === ProductStatus::Published;
+    }
+
+    /**
+     * Reasons the product cannot be published yet. Empty when ready.
+     *
+     * @return list<string>
+     */
+    public function publishBlockers(): array
+    {
+        $this->loadMissing(['variants', 'images', 'category']);
+        $blockers = [];
+
+        $active = $this->variants->where('is_active', true);
+        if ($active->isEmpty()) {
+            $blockers[] = 'Add at least one active variant.';
+        } elseif ($active->contains(fn (ProductVariant $v) => $v->price_minor === null || $v->price_minor === 0)) {
+            $blockers[] = 'Set a price for every active variant.';
+        }
+
+        if ($this->images->isEmpty()) {
+            $blockers[] = 'Upload at least one product image.';
+        }
+
+        if (blank($this->description)) {
+            $blockers[] = 'Write a product description.';
+        }
+
+        if ($this->category && ! $this->category->is_active) {
+            $blockers[] = 'The category is hidden. Show the category first.';
+        }
+
+        return $blockers;
+    }
+
+    public function hasOrders(): bool
+    {
+        return $this->orderItems()->exists();
+    }
+}
