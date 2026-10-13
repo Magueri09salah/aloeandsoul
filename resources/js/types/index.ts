@@ -54,6 +54,8 @@ export interface ProductVariant {
 
 export interface ProductDetail extends ProductCard {
     description_html: string | null;
+    /** Description, benefits, how to use, ingredients, nutrition: only the filled ones, in order. */
+    sections: { id: string; title: string; html: string }[];
     specifications: { label: string; value: string }[];
     images: ImageData[];
     variants: ProductVariant[];

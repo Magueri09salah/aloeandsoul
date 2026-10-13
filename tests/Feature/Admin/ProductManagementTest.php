@@ -176,3 +176,23 @@ it('renders product descriptions without raw HTML or script links', function () 
         ->not->toContain('javascript:')
         ->not->toContain('onerror');
 });
+
+it('saves the product information fields and shows the filled ones as page sections in order', function () {
+    $user = manager();
+    $this->actingAs($user)->post('/admin/products', productPayload([
+        'benefits' => '- Rich in **vitamin C**',
+        'usage' => '',
+        'ingredients' => 'Aloe vera gel (99.7%).',
+        'nutrition' => "| Per 100 ml | Amount |\n|---|---|\n| Energy | 25 kcal |",
+    ]))->assertSessionHasNoErrors();
+
+    $product = Product::query()->sole();
+    expect($product->usage)->toBeNull();
+
+    $variant = sellableVariant(product: $product->only('benefits', 'ingredients', 'nutrition') + ['description' => 'Official description.']);
+    $sections = inertiaProps($this->get('/products/'.$variant->product->slug))['product']['sections'];
+
+    expect(array_column($sections, 'title'))->toBe(['Description', 'Benefits', 'Ingredients', 'Nutrition information'])
+        ->and($sections[1]['html'])->toContain('<strong>vitamin C</strong>')
+        ->and($sections[3]['html'])->toContain('<table>');
+});

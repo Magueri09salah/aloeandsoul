@@ -10,6 +10,15 @@ use Illuminate\Support\Str;
 
 final class ProductPresenter
 {
+    /** Product page sections, in display order: column => heading. */
+    public const SECTIONS = [
+        'description' => 'Description',
+        'benefits' => 'Benefits',
+        'usage' => 'How to use',
+        'ingredients' => 'Ingredients',
+        'nutrition' => 'Nutrition information',
+    ];
+
     /**
      * Compact shape for product grids. Requires `category`, `primaryImage`
      * and `activeVariants` (or `variants`) loaded.
@@ -58,9 +67,18 @@ final class ProductPresenter
     {
         $variants = self::sellable($product);
 
+        $sections = [];
+        foreach (self::SECTIONS as $field => $title) {
+            $text = $product->getAttribute($field);
+            if (is_string($text) && trim($text) !== '') {
+                $sections[] = ['id' => $field, 'title' => $title, 'html' => self::markdown($text)];
+            }
+        }
+
         return [
             ...self::card($product),
             'description_html' => $product->description ? self::markdown($product->description) : null,
+            'sections' => $sections,
             'specifications' => array_values(array_filter(
                 $product->specifications ?? [],
                 fn ($row) => is_array($row) && filled($row['label'] ?? null) && filled($row['value'] ?? null),

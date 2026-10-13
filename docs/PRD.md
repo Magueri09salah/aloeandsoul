@@ -114,7 +114,7 @@ All 26 seeded products are **drafts with no price, no stock, no images and no de
 
 ### Product model (summary — see DATABASE.md)
 
-- Product: name, slug, category, short summary, description (Markdown, sanitised), specifications (label/value list, e.g. *Volume: 1 L*), status (`draft` / `published` / `archived`), flags (featured, bestseller), SEO title/description, ordered images.
+- Product: name, slug, category, short summary, description, benefits, how to use, ingredients and nutrition information (Markdown, sanitised; each shown as a collapsible section on the product page), specifications (label/value list, e.g. *Size: 1 litre*), status (`draft` / `published` / `archived`), flags (featured, bestseller), SEO title/description, ordered images.
 - Variant (every product has ≥ 1): option label (e.g. *Flavour*), name (e.g. *Vanilla*), SKU (unique), price, optional sale price, stock, low-stock threshold, track-stock flag, active flag.
 
 ### Discovery
@@ -351,7 +351,11 @@ Tests never run against production; the test environment uses its own database.
 ## 17. Open questions for the client
 
 1. **Distributor terms.** The product names correspond to Forever Living Products. Please confirm your distributor agreement permits selling through your own website, with your own prices and cash on delivery, and using product names and official images.
-2. Prices, stock levels and descriptions for each product. Official images for 25 products have been imported from foreverliving.fr at the client's request (`database/assets/products/manifest.json`); permission to use them must still be confirmed under point 1, and *Heat Lotion* still needs a photo.
+2. **Product information, photos and prices** (`database/assets/products`, imported with `php artisan catalog:import`). At the client's request: product texts translated into English from foreverliving.fr, all their official photographs, and retail prices in dirhams from Forever Living Products Morocco's *Catalogue Général 2026/2027*. To confirm:
+   - permission to use Forever's texts and images (point 1), and the health wording, which is Forever's own;
+   - **C9**: in Morocco, references 475/476 are sold as the 9-day *Detox* programme (1,616 Dhs) with different contents from the French C9. Which pack is sold, at what price?
+   - **No Moroccan price** for Aloe Bio-Cellulose Mask (664), Intense Hydrating Care (651), Aloe Body Wash (646) and Aloe Body Lotion (647): they are not in the Moroccan catalogue. Are they available, and at what price?
+   - stock levels for every product.
 3. Delivery areas, fees, free-delivery threshold and typical delivery times.
 4. Return and exchange policy.
 5. Legal identity for the legal notice (business name, registration number / ICE, address) and CNDP declaration status.

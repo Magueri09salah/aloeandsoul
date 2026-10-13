@@ -1,0 +1,616 @@
+{
+    "about": "Where each bundled product photograph comes from. Images © Forever Living Products.",
+    "downloaded_at": "2026-10-13",
+    "products": {
+        "after-shampoo-conditioner": {
+            "reference": "641",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/apres-shampoing-aloe-jojoba/apres-shampoing-aloe-jojoba-2023-05-17-6464f3158f9ff.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/apres-shampoing-aloe-jojoba/apres-shampoing-aloe-jojoba-2023-05-17-6464f3188b540.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/apres-shampoing-aloe-jojoba/apres-shampoing-aloe-jojoba-2023-05-17-6464f31bb10dd.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/apres-shampoing-aloe-jojoba/apres-shampoing-aloe-jojoba-2023-05-17-6464f31e9a6f3.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/apres-shampoing-aloe-jojoba/apres-shampoing-aloe-jojoba-2023-05-17-6464f321d72f8.webp"
+                }
+            ]
+        },
+        "aloe-berry": {
+            "reference": "834",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-berry-nectar/aloe-berry-nectar-2024-06-17-66705719d5579.png"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-berry-nectar/aloe-berry-nectar-2024-06-17-667057327642f.png"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-berry-nectar/aloe-berry-nectar-2024-06-17-667057f694fae.png"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-berry-nectar/aloe-berry-nectar-2024-06-17-667058152a157.webp"
+                }
+            ]
+        },
+        "aloe-body-lotion": {
+            "reference": "647",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-body-lotion/aloe-body-lotion-2023-05-19-64673599741f0.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-body-lotion/aloe-body-lotion-2023-05-19-6467359cab1bc.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-body-lotion/aloe-body-lotion-2023-05-19-646735a057c11.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-body-lotion/aloe-body-lotion-2023-05-19-646735a3bae29.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-body-lotion/aloe-body-lotion-2023-05-19-646735a72af94.webp"
+                }
+            ]
+        },
+        "aloe-body-wash": {
+            "reference": "646",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-body-wash/aloe-body-wash-2023-05-19-6467335b97897.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-body-wash/aloe-body-wash-2023-05-19-6467335f309b4.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-body-wash/aloe-body-wash-2023-05-19-646733647c146.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-body-wash/aloe-body-wash-2023-05-19-64673369b67df.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/aloe-body-wash/aloe-body-wash-2023-05-19-6467336d0ce08.webp"
+                }
+            ]
+        },
+        "aloe-cellulose-bio-mask": {
+            "reference": "664",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/masque-bio-cellulose/masque-bio-cellulose-2023-05-17-6464e018327b7.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/masque-bio-cellulose/masque-bio-cellulose-2023-05-17-6464e01bd78fa.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/masque-bio-cellulose/masque-bio-cellulose-2023-05-17-6464e0237579d.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/masque-bio-cellulose/masque-bio-cellulose-2024-03-14-65f2f64acf399.webp"
+                }
+            ]
+        },
+        "aloe-mango": {
+            "reference": "836",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-mango/forever-aloe-mango-2024-06-19-6672f4cf4ccb3.png"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-mango/forever-aloe-mango-2024-06-19-6672f4dd0ba92.png"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-mango/forever-aloe-mango-2024-06-19-6672f4e2e8b84.png"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-mango/forever-aloe-mango-2024-06-19-6672f505d2987.webp"
+                }
+            ]
+        },
+        "aloe-peach": {
+            "reference": "877",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-peche/forever-aloe-peche-2024-06-17-667056491f42e.png"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-peche/forever-aloe-peche-2024-06-17-6670565fd98f8.png"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-peche/forever-aloe-peche-2024-06-17-66705667c8130.png"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-peche/forever-aloe-peche-2024-06-17-667056c8d6943.webp"
+                }
+            ]
+        },
+        "aloe-vera-gel": {
+            "reference": "815",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-vera/forever-aloe-vera-2024-12-20-67657d799a236.png"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-vera/forever-aloe-vera-2024-12-20-67657da949e71.jpg"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-vera/forever-aloe-vera-2024-12-20-67657dae98b13.jpg"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-vera/forever-aloe-vera-2024-12-20-67657db1b7701.jpg"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-aloe-vera/forever-aloe-vera-2024-12-20-67657db6250bb.jpg"
+                }
+            ]
+        },
+        "arctic-sea": {
+            "reference": "376",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-arctic-sea/forever-arctic-sea-2023-07-27-64c280e7048c9.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-arctic-sea/forever-arctic-sea-2023-07-27-64c280ea629a5.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-arctic-sea/forever-arctic-sea-2023-07-27-64c280ede6a65.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-arctic-sea/forever-arctic-sea-2023-07-27-64c280f171142.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-arctic-sea/forever-arctic-sea-2023-07-27-64c280f76e63f.webp"
+                }
+            ]
+        },
+        "arginine": {
+            "reference": "473",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-argi/forever-argi-2023-05-16-6463911908115.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-argi/forever-argi-2023-05-16-6463911cd9fd2.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-argi/forever-argi-2023-05-16-64639120ce131.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-argi/forever-argi-2023-05-16-64639125ea14e.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-argi/forever-argi-2023-05-16-64639128ea18c.webp"
+                }
+            ]
+        },
+        "bee-propolis": {
+            "reference": "27",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-bee-propolis/forever-bee-propolis-2023-07-25-64bfe797921b5.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-bee-propolis/forever-bee-propolis-2023-07-25-64bfe79b7004e.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-bee-propolis/forever-bee-propolis-2023-07-25-64bfe79f604d8.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-bee-propolis/forever-bee-propolis-2023-08-01-64c90b08bc583.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-bee-propolis/forever-bee-propolis-2023-08-01-64c90b0b9ff13.webp"
+                }
+            ]
+        },
+        "c9": {
+            "reference": "475",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/c9-pulpe-vanille/c9-pulpe-vanille-2024-08-08-66b4c72c7f0e1.png"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/c9-pulpe-chocolat/c9-pulpe-chocolat-2024-08-08-66b4c15c1cbe2.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/c9-pulpe-vanille/c9-pulpe-vanille-2024-08-08-66b4c74ad6f0a.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/c9-pulpe-vanille/c9-pulpe-vanille-2024-08-08-66b4c74e33c96.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/c9-pulpe-vanille/c9-pulpe-vanille-2024-08-08-66b4c7506619f.webp"
+                },
+                {
+                    "file": "06.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/c9-pulpe-chocolat/c9-pulpe-chocolat-2024-08-08-66b4c1701dbc3.webp"
+                }
+            ]
+        },
+        "chocolate-protein-ultra": {
+            "reference": "471",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-lite-ultra-chocolat/forever-lite-ultra-chocolat-2023-08-01-64c8cfc124f6e.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-lite-ultra-chocolat/forever-lite-ultra-chocolat-2023-08-01-64c8cfd43649d.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-lite-ultra-chocolat/forever-lite-ultra-chocolat-2023-08-01-64c8cfdc77217.webp"
+                }
+            ]
+        },
+        "deodorant": {
+            "reference": "67",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/stick-deodorant-aloes/stick-deodorant-aloes-2023-05-15-64622f9adb956.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/stick-deodorant-aloes/stick-deodorant-aloes-2023-05-15-64622f9f327c8.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/stick-deodorant-aloes/stick-deodorant-aloes-2023-05-15-64622fa27a727.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/stick-deodorant-aloes/stick-deodorant-aloes-2023-05-15-64622fa622e27.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/stick-deodorant-aloes/stick-deodorant-aloes-2023-05-15-64622fa9be73e.webp"
+                }
+            ]
+        },
+        "eye-contour-cream": {
+            "reference": "561",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/creme-contour-des-yeux-les-soins-specifiques/creme-contour-des-yeux-les-soins-specifiques-2023-05-17-6464a77626462.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/creme-contour-des-yeux-les-soins-specifiques/creme-contour-des-yeux-les-soins-specifiques-2023-05-17-6464a7796f512.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/creme-contour-des-yeux-les-soins-specifiques/creme-contour-des-yeux-les-soins-specifiques-2023-05-17-6464a77ce668d.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/creme-contour-des-yeux-les-soins-specifiques/creme-contour-des-yeux-les-soins-specifiques-2023-05-17-6464a7812a2ba.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/creme-contour-des-yeux-les-soins-specifiques/creme-contour-des-yeux-les-soins-specifiques-2023-05-17-6464a78454d01.webp"
+                }
+            ]
+        },
+        "firming-complex": {
+            "reference": "556",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/complexe-raffermissant/complexe-raffermissant-2023-05-17-646487c1e2519.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/complexe-raffermissant/complexe-raffermissant-2023-05-17-646487c6c59f6.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/complexe-raffermissant/complexe-raffermissant-2023-05-17-646487ca7f36f.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/complexe-raffermissant/complexe-raffermissant-2023-05-17-646487cdabdef.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/complexe-raffermissant/complexe-raffermissant-2023-05-17-646487d143046.webp"
+                }
+            ]
+        },
+        "forever-calcium": {
+            "reference": "206",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-calcium/forever-calcium-2023-07-26-64c131a9f3cc3.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-calcium/forever-calcium-2023-07-26-64c131ace12ef.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-calcium/forever-calcium-2023-07-26-64c131b017d7d.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-calcium/forever-calcium-2023-08-01-64c8fef9c19a9.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-calcium/forever-calcium-2023-08-01-64c8fefe12847.webp"
+                }
+            ]
+        },
+        "forever-daily": {
+            "reference": "439",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-daily/forever-daily-2023-07-28-64c37cbce763a.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-daily/forever-daily-2023-07-28-64c37cc12a504.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-daily/forever-daily-2023-07-28-64c37cc4d30d0.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-daily/forever-daily-2023-07-28-64c37cc9b509e.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-daily/forever-daily-2023-07-28-64c37cd1b3f03.webp"
+                }
+            ]
+        },
+        "forever-vision": {
+            "reference": "624",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-ivision/forever-ivision-2023-07-28-64c3b620150bf.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-ivision/forever-ivision-2023-07-28-64c3b623aee24.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-ivision/forever-ivision-2023-07-28-64c3b627a7f24.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-ivision/forever-ivision-2023-07-28-64c3b62b3d662.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-ivision/forever-ivision-2023-07-28-64c3b6303b107.webp"
+                }
+            ]
+        },
+        "heat-lotion": {
+            "reference": "64",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "Forever Living Products Morocco catalogue 2026/2027 (foreverliving.ma/Catalogue26v5WEB.pdf), page 23"
+                }
+            ]
+        },
+        "intense-hydrating-care": {
+            "reference": "651",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/soin-hydratant-intense/soin-hydratant-intense-2023-10-11-652659a17304b.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/soin-hydratant-intense/soin-hydratant-intense-2023-10-11-652659a18786a.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/soin-hydratant-intense/soin-hydratant-intense-2023-10-11-652659a173069.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/soin-hydratant-intense/soin-hydratant-intense-2023-10-11-652659a1961ab.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/soin-hydratant-intense/soin-hydratant-intense-2023-10-11-652659a1d59b2.webp"
+                }
+            ]
+        },
+        "marine-collagen": {
+            "reference": "613",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-marine-collagen/forever-marine-collagen-2023-05-10-645ba10aceffd.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-marine-collagen/forever-marine-collagen-2023-05-10-645ba10b05a54.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-marine-collagen/forever-marine-collagen-2023-05-10-645ba1254a906.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-marine-collagen/forever-marine-collagen-2023-05-10-645ba12da8f44.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-marine-collagen/forever-marine-collagen-2023-05-12-645e0b01f3f9f.webp"
+                }
+            ]
+        },
+        "shampoo": {
+            "reference": "640",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/shampoing-aloe-jojoba/shampoing-aloe-jojoba-2023-05-17-6464f1b40d6b5.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/shampoing-aloe-jojoba/shampoing-aloe-jojoba-2023-05-17-6464f1b74f64e.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/shampoing-aloe-jojoba/shampoing-aloe-jojoba-2023-05-17-6464f1ba8aaa6.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/shampoing-aloe-jojoba/shampoing-aloe-jojoba-2023-05-17-6464f1bdae77f.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/shampoing-aloe-jojoba/shampoing-aloe-jojoba-2023-05-17-6464f1c12192f.webp"
+                }
+            ]
+        },
+        "three-step-routine": {
+            "reference": "673",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/routine-3-temps-logic-by-forever/routine-3-temps-logic-by-forever-2025-04-24-680a5673d17a3.png"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/routine-3-temps-logic-by-forever/routine-3-temps-logic-by-forever-2025-04-24-680a567a697e4.png"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/routine-3-temps-logic-by-forever/routine-3-temps-logic-by-forever-2025-04-24-680a567f00cc8.png"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/routine-3-temps-logic-by-forever/routine-3-temps-logic-by-forever-2025-04-24-680a568559bba.png"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/routine-3-temps-logic-by-forever/routine-3-temps-logic-by-forever-2025-04-24-680a5688dae81.png"
+                }
+            ]
+        },
+        "toothpaste": {
+            "reference": "28",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-bright-toothgel/forever-bright-toothgel-2023-05-15-646225ed30ebb.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-bright-toothgel/forever-bright-toothgel-2023-05-15-646225f682bfd.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-bright-toothgel/forever-bright-toothgel-2023-05-15-64622601b6e01.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-bright-toothgel/forever-bright-toothgel-2023-05-15-64622606d0894.webp"
+                }
+            ]
+        },
+        "vanilla-protein-ultra": {
+            "reference": "470",
+            "images": [
+                {
+                    "file": "01.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-lite-ultra-vanille/forever-lite-ultra-vanille-2023-08-01-64c8cc22d5c1b.webp"
+                },
+                {
+                    "file": "02.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-lite-ultra-vanille/forever-lite-ultra-vanille-2023-08-01-64c8cc435eb1c.webp"
+                },
+                {
+                    "file": "03.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-lite-ultra-vanille/forever-lite-ultra-vanille-2023-08-01-64c8cc45afe01.webp"
+                },
+                {
+                    "file": "04.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-lite-ultra-vanille/forever-lite-ultra-vanille-2023-08-01-64c8cc48aa496.webp"
+                },
+                {
+                    "file": "05.webp",
+                    "source": "https://www.foreverliving.fr/storage/products/albums/forever-lite-ultra-vanille/forever-lite-ultra-vanille-2023-08-01-64c8cc4b8b61a.webp"
+                }
+            ]
+        }
+    }
+}

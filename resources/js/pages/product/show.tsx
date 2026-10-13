@@ -1,17 +1,17 @@
 import { Link, router } from '@inertiajs/react';
-import { Banknote, Truck } from 'lucide-react';
-import { useState } from 'react';
+import { Banknote, Plus, Truck } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
 
 import type { Breadcrumb, ProductCard as ProductCardData, ProductDetail } from '@/types';
 
 import { Button } from '@/components/ui/button';
 import { Price } from '@/components/ui/price';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
-import { ResponsiveImage } from '@/components/ui/responsive-image';
 import { SafeHtml } from '@/components/ui/safe-html';
 import { Breadcrumbs } from '@/components/store/breadcrumbs';
 import { useCartUi } from '@/components/store/cart-context';
 import { MOTIF_BY_CATEGORY, ProductCard } from '@/components/store/product-card';
+import { ProductGallery } from '@/components/store/product-gallery';
 import { ProductPlaceholder } from '@/components/store/product-placeholder';
 import { SectionHeading } from '@/components/store/section-heading';
 import { useShared } from '@/hooks/use-shared';
@@ -38,11 +38,12 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
     const [variantId, setVariantId] = useState(firstAvailable?.id ?? null);
     const [quantity, setQuantity] = useState(1);
     const [adding, setAdding] = useState(false);
-    const [imageIndex, setImageIndex] = useState(0);
 
     const variant = product.variants.find((v) => v.id === variantId) ?? firstAvailable;
     const hasOptions = product.variants.length > 1;
-    const mainImage = product.images[imageIndex] ?? product.images[0];
+    const size = product.specifications.find((s) => s.label.toLowerCase() === 'size')?.value;
+    const reference = [variant?.sku ? `Ref. ${variant.sku}` : null, size].filter(Boolean).join(' – ');
+    const hasDetails = product.specifications.length > 0 || Boolean(variant?.sku);
 
     const add = () => {
         if (!variant) return;
@@ -69,40 +70,19 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                 <Breadcrumbs items={breadcrumbs} />
             </div>
 
-            <div className="container-page grid gap-10 pt-6 pb-16 lg:grid-cols-12 lg:gap-12">
-                {/* Gallery */}
-                <section aria-label="Product images" className="lg:col-span-7">
-                    <div className="aspect-[4/5] overflow-hidden" style={{ backgroundColor: product.category.tint }}>
-                        {mainImage ? (
-                            <ResponsiveImage image={mainImage} sizes="(min-width: 1024px) 55vw, 100vw" priority />
-                        ) : (
-                            <ProductPlaceholder tint={product.category.tint} motif={MOTIF_BY_CATEGORY[product.category.slug]} />
-                        )}
-                    </div>
-                    {product.images.length > 1 && (
-                        <ul className="mt-3 grid grid-cols-5 gap-3">
-                            {product.images.map((img, i) => (
-                                <li key={img.src}>
-                                    <button
-                                        type="button"
-                                        onClick={() => setImageIndex(i)}
-                                        className={cn(
-                                            'block aspect-square w-full overflow-hidden ring-offset-2 ring-offset-ivory transition',
-                                            i === imageIndex ? 'ring-2 ring-ink' : 'opacity-80 hover:opacity-100',
-                                        )}
-                                        aria-label={`Show image ${i + 1} of ${product.images.length}`}
-                                        aria-pressed={i === imageIndex}
-                                    >
-                                        <ResponsiveImage image={img} sizes="120px" alt="" />
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </section>
+            {/* Mobile: images, purchase panel, information. Desktop: information under the images, panel alongside. */}
+            <div className="container-page grid gap-10 pt-6 pb-16 lg:grid-cols-12 lg:gap-x-12">
+                <div className="lg:col-span-7">
+                    <ProductGallery
+                        images={product.images}
+                        tint={product.category.tint}
+                        label={`${product.name} images`}
+                        placeholder={<ProductPlaceholder tint={product.category.tint} motif={MOTIF_BY_CATEGORY[product.category.slug]} />}
+                    />
+                </div>
 
                 {/* Purchase panel */}
-                <section aria-labelledby="product-title" className="lg:col-span-5">
+                <section aria-labelledby="product-title" className="lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
                     <div className="lg:sticky lg:top-28">
                         <Link href={`/shop/${product.category.slug}`} className="text-sm text-dune-deep hover:underline hover:underline-offset-4">
                             {product.category.name}
@@ -113,6 +93,7 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                         <p className="mt-4 text-xl">
                             {variant ? <Price amount={variant.price_minor} regular={variant.regular_price_minor} /> : null}
                         </p>
+                        {reference && <p className="mt-1 text-sm text-stone">{reference}</p>}
                         {product.summary && <p className="mt-4 text-lg text-stone">{product.summary}</p>}
 
                         {hasOptions && (
@@ -218,17 +199,20 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                             )}
                         </div>
 
-                        {product.description_html && (
-                            <div className="mt-10">
-                                <h2 className="mb-4 font-display text-2xl">About this product</h2>
-                                <SafeHtml html={product.description_html} className="prose-compact text-ink/90" />
-                            </div>
-                        )}
+                    </div>
+                </section>
 
-                        {product.specifications.length > 0 && (
-                            <div className="mt-10">
-                                <h2 className="mb-4 font-display text-2xl">Details</h2>
-                                <dl className="divide-y divide-line border-y border-line">
+                {/* Product information */}
+                {(product.sections.length > 0 || hasDetails) && (
+                    <section aria-label="Product information" className="border-t border-line lg:col-span-7 lg:row-start-2">
+                        {product.sections.map((section, i) => (
+                            <InfoSection key={section.id} title={section.title} open={i === 0}>
+                                <SafeHtml html={section.html} className="prose-compact text-ink/90" />
+                            </InfoSection>
+                        ))}
+                        {hasDetails && (
+                            <InfoSection title="Details" open={product.sections.length === 0}>
+                                <dl className="max-w-[70ch] divide-y divide-line border-y border-line">
                                     {product.specifications.map((s) => (
                                         <div key={s.label} className="grid grid-cols-3 gap-4 py-3 text-[0.95rem]">
                                             <dt className="text-stone">{s.label}</dt>
@@ -242,10 +226,10 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                                         </div>
                                     )}
                                 </dl>
-                            </div>
+                            </InfoSection>
                         )}
-                    </div>
-                </section>
+                    </section>
+                )}
             </div>
 
             {related.length > 0 && (
@@ -259,5 +243,18 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                 </section>
             )}
         </>
+    );
+}
+
+/** One collapsible block of product information (native <details>, so it works before the page script loads). */
+function InfoSection({ title, open, children }: { title: string; open: boolean; children: ReactNode }) {
+    return (
+        <details className="group border-b border-line" open={open}>
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 [&::-webkit-details-marker]:hidden">
+                <h2 className="font-display text-2xl">{title}</h2>
+                <Plus className="size-5 shrink-0 text-dune transition-transform duration-200 group-open:rotate-45" strokeWidth={1.5} aria-hidden="true" />
+            </summary>
+            <div className="pb-8">{children}</div>
+        </details>
     );
 }

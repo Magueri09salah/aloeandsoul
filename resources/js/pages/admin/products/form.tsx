@@ -30,6 +30,10 @@ interface ProductData {
     category_id: number;
     summary: string | null;
     description: string | null;
+    benefits: string | null;
+    usage: string | null;
+    ingredients: string | null;
+    nutrition: string | null;
     specifications: { label: string; value: string }[];
     option_label: string | null;
     is_featured: boolean;
@@ -72,6 +76,10 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
         category_id: String(product?.category_id ?? defaultCategoryId ?? categories[0]?.id ?? ''),
         summary: product?.summary ?? '',
         description: product?.description ?? '',
+        benefits: product?.benefits ?? '',
+        usage: product?.usage ?? '',
+        ingredients: product?.ingredients ?? '',
+        nutrition: product?.nutrition ?? '',
         specifications: product?.specifications ?? [],
         option_label: product?.option_label ?? '',
         is_featured: product?.is_featured ?? false,
@@ -155,6 +163,26 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
                                 hint="Use the official product information. You can use **bold**, *italic* and lists (- item). Do not promise to treat, cure or prevent any condition."
                             >
                                 {(p) => <Textarea {...p} rows={8} value={form.data.description} onChange={(e) => form.setData('description', e.target.value)} />}
+                            </Field>
+                        </div>
+                    </Panel>
+
+                    <Panel
+                        title="Product information"
+                        description="Each filled field becomes its own section on the product page, after the description. Same formatting as the description; tables are written as | Name | Amount | rows."
+                    >
+                        <div className="space-y-5">
+                            <Field label="Benefits" name="benefits" error={err('benefits')} optional>
+                                {(p) => <Textarea {...p} rows={6} value={form.data.benefits} onChange={(e) => form.setData('benefits', e.target.value)} />}
+                            </Field>
+                            <Field label="How to use" name="usage" error={err('usage')} hint="Dose, when to use it and precautions." optional>
+                                {(p) => <Textarea {...p} rows={5} value={form.data.usage} onChange={(e) => form.setData('usage', e.target.value)} />}
+                            </Field>
+                            <Field label="Ingredients" name="ingredients" error={err('ingredients')} hint="Copy the list from the packaging. Put allergens in **bold**." optional>
+                                {(p) => <Textarea {...p} rows={5} value={form.data.ingredients} onChange={(e) => form.setData('ingredients', e.target.value)} />}
+                            </Field>
+                            <Field label="Nutrition information" name="nutrition" error={err('nutrition')} optional>
+                                {(p) => <Textarea {...p} rows={6} value={form.data.nutrition} onChange={(e) => form.setData('nutrition', e.target.value)} className="font-mono text-sm" />}
                             </Field>
 
                             <fieldset>

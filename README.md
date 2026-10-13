@@ -88,7 +88,7 @@ The password is typed interactively (never passed on the command line). Further 
 
 | Command | What it runs |
 |---|---|
-| `php vendor/bin/pest` | 150 PHP tests: unit (money, phone, pricing, status rules), feature (catalogue, cart, checkout, admin, security), and a **multi-process concurrency test** on MySQL. Uses `aloeandsoul_test`. |
+| `php vendor/bin/pest` | 178 PHP tests: unit (money, phone, pricing, status rules), feature (catalogue, cart, checkout, admin, security), and a **multi-process concurrency test** on MySQL. Uses `aloeandsoul_test`. |
 | `npm test` | Vitest + Testing Library component tests |
 | `npm run build && npm run test:e2e` | Playwright journeys (desktop + mobile) against a fresh `aloeandsoul_e2e` database; create that database first |
 | `npm run typecheck` | `tsc --noEmit` (strict) |
@@ -119,16 +119,25 @@ Full Hostinger guide: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Production never
 - **Stock** is reserved when an order is placed and returned automatically if it is cancelled (or returned, if you choose). Every change appears in Stock → History.
 - **Privacy requests**: Admin → Customers → customer → *Remove personal data* (owners).
 
-## Product photographs
+## Product information, photos and prices
 
-`database/assets/products` contains the official packshots of 25 catalogue products taken from foreverliving.fr (sources listed in `manifest.json`), converted on import to the site's WebP format on a 4:5 transparent canvas. Attach them with:
+`database/assets/products/<product-slug>/` contains, for each of the 26 catalogue products:
+
+- `details.md`: the product information in English, translated from the official foreverliving.fr product page (summary, description, benefits, how to use with precautions, ingredients, nutrition table, SEO title and description), plus the Forever reference, size and **Moroccan retail price in dirhams** from Forever Living Products Morocco's *Catalogue Général 2026/2027*. Sections start with `# Heading`; the rest is Markdown.
+- `01.webp`, `02.webp`…: all the product's official photographs in display order (packshot first, then photos and nutrition labels). `sources.json` lists where each one comes from.
 
 ```bash
-php artisan catalog:import-images            # products without photos only
-php artisan catalog:import-images --replace  # also replace existing photos (e.g. demo placeholders)
+php artisan catalog:import                              # fill empty fields; attach photos to products without any
+php artisan catalog:import --overwrite --replace-images # local demo data: replace demo prices, texts and placeholder photos
 ```
 
-Images © Forever Living Products. The client must confirm her distributor agreement allows their use on this shop (PRD §17). *Heat Lotion* has no image on the French site; *Forever Vision* is matched to **Forever iVision**, its current name; the Aloe Vera Gel photo carries a French "Top Santé 2025" award badge that may be worth replacing for Morocco.
+The first photo is padded to the 4:5 product tile; the others are kept whole and shown in the product page carousel. Products are never published by the import.
+
+Notes for the client (PRD §17):
+
+- Texts and images © Forever Living Products; the health wording is Forever's own. The distributor agreement must allow their use.
+- **No price** is set for C9 (in Morocco, references 475/476 are the 9-day *Detox* pack at 1,616 Dhs, with different contents) or for Aloe Bio-Cellulose Mask, Intense Hydrating Care, Aloe Body Wash and Aloe Body Lotion (not in the Moroccan catalogue; French prices are noted in their `details.md`).
+- *Heat Lotion* is not sold in France: its text and photo come from the Moroccan catalogue. *Forever Vision* is **Forever iVision**, its current name. The Aloe Vera Gel photos carry a French "Top Santé 2025" award badge, and some nutrition labels in the photos are in French (the English figures are in the *Nutrition information* section).
 
 ## Brand assets
 

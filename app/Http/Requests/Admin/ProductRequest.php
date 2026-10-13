@@ -20,7 +20,7 @@ class ProductRequest extends AdminRequest
 
     protected function prepareForValidation(): void
     {
-        $this->nullIfBlank('summary', 'description', 'option_label', 'seo_title', 'seo_description');
+        $this->nullIfBlank('summary', 'description', 'benefits', 'usage', 'ingredients', 'nutrition', 'option_label', 'seo_title', 'seo_description');
 
         $name = is_string($this->input('name')) ? trim($this->input('name')) : $this->input('name');
         $slug = is_string($this->input('slug')) ? trim($this->input('slug')) : '';
@@ -58,6 +58,10 @@ class ProductRequest extends AdminRequest
             'category_id' => ['required', 'integer', Rule::exists('categories', 'id')],
             'summary' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:20000'],
+            'benefits' => ['nullable', 'string', 'max:20000'],
+            'usage' => ['nullable', 'string', 'max:20000'],
+            'ingredients' => ['nullable', 'string', 'max:20000'],
+            'nutrition' => ['nullable', 'string', 'max:20000'],
             'specifications' => ['nullable', 'array', 'max:20'],
             'specifications.*.label' => ['required', 'string', 'max:60'],
             'specifications.*.value' => ['required', 'string', 'max:160'],

@@ -149,16 +149,16 @@ php artisan admin:create          # prompts for name, email and password (not ec
 
 Sign in at `https://aloeandsoul.com/admin/login`, then **Profile → Set up two-factor authentication**. There are no default credentials; nothing else creates admin users.
 
-### 3.5b Product photographs (first deployment only)
+### 3.5b Product information, photos and prices (first deployment only)
 
-The official product photographs for 25 of the 26 seeded products ship with the code in `database/assets/products` (source: foreverliving.fr, see `manifest.json`). Attach them once:
+`database/assets/products/<product>/` holds, for each of the 26 seeded products, the English product information (`details.md`), its official photographs and its Moroccan retail price and reference. Fill the catalogue once:
 
 ```bash
-php artisan catalog:import-images --dry-run   # preview
-php artisan catalog:import-images             # attach; products stay unpublished
+php artisan catalog:import --dry-run   # preview
+php artisan catalog:import             # takes several minutes (about 120 photos); products stay unpublished
 ```
 
-Products that already have photos are left alone (`--replace` overwrites). *Heat Lotion* has no official photo on foreverliving.fr: upload one in Admin → Products.
+Only empty fields are filled, and products that already have photos keep them, so it is safe to run again. `--overwrite` replaces texts, prices and references (and removes sale prices); `--replace-images` replaces the photos. Five products get no price (C9 and four products missing from the Moroccan catalogue): the command lists them; set their prices in Admin → Products. Then review each product, add stock and publish.
 
 ### 3.6 Cron (scheduler + queue)
 hPanel → *Advanced* → **Cron Jobs** → *Custom*, every minute:

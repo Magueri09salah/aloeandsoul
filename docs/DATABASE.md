@@ -71,7 +71,8 @@ settings · pages · faqs · contact_messages · newsletter_subscribers
 | slug | varchar(180) **unique** | |
 | summary | varchar(255) null | One-line card text |
 | description | text null | Markdown, rendered with HTML stripped |
-| specifications | json null | `[{label, value}]`, e.g. Volume / 1 L |
+| benefits, usage, ingredients, nutrition | text null | Markdown (tables allowed), same rendering. Each filled one is a section on the product page after the description: *Benefits*, *How to use*, *Ingredients*, *Nutrition information* |
+| specifications | json null | `[{label, value}]`, e.g. Size / 1 litre |
 | option_label | varchar(40) null | Variant dimension name, e.g. "Flavour" |
 | status | varchar(12) | `draft` / `published` / `archived` |
 | is_featured, is_bestseller | bool | |

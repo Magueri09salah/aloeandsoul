@@ -174,5 +174,5 @@ Same tokens and typefaces; different information architecture.
 ## 11. Imagery guidelines
 
 - **Founder & lifestyle**: real photography supplied by the client. The current dunes portrait (from the client's existing site) is used on the home hero and story page and can be swapped in admin.
-- **Products**: official product images supplied by the client only. Until then, a neutral tinted placeholder with the leaf mark — never a fake packshot.
+- **Products**: official product images only (bundled Forever photographs, or the client's uploads). Without one, a neutral tinted placeholder with the leaf mark — never a fake packshot. Product tiles show the first image in a 4:5 frame; the product page shows every image whole (`object-contain`) in a square, swipeable carousel over the category tint, with arrows, a counter and thumbnails. Product information below it uses collapsible sections (native `<details>`), the description open.
 - **Formats**: uploads are re-encoded to WebP at 480 / 960 / 1600 px wide; originals are not served.

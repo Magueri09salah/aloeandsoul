@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
 import { OrderTotals } from '@/components/store/order-totals';
+import { ProductGallery } from '@/components/store/product-gallery';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Price } from '@/components/ui/price';
@@ -80,5 +81,42 @@ describe('Field', () => {
         expect(input).toHaveAttribute('aria-invalid', 'true');
         expect(input).toHaveAccessibleDescription('The courier will call this number. Enter a valid phone number.');
         expect(screen.getByRole('alert')).toHaveTextContent('Enter a valid phone number.');
+    });
+});
+
+describe('ProductGallery', () => {
+    const images = ['Bottle', 'Kitchen', 'Nutrition table'].map((alt, i) => ({ src: `/img/${i}-480.webp`, srcset: `/img/${i}-480.webp 480w`, width: 480, height: 480, alt }));
+
+    it('moves between images with the arrows, the thumbnails and the keyboard', async () => {
+        const user = userEvent.setup();
+        render(<ProductGallery images={images} tint="#E1E7DA" label="Aloe Vera Gel images" placeholder={null} />);
+
+        const carousel = screen.getByRole('region', { name: 'Aloe Vera Gel images' });
+        expect(within(carousel).getAllByRole('group', { name: /of 3$/ })).toHaveLength(3);
+        expect(screen.getByText('Image 1 of 3')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Previous image' })).toBeDisabled();
+
+        await user.click(screen.getByRole('button', { name: 'Next image' }));
+        expect(screen.getByText('Image 2 of 3')).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Show image 3 of 3' }));
+        expect(screen.getByText('Image 3 of 3')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Show image 3 of 3' })).toHaveAttribute('aria-current', 'true');
+        expect(screen.getByRole('button', { name: 'Next image' })).toBeDisabled();
+
+        screen.getByLabelText('Use the arrow keys to see the other images').focus();
+        await user.keyboard('{ArrowLeft}');
+        expect(screen.getByText('Image 2 of 3')).toBeInTheDocument();
+        await user.keyboard('{Home}');
+        expect(screen.getByText('Image 1 of 3')).toBeInTheDocument();
+    });
+
+    it('shows a single image without controls, and the placeholder when there is none', () => {
+        const { rerender } = render(<ProductGallery images={images.slice(0, 1)} tint="#E1E7DA" label="Images" placeholder={<p>No photo yet</p>} />);
+        expect(screen.getByRole('img', { name: 'Bottle' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Next image' })).not.toBeInTheDocument();
+
+        rerender(<ProductGallery images={[]} tint="#E1E7DA" label="Images" placeholder={<p>No photo yet</p>} />);
+        expect(screen.getByText('No photo yet')).toBeInTheDocument();
     });
 });
