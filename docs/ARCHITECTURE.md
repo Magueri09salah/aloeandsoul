@@ -57,7 +57,7 @@ app/
     Requests/Storefront/*      Requests/Admin/*
     Middleware/     HandleInertiaRequests, SecurityHeaders, AssignRequestId, EnsureAdminIsActive
     Presenters/     Array shapes sent to React (ProductPresenter, OrderPresenter, …)
-  Console/Commands/ admin:create, demo data guard
+  Console/Commands/ admin:create
 resources/js/
   app.tsx, ssr.tsx
   pages/            Inertia pages (storefront at root, admin under pages/admin)
@@ -101,7 +101,7 @@ Every state-changing endpoint follows the same nine steps (from the brief), impl
 
 ## Authorisation model
 
-`users` are admin accounts only (shoppers never log in). Each user has one `AdminRole`; `config/permissions.php` maps roles to `Permission` values; `Gate::before` is **not** used (no implicit super-user bypass — the owner simply holds every permission). Gates are defined per permission in `AppServiceProvider`.
+`users` are admin accounts only (shoppers never log in). Each user has one `AdminRole`; `AdminRole::permissions()` maps roles to `Permission` values; `Gate::before` is **not** used (no implicit super-user bypass — the owner simply holds every permission). Gates are defined per permission in `AppServiceProvider`.
 
 | Route group | Middleware | In-action check |
 |---|---|---|
@@ -122,6 +122,16 @@ Inertia v3 sends the first page as full HTML with the page data in a `<script ty
 | No long-running workers | Cron runs `schedule:run` every minute; scheduler runs `queue:work --stop-when-empty` and prunes old carts / sessions |
 | Web root is `public_html` | App lives outside the web root; `public_html` is a symlink to `public/` (see DEPLOYMENT.md) |
 | CLI PHP version can differ from web PHP | Deployment uses the explicit PHP 8.3 binary path |
+
+## Testing layout
+
+| Folder | Runner | Notes |
+|---|---|---|
+| `tests/Unit` | Pest | Money, phone, pricing, status/permission rules |
+| `tests/Feature` | Pest + `RefreshDatabase` (MySQL `aloeandsoul_test`, or SQLite) | HTTP-level tests through real routes and middleware |
+| `tests/Concurrency` | Pest + `DatabaseTruncation` | Spawns parallel PHP processes (`place-order.php`) racing for the same stock; MySQL only |
+| `tests/js` | Vitest + Testing Library | UI primitives and money formatting |
+| `tests/e2e` | Playwright | Full journeys on a freshly seeded `aloeandsoul_e2e` database (`E2eSeeder`) |
 
 ## Conventions
 

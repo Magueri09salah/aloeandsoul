@@ -1,59 +1,124 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Aloe & Soul
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Online shop for **Aloe & Soul** — wellness, beauty, fitness and nutrition, founded by a woman whose journey led from London to Marrakech. *Nourish the Body. Inspire the Soul.*
 
-## About Laravel
+- Storefront with four categories, product variants, search and filters, a founder-story feature and policy pages
+- Guest checkout, **cash on delivery only** (no payment gateway, no card data)
+- Admin for orders, products, stock, customers, discount codes, delivery areas, content, settings and team roles
+- Built to run on Hostinger PHP hosting: no Node.js, Redis or worker process in production
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| Docs | |
+|---|---|
+| [docs/PRD.md](docs/PRD.md) | Requirements, scope, acceptance criteria, open questions for the client |
+| [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) | Palette, type, tokens, components, motion, accessibility |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Stack, structure, request flow, key decisions |
+| [docs/DATABASE.md](docs/DATABASE.md) | Schema, money strategy, order lifecycle, inventory consistency |
+| [docs/SECURITY.md](docs/SECURITY.md) | Threat model and implemented controls |
+| [docs/SEO.md](docs/SEO.md) | Metadata, structured data, indexation, performance |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Step-by-step Hostinger deployment, backups, rollback |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Laravel 12 (PHP 8.3) · Inertia.js v3 · React 19 · TypeScript 6 (strict) · Tailwind CSS 4 · Radix primitives (shadcn/ui pattern) · Vite 8 · MySQL 8 / MariaDB · Laravel Fortify · Pest 4 · Vitest · Playwright · Larastan.
 
-## Learning Laravel
+## Prerequisites
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- PHP 8.3+ with `bcmath, ctype, curl, dom, fileinfo, gd, intl, mbstring, openssl, pdo_mysql, tokenizer, xml, zip`
+- Composer 2
+- Node.js 22+ and npm
+- MySQL 8 (or MariaDB 10.6+). On Windows, Laragon provides PHP 8.3 and MySQL 8.4.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Local setup
 
-## Laravel Sponsors
+```bash
+git clone <repo> aloeandsoul && cd aloeandsoul
+composer install
+npm ci
+cp .env.example .env
+php artisan key:generate
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Create two databases (development and tests), e.g. with the MySQL CLI:
 
-### Premium Partners
+```sql
+CREATE DATABASE aloeandsoul      CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE aloeandsoul_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Set `DB_*` in `.env`, then:
 
-## Contributing
+```bash
+php artisan migrate --seed          # categories, 26 draft products, policy pages, FAQ (safe in any environment)
+php artisan db:seed --class=DemoSeeder   # LOCAL ONLY: placeholder prices, stock, images, delivery areas; publishes products
+php artisan storage:link
+php artisan admin:create            # your local owner account (prompts for the password)
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Run
 
-## Code of Conduct
+```bash
+php artisan serve                   # http://127.0.0.1:8000
+npm run dev                         # Vite with hot reload (second terminal)
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Admin: http://127.0.0.1:8000/admin
 
-## Security Vulnerabilities
+## Environment variables
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+See [.env.example](.env.example); every variable is commented. Production values are listed in [docs/DEPLOYMENT.md §2.5](docs/DEPLOYMENT.md). Never commit `.env`.
 
-## License
+Business settings (store name, currency, country, contact details, COD wording, announcement bar, home page and story text, delivery areas, discount codes) are **edited in the admin**, not in `.env`.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Database
+
+- Schema: `database/migrations` (documented in [docs/DATABASE.md](docs/DATABASE.md)).
+- `DatabaseSeeder` is idempotent and creates **no users and no prices**.
+- `DemoSeeder` and `E2eSeeder` refuse to run in production.
+- Production migrations: `php artisan migrate --force` (additive only). Never `migrate:fresh` on production.
+
+## Creating the first administrator
+
+```bash
+php artisan admin:create              # owner by default; --role=manager|staff
+```
+
+The password is typed interactively (never passed on the command line). Further accounts: Admin → Team (owners only). There is no public registration and no default account.
+
+## Tests and quality checks
+
+| Command | What it runs |
+|---|---|
+| `php vendor/bin/pest` | 150 PHP tests: unit (money, phone, pricing, status rules), feature (catalogue, cart, checkout, admin, security), and a **multi-process concurrency test** on MySQL. Uses `aloeandsoul_test`. |
+| `npm test` | Vitest + Testing Library component tests |
+| `npm run build && npm run test:e2e` | Playwright journeys (desktop + mobile) against a fresh `aloeandsoul_e2e` database; create that database first |
+| `npm run typecheck` | `tsc --noEmit` (strict) |
+| `npm run lint` | ESLint (no `any`, hooks rules, HTML injection only via `SafeHtml`) |
+| `vendor/bin/phpstan analyse` | Larastan level 6 |
+| `vendor/bin/pint --test` | PHP code style |
+| `npm run check` | typecheck + lint + Vitest + build |
+
+The PHP suite uses MySQL by default (row locking matters). To run it on SQLite instead, set `DB_CONNECTION=sqlite DB_DATABASE=:memory:`; the concurrency test then skips itself.
+
+## Build and deploy
+
+```bash
+./scripts/package-release.sh          # builds assets, creates release-*.tar.gz
+# upload, then on the server:
+bash deploy.sh release-*.tar.gz       # backup DB → migrate → atomic switch; keeps 5 releases
+bash rollback.sh                      # previous release
+```
+
+Full Hostinger guide: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Production never runs `npm`.
+
+## Operations
+
+- **Cron**: one entry running `php artisan schedule:run` every minute (queue, cart/audit pruning, expired tokens and rate-limit rows).
+- **Logs**: `storage/logs/laravel-YYYY-MM-DD.log` (14 days). Each line carries a request ID; error pages show it so customers can quote it.
+- **Backups**: Hostinger automatic backups + a database dump before every deploy (`~/backups`).
+- **Order workflow**: Admin → Orders. New orders arrive as *Awaiting confirmation*; confirm by phone/WhatsApp, prepare, hand to the courier, then mark delivered and record the cash collected. Revenue on the dashboard counts **collected cash only**.
+- **Stock** is reserved when an order is placed and returned automatically if it is cancelled (or returned, if you choose). Every change appears in Stock → History.
+- **Privacy requests**: Admin → Customers → customer → *Remove personal data* (owners).
+
+## Brand assets
+
+`database/assets` holds the source logo and founder photograph (from the client's current website). Regenerate the web renditions in `public/brand` with `php database/assets/build-brand-assets.php`.

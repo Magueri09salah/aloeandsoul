@@ -300,7 +300,7 @@ See SEO.md. Summary: server-rendered meta (title, description, canonical, Open G
 | Product unpublished/archived while in a cart | Line flagged "no longer available", excluded from checkout |
 | Price changed between cart view and submit | Order not placed; refreshed summary shown with a message |
 | Stock runs out during checkout | Order not placed; message names the product; cart quantity clamped |
-| Discount code expired or used up between apply and submit | Order not placed; code removed with a message |
+| Discount code expired or used up between apply and submit | Order not placed; message explains why and asks the shopper to remove the code |
 | Double submit / network retry | Same order returned (idempotency) |
 | Ordering disabled or no delivery zones | Checkout shows a closed notice; cart still works |
 | Too many requests | 429 page/message with retry hint; normal customers never hit it |
@@ -313,13 +313,12 @@ See SEO.md. Summary: server-rendered meta (title, description, canonical, Open G
 
 ### MVP (this build)
 
-Everything in §§5–12: storefront, four categories, product pages, cart, COD checkout, confirmation and tracking, founder story, support/legal pages, full admin (overview, products, variants, images, categories, orders, inventory, customers, discount codes, delivery zones, content, settings, users, audit log), contact form, newsletter opt-in with consent, SEO, rate limiting, tests, deployment docs.
+Everything in §§5–12, plus optional TOTP two-factor authentication for admins: storefront, four categories, product pages, cart, COD checkout, confirmation and tracking, founder story, support/legal pages, full admin (overview, products, variants, images, categories, orders, inventory, customers, discount codes, delivery zones, content, settings, users, audit log), contact form, newsletter opt-in with consent, SEO, rate limiting, tests, deployment docs.
 
 ### Important post-MVP
 
 - French UI (and Arabic with RTL), with translated product content.
 - Order notification by email to the customer and WhatsApp click-to-chat confirmation templates for the admin.
-- Two-factor authentication for admin accounts.
 - Courier integration (e.g. a Moroccan delivery provider API) for tracking numbers.
 - CSV export of orders and customers.
 
