@@ -14,8 +14,9 @@ use Intervention\Image\Interfaces\ImageInterface;
 
 /**
  * Fills the catalogue from database/assets/products/<slug>/: the product
- * information (details.md, translated from the official Forever pages), the
- * Moroccan retail price and reference, and the photographs.
+ * information in English (details.md, translated from the official Forever
+ * pages) and French (details.fr.md), the Moroccan retail price and
+ * reference, and the photographs.
  *
  * By default only empty fields are filled and products that already have
  * images keep them, so the owner's own edits are never overwritten.
@@ -61,6 +62,8 @@ class ImportCatalog extends Command
         foreach ($folders as $file) {
             $slug = basename(dirname($file));
             $sheet = ProductSheet::fromFile($file);
+            $frFile = dirname($file).'/details.fr.md';
+            $french = is_file($frFile) ? ProductSheet::fromFile($frFile) : null;
 
             $product = Product::query()->with(['variants', 'images'])->where('slug', $slug)->first();
             if ($product === null) {
@@ -69,7 +72,7 @@ class ImportCatalog extends Command
                 continue;
             }
 
-            $changes = $this->apply($product, $sheet, $currency, dirname($file), $processor);
+            $changes = $this->apply($product, $sheet, $french, $currency, dirname($file), $processor);
             if ($changes === []) {
                 $this->line("  same   {$slug}");
 
@@ -92,23 +95,27 @@ class ImportCatalog extends Command
     }
 
     /** @return list<string> what changed (or would change) */
-    private function apply(Product $product, ProductSheet $sheet, string $currency, string $dir, ImageProcessor $processor): array
+    private function apply(Product $product, ProductSheet $sheet, ?ProductSheet $french, string $currency, string $dir, ImageProcessor $processor): array
     {
         $overwrite = (bool) $this->option('overwrite');
         $changes = [];
 
         $attributes = [];
-        foreach (self::TEXT as $section => $column) {
-            $value = $sheet->section($section);
-            if ($value !== null && $value !== $product->getAttribute($column) && ($overwrite || blank($product->getAttribute($column)))) {
-                $attributes[$column] = $value;
+        foreach (['' => $sheet, '_fr' => $french] as $suffix => $source) {
+            $filled = [];
+            foreach (self::TEXT as $section => $column) {
+                $column .= $suffix;
+                $value = $source?->section($section);
+                if ($value !== null && $value !== $product->getAttribute($column) && ($overwrite || blank($product->getAttribute($column)))) {
+                    $attributes[$column] = $filled[] = $value;
+                }
+            }
+            if ($filled !== []) {
+                $changes[] = ($suffix === '' ? 'text' : 'French text').' ('.count($filled).' section(s))';
             }
         }
-        if ($attributes !== []) {
-            $changes[] = 'text ('.implode(', ', array_keys($attributes)).')';
-        }
 
-        $specifications = $this->specifications($product, $sheet->meta('size'), $overwrite);
+        $specifications = $this->specifications($product, $sheet->meta('size'), $french?->meta('size'), $overwrite);
         if ($specifications !== null) {
             $attributes['specifications'] = $specifications;
             $changes[] = 'size';
@@ -123,22 +130,43 @@ class ImportCatalog extends Command
         }
 
         $images = $sheet->images();
+        // French image descriptions, by file name.
+        $frenchAlts = array_column($french?->images() ?? [], 'alt', 'file');
         $attachImages = $images !== [] && ($product->images->isEmpty() || $this->option('replace-images'));
         if ($attachImages) {
             $changes[] = count($images).' image(s)';
+        }
+
+        // Images attached by an earlier import (same order, same description) get their French description.
+        $altUpdates = [];
+        if (! $attachImages) {
+            foreach ($product->images->values() as $position => $existing) {
+                $image = $images[$position] ?? null;
+                $alt = $image !== null ? ($frenchAlts[$image['file']] ?? null) : null;
+                if ($alt !== null && $existing->alt === $image['alt'] && $existing->alt_fr !== $alt && ($overwrite || blank($existing->alt_fr))) {
+                    $altUpdates[$existing->id] = $alt;
+                }
+            }
+            if ($altUpdates !== []) {
+                $changes[] = count($altUpdates).' French image description(s)';
+            }
         }
 
         if ($changes === [] || $this->option('dry-run')) {
             return $changes;
         }
 
-        DB::transaction(function () use ($product, $attributes, $variantUpdates, $attachImages, $images, $dir, $processor) {
+        DB::transaction(function () use ($product, $attributes, $variantUpdates, $attachImages, $images, $frenchAlts, $altUpdates, $dir, $processor) {
             if ($attributes !== []) {
                 $product->update($attributes);
             }
 
             foreach ($variantUpdates as $id => $update) {
                 ProductVariant::query()->whereKey($id)->update($update);
+            }
+
+            foreach ($altUpdates as $id => $alt) {
+                ProductImage::query()->whereKey($id)->update(['alt_fr' => $alt]);
             }
 
             if ($attachImages) {
@@ -156,6 +184,7 @@ class ImportCatalog extends Command
                         ...$stored,
                         'product_id' => $product->id,
                         'alt' => $image['alt'],
+                        'alt_fr' => $frenchAlts[$image['file']] ?? null,
                         'sort_order' => $position,
                     ]);
                 }
@@ -166,29 +195,42 @@ class ImportCatalog extends Command
     }
 
     /**
-     * The product's details table with a "Size" row, or null when unchanged.
+     * The product's details table with a "Size" row (and its French
+     * "Contenance" version), or null when unchanged.
      *
-     * @return list<array{label: string, value: string}>|null
+     * @return list<array<string, string>>|null
      */
-    private function specifications(Product $product, ?string $size, bool $overwrite): ?array
+    private function specifications(Product $product, ?string $size, ?string $sizeFr, bool $overwrite): ?array
     {
         if ($size === null) {
             return null;
         }
 
+        $wanted = ['label' => 'Size', 'value' => $size];
+        if ($sizeFr !== null) {
+            $wanted += ['label_fr' => 'Contenance', 'value_fr' => $sizeFr];
+        }
+
         $rows = array_values($product->specifications ?? []);
         foreach ($rows as $i => $row) {
             if (strcasecmp($row['label'], 'Size') === 0) {
-                if (! $overwrite || $row['value'] === $size) {
+                $next = $row;
+                if ($overwrite) {
+                    $next = [...$row, ...$wanted, 'label' => $row['label']];
+                } elseif ($sizeFr !== null && blank($row['value_fr'] ?? null) && $row['value'] === $size) {
+                    // Same English size as the sheet: add the French one.
+                    $next = [...$row, 'label_fr' => 'Contenance', 'value_fr' => $sizeFr];
+                }
+                if ($next === $row) {
                     return null;
                 }
-                $rows[$i]['value'] = $size;
+                $rows[$i] = $next;
 
                 return $rows;
             }
         }
 
-        return [['label' => 'Size', 'value' => $size], ...$rows];
+        return [$wanted, ...$rows];
     }
 
     /**

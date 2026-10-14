@@ -33,7 +33,7 @@ class NewsletterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'consent.accepted' => 'Please tick the box to agree to receive emails.',
+            'consent.accepted' => __('Please tick the box to agree to receive emails.'),
         ];
     }
 }

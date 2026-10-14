@@ -117,12 +117,12 @@ class CartService
     {
         $cart = $this->current();
         if ($cart === null || $cart->items()->doesntExist()) {
-            throw new DomainException('Add something to your cart first.', 'coupon');
+            throw new DomainException(__('Add something to your cart first.'), 'coupon');
         }
 
         $coupon = Coupon::query()->where('code', Coupon::normalizeCode($code))->first();
         if ($coupon === null) {
-            throw new DomainException('This code is not valid.', 'coupon');
+            throw new DomainException(__('This code is not valid.'), 'coupon');
         }
 
         $cart->update(['coupon_code' => $coupon->code]);
@@ -175,7 +175,7 @@ class CartService
             $max = $issue === null ? $variant->purchasableQuantity($maxPerLine) : 0;
 
             if ($issue === null && $item->quantity > $max) {
-                $issue = "Only {$max} available. Reduce the quantity to continue.";
+                $issue = __('Only :count available. Reduce the quantity to continue.', ['count' => $max]);
             }
 
             $price = $variant->effectivePriceMinor();
@@ -191,11 +191,11 @@ class CartService
             $lines[] = [
                 'id' => $item->id,
                 'variant_id' => $variant->id,
-                'product_name' => $product->name,
+                'product_name' => $product->translated('name'),
                 'product_slug' => $product->slug,
-                'variant_name' => $variant->name,
-                'option_label' => $product->option_label,
-                'image' => $product->primaryImage ? ImagePresenter::present($product->primaryImage, $product->name) : null,
+                'variant_name' => $variant->translated('name'),
+                'option_label' => $product->translated('option_label'),
+                'image' => $product->primaryImage ? ImagePresenter::present($product->primaryImage, (string) $product->translated('name')) : null,
                 'tint' => $product->category->tint,
                 'unit_price_minor' => $price,
                 'regular_price_minor' => $variant->price_minor,
@@ -256,8 +256,8 @@ class CartService
     private function limitMessage(ProductVariant $variant, int $max): string
     {
         return $variant->track_stock && $variant->stock <= $max
-            ? "Only {$max} available. You already have the maximum in your cart."
-            : "You can order up to {$max} of this item at a time.";
+            ? __('Only :count available. You already have the maximum in your cart.', ['count' => $max])
+            : __('You can order up to :count of this item at a time.', ['count' => $max]);
     }
 
     private function assertOwned(CartItem $item): void

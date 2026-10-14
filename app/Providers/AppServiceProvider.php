@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\Audit\AuditLogger;
 use App\Services\Cart\CartService;
 use App\Services\Settings\Settings;
+use App\Support\Locales;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Auth\Events\Login;
@@ -55,7 +56,9 @@ class AppServiceProvider extends ServiceProvider
     private function registerCacheInvalidation(): void
     {
         $flush = function () {
-            Cache::forget(HandleInertiaRequests::NAV_CACHE_KEY);
+            foreach (Locales::codes() as $locale) {
+                Cache::forget(HandleInertiaRequests::NAV_CACHE_KEY.'.'.$locale);
+            }
             Cache::forget(SeoController::SITEMAP_CACHE_KEY);
         };
 
@@ -81,7 +84,10 @@ class AppServiceProvider extends ServiceProvider
         $ip = fn (Request $request) => (string) $request->ip();
         // Inertia (XHR) submissions go back to the form with a visible message;
         // anything else (bots, scripts) gets a plain 429 with Retry-After.
+        // Messages are translated when the limit is hit (the visitor's language).
         $tooMany = fn (string $message) => function (Request $request, array $headers) use ($message) {
+            $message = __($message);
+
             if ($request->header('X-Inertia')) {
                 return back()->with('error', $message)->withHeaders($headers);
             }

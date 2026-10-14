@@ -21,8 +21,8 @@ class HomeController extends Controller
 {
     public function __invoke(ProductQuery $products): Response
     {
-        $home = settings()->group('home');
-        $story = settings()->group('story');
+        $home = settings()->localized('home');
+        $story = settings()->localized('story');
 
         $featured = $products->published()
             ->where('is_featured', true)
@@ -47,9 +47,9 @@ class HomeController extends Controller
             ->withCount(['publishedProducts as product_count'])
             ->get()
             ->map(fn (Category $c) => [
-                'name' => $c->name,
+                'name' => $c->translated('name'),
                 'slug' => $c->slug,
-                'tagline' => $c->tagline,
+                'tagline' => $c->translated('tagline'),
                 'tint' => $c->tint,
                 'motif' => $c->motif,
                 'product_count' => $c->product_count,
@@ -73,9 +73,9 @@ class HomeController extends Controller
         }
 
         $seo = new Seo(
-            title: (string) settings()->get('seo.title'),
-            description: (string) settings()->get('seo.description'),
-            canonical: url('/'),
+            title: (string) settings()->localizedGet('seo.title'),
+            description: (string) settings()->localizedGet('seo.description'),
+            canonical: localized_route('home'),
             image: ContentPresenter::heroImage($home)['src'],
             jsonLd: [StructuredData::organization(), StructuredData::website()],
         );
@@ -99,7 +99,8 @@ class HomeController extends Controller
                 'excerpt' => Str::before($c['body'], "\n"),
             ]),
             'storyImage' => ContentPresenter::storyImage($story),
-            'faqs' => Faq::query()->published()->where('show_on_home', true)->limit(4)->get(['id', 'question', 'answer']),
+            'faqs' => Faq::query()->published()->where('show_on_home', true)->limit(4)->get()
+                ->map(fn (Faq $f) => ['id' => $f->id, 'question' => $f->translated('question'), 'answer' => $f->translated('answer')]),
             'newsletterEnabled' => (bool) $home['newsletter_enabled'],
             'collaborators' => $home['collaborators_enabled'] ? [
                 'heading' => $home['collaborators_heading'],

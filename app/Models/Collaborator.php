@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Database\Factories\CollaboratorFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,10 +18,15 @@ class Collaborator extends Model
     /** @use HasFactory<CollaboratorFactory> */
     use HasFactory;
 
+    use HasTranslations;
+
     /** photo: cropped to fill the circle; logo: shown whole on white. */
     public const IMAGE_STYLES = ['photo', 'logo'];
 
-    protected $fillable = ['name', 'description', 'url', 'image_style', 'sort_order', 'is_visible'];
+    /** Columns with a French version ("name" → "name_fr"). */
+    public const TRANSLATABLE = ['description'];
+
+    protected $fillable = ['name', 'description', 'url', 'image_style', 'sort_order', 'is_visible', 'description_fr'];
 
     protected function casts(): array
     {

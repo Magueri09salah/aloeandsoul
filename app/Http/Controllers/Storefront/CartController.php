@@ -16,14 +16,14 @@ class CartController extends Controller
 {
     public function show(): Response
     {
-        return $this->render('cart', [], Seo::private('Your cart'));
+        return $this->render('cart', [], Seo::private(__('Your cart')));
     }
 
     public function store(CartItemRequest $request, CartService $cart): RedirectResponse
     {
         $variant = ProductVariant::query()->with('product')->find($request->integer('variant_id'));
         if ($variant === null) {
-            return back()->withErrors(['quantity' => 'This product is no longer available.']);
+            return back()->withErrors(['quantity' => __('This product is no longer available.')]);
         }
 
         $cart->add($variant, $request->integer('quantity'));
@@ -49,13 +49,13 @@ class CartController extends Controller
     public function applyCoupon(Request $request, CartService $cart): RedirectResponse
     {
         $validated = $request->validate(['code' => ['required', 'string', 'max:40', 'regex:/^[A-Za-z0-9_-]+$/']], [
-            'code.regex' => 'This code is not valid.',
-            'code.required' => 'Enter a discount code.',
+            'code.regex' => __('This code is not valid.'),
+            'code.required' => __('Enter a discount code.'),
         ]);
 
         $coupon = $cart->applyCoupon($validated['code']);
 
-        return back()->with('success', "Code {$coupon->code} added.");
+        return back()->with('success', __('Code :code added.', ['code' => $coupon->code]));
     }
 
     public function removeCoupon(CartService $cart): RedirectResponse

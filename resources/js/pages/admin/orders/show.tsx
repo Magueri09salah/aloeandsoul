@@ -29,7 +29,7 @@ interface OrderDetail {
     discount_minor: number;
     shipping_minor: number;
     coupon_code: string | null;
-    customer: { id: number | null; name: string; phone: string; phone_e164: string; whatsapp: string; email: string | null; orders_count: number | null };
+    customer: { id: number | null; name: string; phone: string; phone_e164: string; whatsapp: string; email: string | null; locale: string; orders_count: number | null };
     delivery: { zone: string; city: string; address: string; notes: string | null; courier_name: string | null; tracking_number: string | null };
     items: { id: number; product_id: number; name: string; variant: string | null; sku: string | null; quantity: number; unit_price_minor: number; regular_unit_price_minor: number; line_total_minor: number }[];
     payment: { method: string; status: string; status_label: string; collected_minor: number | null; collected_at: string | null; recorded_by: string | null; allowed: Option[] };
@@ -168,6 +168,7 @@ export default function OrderShow({ order, canManage }: { order: OrderDetail; ca
                         <p className="font-medium">{order.customer.name}</p>
                         <p className="mt-1 text-sm">{order.customer.phone}</p>
                         {order.customer.email && <p className="text-sm text-stone">{order.customer.email}</p>}
+                        <p className="mt-1 text-sm text-stone">Ordered in {order.customer.locale === 'fr' ? 'French' : 'English'}</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                             <Button asChild size="sm" variant="secondary">
                                 <a href={`tel:${order.customer.phone_e164}`}>
@@ -177,7 +178,11 @@ export default function OrderShow({ order, canManage }: { order: OrderDetail; ca
                             </Button>
                             <Button asChild size="sm" variant="secondary">
                                 <a
-                                    href={`https://wa.me/${order.customer.whatsapp}?text=${encodeURIComponent(`Hello ${order.customer.name.split(' ')[0]}, this is Aloe & Soul about your order ${order.reference}.`)}`}
+                                    href={`https://wa.me/${order.customer.whatsapp}?text=${encodeURIComponent(
+                                        order.customer.locale === 'fr'
+                                            ? `Bonjour ${order.customer.name.split(' ')[0]}, c’est Aloe & Soul au sujet de votre commande ${order.reference}.`
+                                            : `Hello ${order.customer.name.split(' ')[0]}, this is Aloe & Soul about your order ${order.reference}.`,
+                                    )}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >

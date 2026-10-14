@@ -20,7 +20,7 @@ class ProductRequest extends AdminRequest
 
     protected function prepareForValidation(): void
     {
-        $this->nullIfBlank('summary', 'description', 'benefits', 'usage', 'ingredients', 'nutrition', 'option_label', 'seo_title', 'seo_description');
+        $this->nullIfBlank('summary', 'description', 'benefits', 'usage', 'ingredients', 'nutrition', 'option_label', 'seo_title', 'seo_description', ...Product::translationColumns());
 
         $name = is_string($this->input('name')) ? trim($this->input('name')) : $this->input('name');
         $slug = is_string($this->input('slug')) ? trim($this->input('slug')) : '';
@@ -35,7 +35,7 @@ class ProductRequest extends AdminRequest
                 if (! is_array($v)) {
                     return $v;
                 }
-                foreach (['name', 'sku', 'price', 'sale_price'] as $key) {
+                foreach (['name', 'name_fr', 'sku', 'price', 'sale_price'] as $key) {
                     if (isset($v[$key]) && is_string($v[$key])) {
                         $v[$key] = trim($v[$key]) === '' ? null : trim($v[$key]);
                     }
@@ -71,9 +71,23 @@ class ProductRequest extends AdminRequest
             'sort_order' => ['nullable', 'integer', 'between:-10000,10000'],
             'seo_title' => ['nullable', 'string', 'max:70'],
             'seo_description' => ['nullable', 'string', 'max:170'],
+            // French versions (optional: an empty one shows the English text).
+            'name_fr' => ['nullable', 'string', 'max:160'],
+            'summary_fr' => ['nullable', 'string', 'max:255'],
+            'description_fr' => ['nullable', 'string', 'max:20000'],
+            'benefits_fr' => ['nullable', 'string', 'max:20000'],
+            'usage_fr' => ['nullable', 'string', 'max:20000'],
+            'ingredients_fr' => ['nullable', 'string', 'max:20000'],
+            'nutrition_fr' => ['nullable', 'string', 'max:20000'],
+            'option_label_fr' => ['nullable', 'string', 'max:40'],
+            'seo_title_fr' => ['nullable', 'string', 'max:70'],
+            'seo_description_fr' => ['nullable', 'string', 'max:170'],
+            'specifications.*.label_fr' => ['nullable', 'string', 'max:60'],
+            'specifications.*.value_fr' => ['nullable', 'string', 'max:160'],
             'variants' => ['required', 'array', 'min:1', 'max:30'],
             'variants.*.id' => ['nullable', 'integer'],
             'variants.*.name' => ['nullable', 'string', 'max:80'],
+            'variants.*.name_fr' => ['nullable', 'string', 'max:80'],
             'variants.*.sku' => ['nullable', 'string', 'max:64', 'regex:/^[A-Za-z0-9._\-]+$/', 'distinct:ignore_case'],
             'variants.*.price' => ['nullable', 'string', 'max:12'],
             'variants.*.sale_price' => ['nullable', 'string', 'max:12'],
@@ -151,13 +165,17 @@ class ProductRequest extends AdminRequest
         $data['is_featured'] = $this->boolean('is_featured');
         $data['is_bestseller'] = $this->boolean('is_bestseller');
         $data['sort_order'] = (int) ($data['sort_order'] ?? 0);
-        $data['specifications'] = array_values($data['specifications'] ?? []) ?: null;
+        // Keep French label/value only when filled, so rows stay {label, value} otherwise.
+        $data['specifications'] = array_values(array_map(
+            fn (array $row) => array_filter($row, fn ($v, $k) => ! str_ends_with((string) $k, '_fr') || filled($v), ARRAY_FILTER_USE_BOTH),
+            $data['specifications'] ?? [],
+        )) ?: null;
 
         return $data;
     }
 
     /**
-     * @return list<array{id: int|null, name: string|null, sku: string|null, price_minor: int|null, sale_price_minor: int|null, stock: int, track_stock: bool, low_stock_threshold: int|null, is_active: bool, sort_order: int}>
+     * @return list<array{id: int|null, name: string|null, name_fr: string|null, sku: string|null, price_minor: int|null, sale_price_minor: int|null, stock: int, track_stock: bool, low_stock_threshold: int|null, is_active: bool, sort_order: int}>
      */
     public function variantsData(): array
     {
@@ -166,6 +184,7 @@ class ProductRequest extends AdminRequest
         return array_values(array_map(fn (array $v, int $i) => [
             'id' => ! empty($v['id']) ? (int) $v['id'] : null,
             'name' => $v['name'] ?? null,
+            'name_fr' => $v['name_fr'] ?? null,
             'sku' => $v['sku'] ?? null,
             'price_minor' => $this->parse($v['price'] ?? null, $currency) ?: null,
             'sale_price_minor' => $this->parse($v['sale_price'] ?? null, $currency) ?: null,

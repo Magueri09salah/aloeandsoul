@@ -142,12 +142,14 @@ class ProductController extends Controller
                 'sort_order' => $product->sort_order,
                 'seo_title' => $product->seo_title,
                 'seo_description' => $product->seo_description,
+                ...$product->only(Product::translationColumns()),
                 'status' => $product->status->value,
                 'status_label' => $product->status->label(),
                 'url' => $product->status === ProductStatus::Published ? route('products.show', $product) : null,
                 'variants' => $product->variants->map(fn (ProductVariant $v) => [
                     'id' => $v->id,
                     'name' => $v->name,
+                    'name_fr' => $v->name_fr,
                     'sku' => $v->sku,
                     'price' => Money::toDecimalString($v->price_minor, $currency),
                     'sale_price' => Money::toDecimalString($v->sale_price_minor, $currency),
@@ -159,6 +161,7 @@ class ProductController extends Controller
                 'images' => $product->images->map(fn (ProductImage $img) => [
                     'id' => $img->id,
                     'alt' => $img->alt,
+                    'alt_fr' => $img->alt_fr,
                     ...ImagePresenter::present($img, $product->name),
                 ])->values(),
                 'blockers' => $product->publishBlockers(),

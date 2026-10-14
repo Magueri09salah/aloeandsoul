@@ -26,7 +26,7 @@ class CheckoutController extends Controller
     {
         $view = $cart->view();
         if ($view['lines'] === []) {
-            return redirect()->route('cart');
+            return redirect(localized_route('cart'));
         }
 
         $zones = ShippingZone::query()->active()->get();
@@ -41,19 +41,19 @@ class CheckoutController extends Controller
             'quote' => $quote->toArray(),
             'zones' => $zones->map(fn (ShippingZone $z) => [
                 'id' => $z->id,
-                'name' => $z->name,
+                'name' => $z->translated('name'),
                 'fee_minor' => $z->fee_minor,
                 'free_over_minor' => $z->free_over_minor,
-                'estimate' => $z->estimate,
+                'estimate' => $z->translated('estimate'),
             ]),
             'checkout' => [
                 'open' => (bool) settings()->get('store.ordering_enabled') && $zones->isNotEmpty(),
-                'closed_message' => settings()->get('store.closed_message'),
-                'cod_instructions' => settings()->get('checkout.cod_instructions'),
-                'confirmation_note' => settings()->get('checkout.confirmation_note'),
+                'closed_message' => settings()->localizedGet('store.closed_message'),
+                'cod_instructions' => settings()->localizedGet('checkout.cod_instructions'),
+                'confirmation_note' => settings()->localizedGet('checkout.confirmation_note'),
             ],
             'country' => settings()->get('store.country'),
-        ], Seo::private('Checkout'));
+        ], Seo::private(__('Checkout')));
     }
 
     public function store(PlaceOrderRequest $request, PlaceOrder $placeOrder, CartService $cart): RedirectResponse
@@ -63,7 +63,7 @@ class CheckoutController extends Controller
         $issued = (array) $request->session()->get(self::KEYS, []);
         $alreadyPlaced = Order::query()->where('idempotency_key', $data->idempotencyKey)->value('id');
         if (! in_array($data->idempotencyKey, $issued, true) && $alreadyPlaced === null) {
-            return redirect()->route('checkout')->with('error', 'This checkout page has expired. Please check your order and try again.');
+            return redirect(localized_route('checkout'))->with('error', __('This checkout page has expired. Please check your order and try again.'));
         }
         // A key can only retrieve an order placed from this same session.
         if ($alreadyPlaced !== null && ! in_array($alreadyPlaced, (array) $request->session()->get(self::PLACED, []), true)) {
@@ -77,7 +77,7 @@ class CheckoutController extends Controller
         $placed = array_slice(array_unique([...(array) $request->session()->get(self::PLACED, []), $order->id]), -10);
         $request->session()->put(self::PLACED, $placed);
 
-        return redirect()->route('checkout.confirmation', $order);
+        return redirect(localized_route('checkout.confirmation', $order));
     }
 
     /**
@@ -103,9 +103,9 @@ class CheckoutController extends Controller
         return $this->render('checkout/confirmation', [
             'order' => OrderPresenter::forCustomer($order, withDelivery: true),
             'checkout' => [
-                'cod_instructions' => settings()->get('checkout.cod_instructions'),
-                'confirmation_note' => settings()->get('checkout.confirmation_note'),
+                'cod_instructions' => settings()->localizedGet('checkout.cod_instructions'),
+                'confirmation_note' => settings()->localizedGet('checkout.confirmation_note'),
             ],
-        ], Seo::private('Thank you for your order'));
+        ], Seo::private(__('Thank you for your order')));
     }
 }

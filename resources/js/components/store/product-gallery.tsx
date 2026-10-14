@@ -5,6 +5,7 @@ import type { ImageData } from '@/types';
 
 import { Button } from '@/components/ui/button';
 import { ResponsiveImage } from '@/components/ui/responsive-image';
+import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 interface ProductGalleryProps {
@@ -28,6 +29,7 @@ export function ProductGallery({ images, tint, label, placeholder }: ProductGall
     const targetRef = useRef<number | null>(null);
     const releaseRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [index, setIndex] = useState(0);
+    const { t } = useI18n();
     const count = images.length;
 
     useEffect(
@@ -85,7 +87,7 @@ export function ProductGallery({ images, tint, label, placeholder }: ProductGall
                     onScroll={onScroll}
                     onKeyDown={count > 1 ? onKeyDown : undefined}
                     tabIndex={count > 1 ? 0 : undefined}
-                    aria-label={count > 1 ? 'Use the arrow keys to see the other images' : undefined}
+                    aria-label={count > 1 ? t('Use the arrow keys to see the other images') : undefined}
                     className="flex aspect-square snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aloe motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
                     style={{ backgroundColor: tint }}
                 >
@@ -94,7 +96,7 @@ export function ProductGallery({ images, tint, label, placeholder }: ProductGall
                             key={image.src}
                             role="group"
                             aria-roledescription="slide"
-                            aria-label={`${i + 1} of ${count}`}
+                            aria-label={t(':number of :count', { number: i + 1, count })}
                             className="h-full w-full shrink-0 snap-center snap-always"
                         >
                             <ResponsiveImage image={image} sizes="(min-width: 1024px) 55vw, 100vw" priority={i === 0} className="object-contain" />
@@ -108,15 +110,13 @@ export function ProductGallery({ images, tint, label, placeholder }: ProductGall
                             <span aria-hidden="true">
                                 {index + 1} / {count}
                             </span>
-                            <span className="sr-only">
-                                Image {index + 1} of {count}
-                            </span>
+                            <span className="sr-only">{t('Image :number of :count', { number: index + 1, count })}</span>
                         </p>
                         <div className="pointer-events-auto flex gap-2">
-                            <Button variant="quiet" size="icon-sm" className="bg-ivory/90 hover:bg-ivory" onClick={() => show(index - 1)} disabled={index === 0} aria-label="Previous image">
+                            <Button variant="quiet" size="icon-sm" className="bg-ivory/90 hover:bg-ivory" onClick={() => show(index - 1)} disabled={index === 0} aria-label={t('Previous image')}>
                                 <ChevronLeft aria-hidden="true" />
                             </Button>
-                            <Button variant="quiet" size="icon-sm" className="bg-ivory/90 hover:bg-ivory" onClick={() => show(index + 1)} disabled={index === count - 1} aria-label="Next image">
+                            <Button variant="quiet" size="icon-sm" className="bg-ivory/90 hover:bg-ivory" onClick={() => show(index + 1)} disabled={index === count - 1} aria-label={t('Next image')}>
                                 <ChevronRight aria-hidden="true" />
                             </Button>
                         </div>
@@ -125,7 +125,7 @@ export function ProductGallery({ images, tint, label, placeholder }: ProductGall
             </div>
 
             {count > 1 && (
-                <ul className="mt-3 flex flex-wrap gap-2" aria-label="Choose an image">
+                <ul className="mt-3 flex flex-wrap gap-2" aria-label={t('Choose an image')}>
                     {images.map((image, i) => (
                         <li key={image.src}>
                             <button
@@ -136,7 +136,7 @@ export function ProductGallery({ images, tint, label, placeholder }: ProductGall
                                     i === index ? 'ring-2 ring-ink' : 'opacity-75 hover:opacity-100',
                                 )}
                                 style={{ backgroundColor: tint }}
-                                aria-label={`Show image ${i + 1} of ${count}`}
+                                aria-label={t('Show image :number of :count', { number: i + 1, count })}
                                 aria-current={i === index ? 'true' : undefined}
                             >
                                 <ResponsiveImage image={image} sizes="80px" alt="" className="object-contain" />

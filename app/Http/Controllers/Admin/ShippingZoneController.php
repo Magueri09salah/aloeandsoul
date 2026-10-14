@@ -29,9 +29,11 @@ class ShippingZoneController extends Controller
             'zones' => ShippingZone::query()->orderBy('sort_order')->orderBy('name')->get()->map(fn (ShippingZone $z) => [
                 'id' => $z->id,
                 'name' => $z->name,
+                'name_fr' => $z->name_fr,
                 'fee' => Money::toDecimalString($z->fee_minor, $currency),
                 'free_over' => Money::toDecimalString($z->free_over_minor, $currency),
                 'estimate' => $z->estimate,
+                'estimate_fr' => $z->estimate_fr,
                 'is_active' => $z->is_active,
                 'sort_order' => $z->sort_order,
             ]),
@@ -83,6 +85,8 @@ class ShippingZoneController extends Controller
             'fee' => ['required', 'string', 'max:12'],
             'free_over' => ['nullable', 'string', 'max:12'],
             'estimate' => ['nullable', 'string', 'max:80'],
+            'name_fr' => ['nullable', 'string', 'max:80'],
+            'estimate_fr' => ['nullable', 'string', 'max:80'],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'between:0,1000'],
         ]);
@@ -100,6 +104,8 @@ class ShippingZoneController extends Controller
             'fee_minor' => (int) $fee,
             'free_over_minor' => $freeOver,
             'estimate' => $data['estimate'] ?? null,
+            'name_fr' => filled($data['name_fr'] ?? null) ? trim($data['name_fr']) : null,
+            'estimate_fr' => $data['estimate_fr'] ?? null,
             'is_active' => $request->boolean('is_active'),
             'sort_order' => (int) ($data['sort_order'] ?? 0),
         ];

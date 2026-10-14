@@ -9,6 +9,7 @@ import { Price } from '@/components/ui/price';
 import { ResponsiveImage } from '@/components/ui/responsive-image';
 import { useCartUi } from '@/components/store/cart-context';
 import { ProductPlaceholder } from '@/components/store/product-placeholder';
+import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 const MOTIF_BY_CATEGORY: Record<string, string> = {
@@ -33,12 +34,13 @@ export function ProductCard({
 }: ProductCardProps) {
     const cart = useCartUi();
     const [adding, setAdding] = useState(false);
-    const href = `/products/${product.slug}`;
+    const { t, tc, to } = useI18n();
+    const href = to(`/products/${product.slug}`);
 
     const quickAdd = () => {
         if (!product.quick_add_variant_id) return;
         router.post(
-            '/cart/items',
+            to('/cart/items'),
             { variant_id: product.quick_add_variant_id, quantity: 1 },
             {
                 preserveScroll: true,
@@ -67,9 +69,9 @@ export function ProductCard({
                         <ProductPlaceholder tint={product.category.tint} motif={MOTIF_BY_CATEGORY[product.category.slug]} />
                     )}
                     <div className="absolute top-3 left-3 flex flex-col items-start gap-1.5">
-                        {!product.in_stock && <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-stone">Out of stock</span>}
-                        {product.in_stock && product.on_sale && <span className="rounded-full bg-ink px-2.5 py-1 text-xs font-medium text-ivory">Sale</span>}
-                        {product.is_bestseller && <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-ink">Bestseller</span>}
+                        {!product.in_stock && <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-stone">{t('Out of stock')}</span>}
+                        {product.in_stock && product.on_sale && <span className="rounded-full bg-ink px-2.5 py-1 text-xs font-medium text-ivory">{t('Sale')}</span>}
+                        {product.is_bestseller && <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-ink">{t('Bestseller')}</span>}
                     </div>
                 </div>
                 <h3 className="mt-3.5 text-[0.98rem] leading-snug font-medium text-ink group-hover:text-aloe">{product.name}</h3>
@@ -82,7 +84,7 @@ export function ProductCard({
                         onClick={quickAdd}
                         disabled={adding}
                         className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-line bg-white text-ink transition-colors hover:border-ink hover:bg-ink hover:text-ivory disabled:opacity-60"
-                        aria-label={`Add ${product.name} to cart`}
+                        aria-label={t('Add :name to cart', { name: product.name })}
                     >
                         {adding ? <Spinner /> : <Plus className="size-4" aria-hidden="true" />}
                     </button>
@@ -90,7 +92,10 @@ export function ProductCard({
                     product.variant_count > 1 &&
                     product.in_stock && (
                         <span className="text-sm text-stone">
-                            {product.variant_count} {product.option_label ? `${product.option_label.toLowerCase()}s` : 'options'}
+                            {/* "2 flavours" / "2 saveurs": the option name takes a plain -s in both languages. */}
+                            {product.option_label
+                                ? `${product.variant_count} ${product.option_label.toLowerCase()}s`
+                                : tc(':count option|:count options', product.variant_count)}
                         </span>
                     )
                 )}

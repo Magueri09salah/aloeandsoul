@@ -33,11 +33,13 @@ class CollaboratorController extends Controller
 
         return Inertia::render('admin/collaborators/index', [
             'collaborators' => Collaborator::query()->orderBy('sort_order')->orderBy('id')->get()
-                ->map(fn (Collaborator $c) => [...PostPresenter::collaborator($c), 'sort_order' => $c->sort_order, 'is_visible' => $c->is_visible]),
+                ->map(fn (Collaborator $c) => [...PostPresenter::collaborator($c), 'description_fr' => $c->description_fr, 'sort_order' => $c->sort_order, 'is_visible' => $c->is_visible]),
             'section' => [
                 'enabled' => (bool) $home['collaborators_enabled'],
                 'heading' => $home['collaborators_heading'],
                 'intro' => $home['collaborators_intro'],
+                'heading_fr' => $home['collaborators_heading_fr'],
+                'intro_fr' => $home['collaborators_intro_fr'],
             ],
             'styles' => Collaborator::IMAGE_STYLES,
         ]);
@@ -90,11 +92,15 @@ class CollaboratorController extends Controller
             'enabled' => ['boolean'],
             'heading' => ['required', 'string', 'max:80'],
             'intro' => ['nullable', 'string', 'max:300'],
+            'heading_fr' => ['nullable', 'string', 'max:80'],
+            'intro_fr' => ['nullable', 'string', 'max:300'],
         ]);
         settings()->update('home', [
             'collaborators_enabled' => $request->boolean('enabled'),
             'collaborators_heading' => $data['heading'],
             'collaborators_intro' => $data['intro'] ?? '',
+            'collaborators_heading_fr' => $data['heading_fr'] ?? '',
+            'collaborators_intro_fr' => $data['intro_fr'] ?? '',
         ]);
         $this->audit->log('collaborator.section_updated');
 
@@ -107,6 +113,7 @@ class CollaboratorController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:255'],
+            'description_fr' => ['nullable', 'string', 'max:255'],
             'url' => ['nullable', 'string', 'max:255', 'url:https'],
             'image_style' => ['required', Rule::in(Collaborator::IMAGE_STYLES)],
             'sort_order' => ['nullable', 'integer', 'between:0,1000'],
@@ -123,6 +130,7 @@ class CollaboratorController extends Controller
         return [
             'name' => trim($data['name']),
             'description' => filled($data['description'] ?? null) ? trim($data['description']) : null,
+            'description_fr' => filled($data['description_fr'] ?? null) ? trim($data['description_fr']) : null,
             'url' => filled($data['url'] ?? null) ? trim($data['url']) : null,
             'image_style' => $data['image_style'],
             'sort_order' => (int) ($data['sort_order'] ?? 0),

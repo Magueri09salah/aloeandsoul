@@ -12,7 +12,8 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Breadcrumbs } from '@/components/store/breadcrumbs';
 import { ProductCard } from '@/components/store/product-card';
 import { useShared } from '@/hooks/use-shared';
-import { cn, plural } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 interface Filters {
     q: string | null;
@@ -35,17 +36,17 @@ interface ShopProps {
     breadcrumbs: Breadcrumb[];
 }
 
-const SORTS = [
-    { value: 'featured', label: 'Featured' },
-    { value: 'newest', label: 'Newest' },
-    { value: 'price_asc', label: 'Price, low to high' },
-    { value: 'price_desc', label: 'Price, high to low' },
-    { value: 'name', label: 'Name, A to Z' },
-];
-
 export default function Shop({ category, categories, products, filters, breadcrumbs }: ShopProps) {
     const { url } = usePage();
-    const path = url.split('?')[0] ?? '/shop';
+    const { t, tc, to } = useI18n();
+    const path = url.split('?')[0] ?? to('/shop');
+    const sorts = [
+        { value: 'featured', label: t('Featured') },
+        { value: 'newest', label: t('Newest') },
+        { value: 'price_asc', label: t('Price, low to high') },
+        { value: 'price_desc', label: t('Price, high to low') },
+        { value: 'name', label: t('Name, A to Z') },
+    ];
     const [sheetOpen, setSheetOpen] = useState(false);
 
     const apply = (next: Partial<Filters>) => {
@@ -68,11 +69,11 @@ export default function Shop({ category, categories, products, filters, breadcru
                 <div className="container-page relative py-10 lg:py-16">
                     <Breadcrumbs items={breadcrumbs} />
                     <div className="mt-6 max-w-2xl">
-                        <h1 className="font-display text-display">{category?.name ?? 'All products'}</h1>
+                        <h1 className="font-display text-display">{category?.name ?? t('All products')}</h1>
                         {(category?.description ?? category?.tagline) && (
                             <p className="mt-4 text-lg text-ink/80">{category?.description ?? category?.tagline}</p>
                         )}
-                        {!category && <p className="mt-4 text-lg text-ink/80">Wellness, beauty, hygiene, fitness and nutrition, chosen by the founder.</p>}
+                        {!category && <p className="mt-4 text-lg text-ink/80">{t('Wellness, beauty, hygiene, fitness and nutrition, chosen by the founder.')}</p>}
                     </div>
                     <div className="pointer-events-none absolute top-1/2 right-6 hidden w-56 -translate-y-1/2 text-dune/70 md:block lg:right-16 lg:w-72">
                         <Motif name={category?.motif ?? 'circle'} />
@@ -80,16 +81,16 @@ export default function Shop({ category, categories, products, filters, breadcru
                 </div>
             </header>
 
-            <nav aria-label="Categories" className="border-b border-line">
+            <nav aria-label={t('Categories')} className="border-b border-line">
                 <ul className="container-page flex gap-2 overflow-x-auto py-4 [scrollbar-width:none]">
                     <li>
-                        <CategoryPill href="/shop" active={!category}>
-                            All
+                        <CategoryPill href={to('/shop')} active={!category}>
+                            {t('All')}
                         </CategoryPill>
                     </li>
                     {categories.map((c) => (
                         <li key={c.slug}>
-                            <CategoryPill href={`/shop/${c.slug}`} active={category?.slug === c.slug} tint={c.tint}>
+                            <CategoryPill href={to(`/shop/${c.slug}`)} active={category?.slug === c.slug} tint={c.tint}>
                                 {c.name}
                             </CategoryPill>
                         </li>
@@ -98,7 +99,7 @@ export default function Shop({ category, categories, products, filters, breadcru
             </nav>
 
             <div className="container-page grid gap-10 py-10 lg:grid-cols-[15rem_1fr] lg:gap-12">
-                <aside className="hidden lg:block" aria-label="Filters">
+                <aside className="hidden lg:block" aria-label={t('Filters')}>
                     <FilterPanel filters={filters} onApply={apply} />
                 </aside>
 
@@ -107,22 +108,22 @@ export default function Shop({ category, categories, products, filters, breadcru
                         <h2 id="results-heading" className="text-stone" aria-live="polite">
                             {filters.q ? (
                                 <>
-                                    {plural(products.meta.total, 'result')} for <span className="text-ink">“{filters.q}”</span>
+                                    {tc(':count result for|:count results for', products.meta.total)} <span className="text-ink">“{filters.q}”</span>
                                 </>
                             ) : (
-                                plural(products.meta.total, 'product')
+                                tc(':count product|:count products', products.meta.total)
                             )}
                         </h2>
                         <div className="flex items-center gap-2">
                             <Button variant="secondary" size="sm" className="lg:hidden" onClick={() => setSheetOpen(true)}>
                                 <SlidersHorizontal aria-hidden="true" />
-                                Filter{activeCount > 0 ? ` (${activeCount})` : ''}
+                                {t('Filter')}{activeCount > 0 ? ` (${activeCount})` : ''}
                             </Button>
                             <label htmlFor="sort" className="sr-only">
-                                Sort by
+                                {t('Sort by')}
                             </label>
                             <Select id="sort" value={filters.sort} onChange={(e) => apply({ sort: e.target.value })} className="h-9 w-auto rounded-full text-sm">
-                                {SORTS.map((s) => (
+                                {sorts.map((s) => (
                                     <option key={s.value} value={s.value}>
                                         {s.label}
                                     </option>
@@ -133,13 +134,13 @@ export default function Shop({ category, categories, products, filters, breadcru
 
                     {products.data.length === 0 ? (
                         <div className="py-20 text-center">
-                            <p className="font-display text-3xl">No products match.</p>
+                            <p className="font-display text-3xl">{t('No products match.')}</p>
                             <p className="mt-3 text-stone">
-                                {activeCount > 0 ? 'Try removing a filter or searching for something else.' : 'New products are on their way. Please come back soon.'}
+                                {activeCount > 0 ? t('Try removing a filter or searching for something else.') : t('New products are on their way. Please come back soon.')}
                             </p>
                             {activeCount > 0 && (
                                 <Button variant="secondary" className="mt-6" onClick={() => router.get(path)}>
-                                    Clear filters
+                                    {t('Clear filters')}
                                 </Button>
                             )}
                         </div>
@@ -152,10 +153,10 @@ export default function Shop({ category, categories, products, filters, breadcru
                     )}
 
                     {products.meta.last_page > 1 && (
-                        <nav aria-label="Pages" className="mt-14 flex flex-wrap items-center justify-center gap-1">
+                        <nav aria-label={t('Pages')} className="mt-14 flex flex-wrap items-center justify-center gap-1">
                             {products.links.prev && (
                                 <Link href={products.links.prev} preserveScroll={false} className="mr-2 rounded-full px-4 py-2 hover:bg-sand" rel="prev">
-                                    Previous
+                                    {t('Previous')}
                                 </Link>
                             )}
                             {products.links.pages.map((p) => (
@@ -173,7 +174,7 @@ export default function Shop({ category, categories, products, filters, breadcru
                             ))}
                             {products.links.next && (
                                 <Link href={products.links.next} className="ml-2 rounded-full px-4 py-2 hover:bg-sand" rel="next">
-                                    Next
+                                    {t('Next')}
                                 </Link>
                             )}
                         </nav>
@@ -182,7 +183,7 @@ export default function Shop({ category, categories, products, filters, breadcru
             </div>
 
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-                <SheetContent side="bottom" title="Filter">
+                <SheetContent side="bottom" title={t('Filter')}>
                     <div className="overflow-y-auto px-5 pt-4 pb-8">
                         <FilterPanel
                             filters={filters}
@@ -217,6 +218,7 @@ function CategoryPill({ href, active, tint, children }: { href: string; active: 
 
 function FilterPanel({ filters, onApply, instant = true }: { filters: Filters; onApply: (next: Partial<Filters>) => void; instant?: boolean }) {
     const { store } = useShared();
+    const { t } = useI18n();
     const [draft, setDraft] = useState({
         q: filters.q ?? '',
         min_price: filters.min_price ?? '',
@@ -244,12 +246,12 @@ function FilterPanel({ filters, onApply, instant = true }: { filters: Filters; o
     return (
         <form onSubmit={submit} className="space-y-8">
             <div className="space-y-2">
-                <Label htmlFor="filter-q">Search</Label>
-                <Input id="filter-q" type="search" value={draft.q} maxLength={100} onChange={(e) => setDraft({ ...draft, q: e.target.value })} placeholder="Product name" />
+                <Label htmlFor="filter-q">{t('Search')}</Label>
+                <Input id="filter-q" type="search" value={draft.q} maxLength={100} onChange={(e) => setDraft({ ...draft, q: e.target.value })} placeholder={t('Product name')} />
             </div>
 
             <fieldset className="space-y-3">
-                <legend className="mb-3 text-sm font-medium">Availability</legend>
+                <legend className="mb-3 text-sm font-medium">{t('Availability')}</legend>
                 <div className="flex items-center gap-3">
                     <Checkbox
                         id="filter-stock"
@@ -257,36 +259,36 @@ function FilterPanel({ filters, onApply, instant = true }: { filters: Filters; o
                         onCheckedChange={(v) => toggle({ availability: v === true ? 'in_stock' : null })}
                     />
                     <Label htmlFor="filter-stock" className="font-normal">
-                        In stock only
+                        {t('In stock only')}
                     </Label>
                 </div>
                 <div className="flex items-center gap-3">
                     <Checkbox id="filter-sale" checked={draft.on_sale} onCheckedChange={(v) => toggle({ on_sale: v === true })} />
                     <Label htmlFor="filter-sale" className="font-normal">
-                        On sale
+                        {t('On sale')}
                     </Label>
                 </div>
             </fieldset>
 
             <fieldset>
-                <legend className="mb-3 text-sm font-medium">Price ({store.currency})</legend>
+                <legend className="mb-3 text-sm font-medium">{t('Price (:currency)', { currency: store.currency })}</legend>
                 <div className="flex items-center gap-2">
                     <label htmlFor="filter-min" className="sr-only">
-                        Minimum price
+                        {t('Minimum price')}
                     </label>
-                    <Input id="filter-min" inputMode="decimal" placeholder="Min" value={draft.min_price} onChange={(e) => setDraft({ ...draft, min_price: e.target.value })} />
+                    <Input id="filter-min" inputMode="decimal" placeholder={t('Min')} value={draft.min_price} onChange={(e) => setDraft({ ...draft, min_price: e.target.value })} />
                     <span aria-hidden="true" className="text-stone">
                         –
                     </span>
                     <label htmlFor="filter-max" className="sr-only">
-                        Maximum price
+                        {t('Maximum price')}
                     </label>
-                    <Input id="filter-max" inputMode="decimal" placeholder="Max" value={draft.max_price} onChange={(e) => setDraft({ ...draft, max_price: e.target.value })} />
+                    <Input id="filter-max" inputMode="decimal" placeholder={t('Max')} value={draft.max_price} onChange={(e) => setDraft({ ...draft, max_price: e.target.value })} />
                 </div>
             </fieldset>
 
             <Button type="submit" variant="secondary" className="w-full">
-                Apply
+                {t('Apply')}
             </Button>
         </form>
     );

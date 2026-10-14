@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
 import { type FormEvent, type ReactNode } from 'react';
 
+import { ContentLanguageSwitch, hasFrenchErrors, useContentLanguage } from '@/components/admin/content-language';
 import { PageHeader, Panel } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/checkbox';
@@ -21,11 +22,13 @@ interface Props {
             max_quantity_per_line: number;
             ordering_enabled: boolean;
             closed_message: string;
+            tagline_fr: string;
+            closed_message_fr: string;
         };
-        checkout: { cod_instructions: string; confirmation_note: string; delivery_info: string };
-        contact: { email: string; phone: string; whatsapp: string; locations: string[]; hours: string };
+        checkout: { cod_instructions: string; confirmation_note: string; delivery_info: string; cod_instructions_fr: string; confirmation_note_fr: string; delivery_info_fr: string };
+        contact: { email: string; phone: string; whatsapp: string; locations: string[]; hours: string; hours_fr: string };
         social: { instagram: string; facebook: string; tiktok: string; youtube: string };
-        seo: { title: string; description: string };
+        seo: { title: string; description: string; title_fr: string; description_fr: string };
     };
     currencies: string[];
     hasOrders: boolean;
@@ -57,6 +60,9 @@ export default function Settings({ settings, currencies, hasOrders }: Props) {
     const contact = useForm(settings.contact);
     const social = useForm(settings.social);
     const seo = useForm(settings.seo);
+    // One switch for every customer-facing text on this page.
+    const c = useContentLanguage();
+    const frenchErrors = [store, checkout, contact, seo].some((f) => hasFrenchErrors(f.errors as Record<string, string | undefined>));
 
     const save = (form: { put: (url: string, o: object) => void }, group: string) => (e: FormEvent) => {
         e.preventDefault();
@@ -66,14 +72,15 @@ export default function Settings({ settings, currencies, hasOrders }: Props) {
     return (
         <>
             <PageHeader title="Settings" description="Store-wide settings. Only owners can change these." />
+            <ContentLanguageSwitch value={c.lang} onChange={c.setLang} frenchErrors={frenchErrors} className="mb-6" />
             <div className="space-y-6">
                 <Section title="Store" onSubmit={save(store, 'store')}>
                     <div className="grid gap-4 sm:grid-cols-2">
                         <Field label="Store name" name="name" error={store.errors.name} required>
                             {(p) => <Input {...p} value={store.data.name} onChange={(e) => store.setData('name', e.target.value)} />}
                         </Field>
-                        <Field label="Tagline" name="tagline" error={store.errors.tagline} optional>
-                            {(p) => <Input {...p} value={store.data.tagline} onChange={(e) => store.setData('tagline', e.target.value)} />}
+                        <Field label={c.label('Tagline')} name={c.field('tagline')} error={store.errors[c.field('tagline')]} optional>
+                            {(p) => <Input {...p} value={store.data[c.field('tagline')]} onChange={(e) => store.setData(c.field('tagline'), e.target.value)} placeholder={c.source(store.data.tagline)} />}
                         </Field>
                         <Field label="Currency" name="currency" error={store.errors.currency} hint={hasOrders ? 'Prices are not converted when you change currency.' : undefined}>
                             {(p) => (
@@ -109,8 +116,17 @@ export default function Settings({ settings, currencies, hasOrders }: Props) {
                             <Switch id="ordering" checked={store.data.ordering_enabled} onCheckedChange={(v) => store.setData('ordering_enabled', v)} />
                             <Label htmlFor="ordering">Accept online orders</Label>
                         </div>
-                        <Field label="Message shown when ordering is paused" name="closed_message" error={store.errors.closed_message} className="mt-4">
-                            {(p) => <Textarea {...p} rows={2} value={store.data.closed_message} onChange={(e) => store.setData('closed_message', e.target.value)} maxLength={300} />}
+                        <Field label={c.label('Message shown when ordering is paused')} name={c.field('closed_message')} error={store.errors[c.field('closed_message')]} className="mt-4">
+                            {(p) => (
+                                <Textarea
+                                    {...p}
+                                    rows={2}
+                                    value={store.data[c.field('closed_message')]}
+                                    onChange={(e) => store.setData(c.field('closed_message'), e.target.value)}
+                                    placeholder={c.source(store.data.closed_message)}
+                                    maxLength={300}
+                                />
+                            )}
                         </Field>
                     </div>
                     <SaveBar processing={store.processing} />
@@ -118,15 +134,34 @@ export default function Settings({ settings, currencies, hasOrders }: Props) {
 
                 <Section title="Checkout and delivery" description="Shown to customers at checkout and on product pages." onSubmit={save(checkout, 'checkout')}>
                     <div className="space-y-4">
-                        <Field label="Cash on delivery instructions" name="cod_instructions" error={checkout.errors.cod_instructions} required>
-                            {(p) => <Textarea {...p} rows={2} value={checkout.data.cod_instructions} onChange={(e) => checkout.setData('cod_instructions', e.target.value)} maxLength={300} />}
-                        </Field>
-                        <Field label="After ordering" name="confirmation_note" error={checkout.errors.confirmation_note} hint="e.g. We will call you to confirm your order." optional>
-                            {(p) => <Textarea {...p} rows={2} value={checkout.data.confirmation_note} onChange={(e) => checkout.setData('confirmation_note', e.target.value)} maxLength={300} />}
-                        </Field>
-                        <Field label="Delivery information" name="delivery_info" error={checkout.errors.delivery_info} hint="Only state what you can guarantee." optional>
-                            {(p) => <Textarea {...p} rows={2} value={checkout.data.delivery_info} onChange={(e) => checkout.setData('delivery_info', e.target.value)} maxLength={300} />}
-                        </Field>
+                        {(
+                            [
+                                ['cod_instructions', 'Cash on delivery instructions', undefined],
+                                ['confirmation_note', 'After ordering', 'e.g. We will call you to confirm your order.'],
+                                ['delivery_info', 'Delivery information', 'Only state what you can guarantee.'],
+                            ] as const
+                        ).map(([key, text, hint]) => (
+                            <Field
+                                key={key}
+                                label={c.label(text)}
+                                name={c.field(key)}
+                                error={checkout.errors[c.field(key)]}
+                                hint={hint}
+                                required={key === 'cod_instructions' && !c.fr}
+                                optional={key !== 'cod_instructions' || c.fr}
+                            >
+                                {(p) => (
+                                    <Textarea
+                                        {...p}
+                                        rows={2}
+                                        value={checkout.data[c.field(key)]}
+                                        onChange={(e) => checkout.setData(c.field(key), e.target.value)}
+                                        placeholder={c.source(checkout.data[key])}
+                                        maxLength={300}
+                                    />
+                                )}
+                            </Field>
+                        ))}
                     </div>
                     <SaveBar processing={checkout.processing} />
                 </Section>
@@ -142,8 +177,8 @@ export default function Settings({ settings, currencies, hasOrders }: Props) {
                         <Field label="WhatsApp" name="whatsapp" error={contact.errors.whatsapp} optional>
                             {(p) => <Input {...p} type="tel" value={contact.data.whatsapp} onChange={(e) => contact.setData('whatsapp', e.target.value)} />}
                         </Field>
-                        <Field label="Opening hours" name="hours" error={contact.errors.hours} optional className="sm:col-span-3">
-                            {(p) => <Input {...p} value={contact.data.hours} onChange={(e) => contact.setData('hours', e.target.value)} maxLength={120} />}
+                        <Field label={c.label('Opening hours')} name={c.field('hours')} error={contact.errors[c.field('hours')]} optional className="sm:col-span-3">
+                            {(p) => <Input {...p} value={contact.data[c.field('hours')]} onChange={(e) => contact.setData(c.field('hours'), e.target.value)} placeholder={c.source(contact.data.hours)} maxLength={120} />}
                         </Field>
                     </div>
                     <fieldset className="mt-4">
@@ -185,11 +220,27 @@ export default function Settings({ settings, currencies, hasOrders }: Props) {
 
                 <Section title="Search engines" description="Default title and description for the home page and pages without their own." onSubmit={save(seo, 'seo')}>
                     <div className="space-y-4">
-                        <Field label="Title" name="title" error={seo.errors.title} hint={`${seo.data.title.length}/70`} required>
-                            {(p) => <Input {...p} value={seo.data.title} onChange={(e) => seo.setData('title', e.target.value)} maxLength={70} />}
+                        <Field label={c.label('Title')} name={c.field('title')} error={seo.errors[c.field('title')]} hint={`${seo.data[c.field('title')].length}/70`} required={!c.fr} optional={c.fr}>
+                            {(p) => <Input {...p} value={seo.data[c.field('title')]} onChange={(e) => seo.setData(c.field('title'), e.target.value)} placeholder={c.source(seo.data.title)} maxLength={70} />}
                         </Field>
-                        <Field label="Description" name="description" error={seo.errors.description} hint={`${seo.data.description.length}/170`} required>
-                            {(p) => <Textarea {...p} rows={2} value={seo.data.description} onChange={(e) => seo.setData('description', e.target.value)} maxLength={170} />}
+                        <Field
+                            label={c.label('Description')}
+                            name={c.field('description')}
+                            error={seo.errors[c.field('description')]}
+                            hint={`${seo.data[c.field('description')].length}/170`}
+                            required={!c.fr}
+                            optional={c.fr}
+                        >
+                            {(p) => (
+                                <Textarea
+                                    {...p}
+                                    rows={2}
+                                    value={seo.data[c.field('description')]}
+                                    onChange={(e) => seo.setData(c.field('description'), e.target.value)}
+                                    placeholder={c.source(seo.data.description)}
+                                    maxLength={170}
+                                />
+                            )}
                         </Field>
                     </div>
                     <SaveBar processing={seo.processing} />

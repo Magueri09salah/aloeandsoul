@@ -36,7 +36,7 @@ class PageController extends Controller
         Gate::authorize(Permission::ManageContent->value);
 
         return Inertia::render('admin/pages/edit', [
-            'page' => $page->only(['id', 'title', 'slug', 'body', 'seo_title', 'seo_description', 'is_published', 'needs_review']) + ['url' => url($page->slug)],
+            'page' => $page->only(['id', 'title', 'slug', 'body', 'seo_title', 'seo_description', 'is_published', 'needs_review', ...Page::translationColumns()]) + ['url' => url($page->slug)],
         ]);
     }
 
@@ -49,6 +49,10 @@ class PageController extends Controller
             'body' => ['required', 'string', 'max:60000'],
             'seo_title' => ['nullable', 'string', 'max:70'],
             'seo_description' => ['nullable', 'string', 'max:170'],
+            'title_fr' => ['nullable', 'string', 'max:120'],
+            'body_fr' => ['nullable', 'string', 'max:60000'],
+            'seo_title_fr' => ['nullable', 'string', 'max:70'],
+            'seo_description_fr' => ['nullable', 'string', 'max:170'],
             'is_published' => ['boolean'],
             'needs_review' => ['boolean'],
         ]);

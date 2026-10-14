@@ -9,10 +9,15 @@ Inertia sends the first page as HTML. Because shared hosting cannot keep a Node.
 - `<link rel="canonical">`
 - Open Graph (`og:title`, `og:description`, `og:type`, `og:url`, `og:image`, `og:site_name`) and `twitter:card`
 - JSON-LD (`<script type="application/ld+json">`, CSP nonce)
+- `<html lang>` and, on indexable pages, `<link rel="alternate" hreflang>` for English, French and `x-default` (English), plus `og:locale` / `og:locale:alternate`
 
 Crawlers and link previews therefore never depend on JavaScript. Google renders the React content. If the hosting plan can run Node, enabling SSR (`INERTIA_SSR_ENABLED=true`, `php artisan inertia:start-ssr`) also server-renders the body; this was verified to work with the built `bootstrap/ssr/ssr.js`.
 
 On client-side navigation, the storefront layout updates title, description, robots and canonical through Inertia `<Head>` (the Blade tags carry `data-inertia` so they are replaced, not duplicated).
+
+## Languages
+
+English pages live at the root (`/shop`) and French pages under `/fr` (`/fr/shop`); slugs are the same in both. Each language version is canonical to itself and points to the other with `hreflang`, so search engines show French results to French speakers instead of treating the pages as duplicates. The language is never guessed from the browser: crawlers and shared links always get the language of the address. Titles, descriptions and structured data use the French texts on `/fr` pages, falling back to English where no French version is written.
 
 ## Indexation rules
 
@@ -44,8 +49,8 @@ Never emitted: ratings, reviews, `aggregateRating`, brand (unknown), shipping de
 
 ## Sitemap and robots
 
-- `/sitemap.xml`: home, shop, story, blog, FAQ, contact, active categories, published products, live blog posts (with `lastmod`), published policy pages. Cached for one hour and flushed automatically whenever a product, category or page is saved or deleted.
-- `/robots.txt`: in production disallows `/admin`, `/cart`, `/checkout`, `/track-order` and search URLs, and points to the sitemap. **Outside production it disallows everything**, so a staging copy can never be indexed.
+- `/sitemap.xml`: home, shop, story, blog, FAQ, contact, active categories, published products, live blog posts (with `lastmod`), published policy pages, each in English and French with `xhtml:link` alternates. Cached for one hour and flushed automatically whenever a product, category or page is saved or deleted.
+- `/robots.txt`: in production disallows `/admin`, `/cart`, `/checkout`, `/track-order` (and their `/fr` versions) and search URLs, and points to the sitemap. **Outside production it disallows everything**, so a staging copy can never be indexed.
 
 ## Migration from the old site
 

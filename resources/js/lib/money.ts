@@ -18,18 +18,25 @@ const EXPONENTS: Record<string, number> = {
 
 const PREFIX_SYMBOLS: Record<string, string> = { EUR: '€', USD: '$', GBP: '£' };
 
-const grouping = new Intl.NumberFormat('en', { maximumFractionDigits: 0 });
 const NBSP = String.fromCharCode(160);
+
+/** Digit grouping and decimal mark per language: "1,077.50" in English, "1 077,50" in French. */
+const NUMBER_STYLES: Record<string, { grouping: Intl.NumberFormat; decimal: string }> = {
+    en: { grouping: new Intl.NumberFormat('en', { maximumFractionDigits: 0 }), decimal: '.' },
+    fr: { grouping: new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }), decimal: ',' },
+};
 
 export function currencyExponent(currency: string): number {
     return EXPONENTS[currency.toUpperCase()] ?? 2;
 }
 
 /**
- * 29000 MAD → "290 MAD", 28950 MAD → "289.50 MAD", 1299 EUR → "€12.99".
- * Whole amounts drop the decimals for a calmer price display.
+ * 29000 MAD → "290 MAD", 28950 MAD → "289.50 MAD" ("289,50 MAD" in French),
+ * 1299 EUR → "€12.99" ("12,99 €" in French). Whole amounts drop the decimals
+ * for a calmer price display.
  */
-export function formatMoney(minor: number, currency: string): string {
+export function formatMoney(minor: number, currency: string, locale = 'en'): string {
+    const style = NUMBER_STYLES[locale] ?? NUMBER_STYLES.en!;
     const exponent = currencyExponent(currency);
     const divisor = 10 ** exponent;
     const negative = minor < 0;
@@ -38,9 +45,14 @@ export function formatMoney(minor: number, currency: string): string {
     const fraction = abs % divisor;
 
     const number =
-        grouping.format(whole) + (exponent > 0 && fraction !== 0 ? '.' + String(fraction).padStart(exponent, '0') : '');
+        style.grouping.format(whole) +
+        (exponent > 0 && fraction !== 0 ? style.decimal + String(fraction).padStart(exponent, '0') : '');
     const symbol = PREFIX_SYMBOLS[currency.toUpperCase()];
-    const text = symbol ? `${symbol}${number}` : `${number}${NBSP}${currency.toUpperCase()}`;
+    const text = symbol
+        ? locale === 'en'
+            ? `${symbol}${number}`
+            : `${number}${NBSP}${symbol}`
+        : `${number}${NBSP}${currency.toUpperCase()}`;
 
     return negative ? `−${text}` : text;
 }

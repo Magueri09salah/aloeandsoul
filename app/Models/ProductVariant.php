@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProductStatus;
+use App\Models\Concerns\HasTranslations;
 use Database\Factories\ProductVariantFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,9 +15,15 @@ class ProductVariant extends Model
     /** @use HasFactory<ProductVariantFactory> */
     use HasFactory;
 
+    use HasTranslations;
+
+    /** Columns with a French version ("name" → "name_fr"). */
+    public const TRANSLATABLE = ['name'];
+
     protected $fillable = [
         'product_id', 'name', 'sku', 'price_minor', 'sale_price_minor', 'stock',
         'track_stock', 'low_stock_threshold', 'is_active', 'sort_order',
+        'name_fr',
     ];
 
     protected function casts(): array
@@ -69,13 +76,13 @@ class ProductVariant extends Model
         $product = $this->product;
 
         if ($product === null || $product->status !== ProductStatus::Published) {
-            return 'This product is no longer available.';
+            return __('This product is no longer available.');
         }
         if (! $this->is_active || $this->price_minor === null || $this->price_minor === 0) {
-            return 'This option is no longer available.';
+            return __('This option is no longer available.');
         }
         if ($this->track_stock && $this->stock < 1) {
-            return 'Out of stock.';
+            return __('Out of stock.');
         }
 
         return null;
@@ -94,6 +101,8 @@ class ProductVariant extends Model
     /** Requires `product` loaded. */
     public function displayName(): string
     {
-        return $this->name ? "{$this->product->name} — {$this->name}" : $this->product->name;
+        $product = (string) $this->product->translated('name');
+
+        return $this->name ? $product.' — '.$this->translated('name') : $product;
     }
 }

@@ -15,7 +15,7 @@ import { ProductGallery } from '@/components/store/product-gallery';
 import { ProductPlaceholder } from '@/components/store/product-placeholder';
 import { SectionHeading } from '@/components/store/section-heading';
 import { useShared } from '@/hooks/use-shared';
-import { formatMoney } from '@/lib/money';
+import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 interface ProductPageProps {
@@ -32,6 +32,7 @@ interface ProductPageProps {
 
 export default function ProductShow({ product, related, breadcrumbs, delivery }: ProductPageProps) {
     const { store, errors } = useShared();
+    const { t, to, money } = useI18n();
     const orderingEnabled = store.ordering_enabled;
     const cart = useCartUi();
     const firstAvailable = product.variants.find((v) => v.in_stock) ?? product.variants[0];
@@ -41,14 +42,13 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
 
     const variant = product.variants.find((v) => v.id === variantId) ?? firstAvailable;
     const hasOptions = product.variants.length > 1;
-    const size = product.specifications.find((s) => s.label.toLowerCase() === 'size')?.value;
-    const reference = [variant?.sku ? `Ref. ${variant.sku}` : null, size].filter(Boolean).join(' – ');
+    const reference = [variant?.sku ? t('Ref. :sku', { sku: variant.sku }) : null, product.size].filter(Boolean).join(' – ');
     const hasDetails = product.specifications.length > 0 || Boolean(variant?.sku);
 
     const add = () => {
         if (!variant) return;
         router.post(
-            '/cart/items',
+            to('/cart/items'),
             { variant_id: variant.id, quantity },
             {
                 preserveScroll: true,
@@ -76,7 +76,7 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                     <ProductGallery
                         images={product.images}
                         tint={product.category.tint}
-                        label={`${product.name} images`}
+                        label={t(':name images', { name: product.name })}
                         placeholder={<ProductPlaceholder tint={product.category.tint} motif={MOTIF_BY_CATEGORY[product.category.slug]} />}
                     />
                 </div>
@@ -84,7 +84,7 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                 {/* Purchase panel */}
                 <section aria-labelledby="product-title" className="lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
                     <div className="lg:sticky lg:top-28">
-                        <Link href={`/shop/${product.category.slug}`} className="text-sm text-dune-deep hover:underline hover:underline-offset-4">
+                        <Link href={to(`/shop/${product.category.slug}`)} className="text-sm text-dune-deep hover:underline hover:underline-offset-4">
                             {product.category.name}
                         </Link>
                         <h1 id="product-title" className="mt-2 font-display text-display-sm">
@@ -99,7 +99,7 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                         {hasOptions && (
                             <fieldset className="mt-8">
                                 <legend className="mb-3 text-sm font-medium">
-                                    {product.option_label ?? 'Option'}: <span className="font-normal text-stone">{variant?.name}</span>
+                                    {t(':label:', { label: product.option_label ?? t('Option') })} <span className="font-normal text-stone">{variant?.name}</span>
                                 </legend>
                                 <div className="flex flex-wrap gap-2">
                                     {product.variants.map((v) => (
@@ -123,7 +123,7 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                                                 className="sr-only"
                                             />
                                             {v.name}
-                                            {!v.in_stock && <span className="sr-only"> (out of stock)</span>}
+                                            {!v.in_stock && <span className="sr-only"> {t('(out of stock)')}</span>}
                                         </label>
                                     ))}
                                 </div>
@@ -134,24 +134,24 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                             {variant?.in_stock ? (
                                 <>
                                     <div className="flex flex-wrap items-center gap-3">
-                                        <QuantityStepper label="Quantity" value={quantity} max={variant.max_quantity} onChange={setQuantity} />
+                                        <QuantityStepper label={t('Quantity')} value={quantity} max={variant.max_quantity} onChange={setQuantity} />
                                         <Button size="lg" className="min-w-52 flex-1" loading={adding} onClick={add} disabled={!orderingEnabled}>
-                                            Add to cart
+                                            {t('Add to cart')}
                                         </Button>
                                     </div>
-                                    {variant.low_stock && <p className="mt-3 text-sm text-dune-deep">Only a few left.</p>}
+                                    {variant.low_stock && <p className="mt-3 text-sm text-dune-deep">{t('Only a few left.')}</p>}
                                     {errors.quantity && (
                                         <p className="mt-3 text-sm text-clay" role="alert">
                                             {errors.quantity}
                                         </p>
                                     )}
-                                    {!orderingEnabled && <p className="mt-3 text-sm text-stone">Online ordering is paused at the moment.</p>}
+                                    {!orderingEnabled && <p className="mt-3 text-sm text-stone">{t('Online ordering is paused at the moment.')}</p>}
                                 </>
                             ) : (
                                 <p className="rounded-(--radius-control) bg-sand px-4 py-3 text-stone">
-                                    {hasOptions ? 'This option is out of stock.' : 'This product is out of stock.'} Please check back soon or{' '}
-                                    <Link href="/contact" className="underline underline-offset-4">
-                                        contact us
+                                    {hasOptions ? t('This option is out of stock.') : t('This product is out of stock.')} {t('Please check back soon or')}{' '}
+                                    <Link href={to('/contact')} className="underline underline-offset-4">
+                                        {t('contact us')}
                                     </Link>
                                     .
                                 </p>
@@ -162,7 +162,7 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                             <div className="flex gap-4 py-4">
                                 <Banknote className="mt-0.5 size-5 shrink-0 text-dune" strokeWidth={1.5} aria-hidden="true" />
                                 <div>
-                                    <p className="font-medium">Cash on delivery</p>
+                                    <p className="font-medium">{t('Cash on delivery')}</p>
                                     <p className="text-stone">{delivery.cod_instructions}</p>
                                 </div>
                             </div>
@@ -171,10 +171,10 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                                     <summary className="flex cursor-pointer list-none gap-4 [&::-webkit-details-marker]:hidden">
                                         <Truck className="mt-0.5 size-5 shrink-0 text-dune" strokeWidth={1.5} aria-hidden="true" />
                                         <span className="flex-1">
-                                            <span className="block font-medium">Delivery</span>
+                                            <span className="block font-medium">{t('Delivery')}</span>
                                             <span className="text-stone">
-                                                {delivery.min_fee_minor !== null && `From ${formatMoney(delivery.min_fee_minor, store.currency)}. `}
-                                                <span className="underline underline-offset-4 group-open:hidden">See delivery areas</span>
+                                                {delivery.min_fee_minor !== null && `${t('From :amount.', { amount: money(delivery.min_fee_minor) })} `}
+                                                <span className="underline underline-offset-4 group-open:hidden">{t('See delivery areas')}</span>
                                             </span>
                                         </span>
                                     </summary>
@@ -186,9 +186,9 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                                                     {z.estimate && <span className="text-stone/80"> · {z.estimate}</span>}
                                                 </span>
                                                 <span className="text-right tabular-nums">
-                                                    {formatMoney(z.fee_minor, store.currency)}
+                                                    {money(z.fee_minor)}
                                                     {z.free_over_minor !== null && (
-                                                        <span className="block text-xs">free over {formatMoney(z.free_over_minor, store.currency)}</span>
+                                                        <span className="block text-xs">{t('free over :amount', { amount: money(z.free_over_minor) })}</span>
                                                     )}
                                                 </span>
                                             </li>
@@ -204,14 +204,14 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
 
                 {/* Product information */}
                 {(product.sections.length > 0 || hasDetails) && (
-                    <section aria-label="Product information" className="border-t border-line lg:col-span-7 lg:row-start-2">
+                    <section aria-label={t('Product information')} className="border-t border-line lg:col-span-7 lg:row-start-2">
                         {product.sections.map((section, i) => (
                             <InfoSection key={section.id} title={section.title} open={i === 0}>
                                 <SafeHtml html={section.html} className="prose-compact text-ink/90" />
                             </InfoSection>
                         ))}
                         {hasDetails && (
-                            <InfoSection title="Details" open={product.sections.length === 0}>
+                            <InfoSection title={t('Details')} open={product.sections.length === 0}>
                                 <dl className="max-w-[70ch] divide-y divide-line border-y border-line">
                                     {product.specifications.map((s) => (
                                         <div key={s.label} className="grid grid-cols-3 gap-4 py-3 text-[0.95rem]">
@@ -221,7 +221,7 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                                     ))}
                                     {variant?.sku && (
                                         <div className="grid grid-cols-3 gap-4 py-3 text-[0.95rem]">
-                                            <dt className="text-stone">Reference</dt>
+                                            <dt className="text-stone">{t('Reference')}</dt>
                                             <dd className="col-span-2">{variant.sku}</dd>
                                         </div>
                                     )}
@@ -234,7 +234,7 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
 
             {related.length > 0 && (
                 <section className="container-page border-t border-line pt-16">
-                    <SectionHeading title={`More from ${product.category.name}`} link={{ href: `/shop/${product.category.slug}`, label: 'See all' }} />
+                    <SectionHeading title={t('More from :category', { category: product.category.name })} link={{ href: to(`/shop/${product.category.slug}`), label: t('See all') }} />
                     <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
                         {related.map((p) => (
                             <ProductCard key={p.id} product={p} />

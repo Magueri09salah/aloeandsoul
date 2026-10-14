@@ -95,6 +95,7 @@ class BlogPostController extends Controller
                 'cover_alt' => $post->cover_alt,
                 'seo_title' => $post->seo_title,
                 'seo_description' => $post->seo_description,
+                ...$post->only(BlogPost::translationColumns()),
                 'url' => $post->isLive() ? route('blog.show', $post) : null,
             ],
         ]);
@@ -131,8 +132,15 @@ class BlogPostController extends Controller
         $data = $request->validate([
             'heading' => ['required', 'string', 'max:60'],
             'intro' => ['nullable', 'string', 'max:300'],
+            'heading_fr' => ['nullable', 'string', 'max:60'],
+            'intro_fr' => ['nullable', 'string', 'max:300'],
         ]);
-        settings()->update('blog', ['heading' => $data['heading'], 'intro' => $data['intro'] ?? '']);
+        settings()->update('blog', [
+            'heading' => $data['heading'],
+            'intro' => $data['intro'] ?? '',
+            'heading_fr' => $data['heading_fr'] ?? '',
+            'intro_fr' => $data['intro_fr'] ?? '',
+        ]);
         $this->audit->log('blog.settings_updated');
 
         return back()->with('success', 'Blog page text saved.');

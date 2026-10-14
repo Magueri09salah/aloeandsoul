@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 final class ProductPresenter
 {
-    /** Product page sections, in display order: column => heading. */
+    /** Product page sections, in display order: column => heading (translated when shown). */
     public const SECTIONS = [
         'description' => 'Description',
         'benefits' => 'Benefits',
@@ -36,15 +36,15 @@ final class ProductPresenter
 
         return [
             'id' => $product->id,
-            'name' => $product->name,
+            'name' => $product->translated('name'),
             'slug' => $product->slug,
-            'summary' => $product->summary,
+            'summary' => $product->translated('summary'),
             'category' => [
-                'name' => $product->category->name,
+                'name' => $product->category->translated('name'),
                 'slug' => $product->category->slug,
                 'tint' => $product->category->tint,
             ],
-            'image' => $image ? ImagePresenter::present($image, $product->name) : null,
+            'image' => $image ? ImagePresenter::present($image, (string) $product->translated('name')) : null,
             'price_minor' => $cheapest?->effectivePriceMinor(),
             'regular_price_minor' => $cheapest?->price_minor,
             'price_varies' => $prices->count() > 1,
@@ -52,7 +52,7 @@ final class ProductPresenter
             'in_stock' => $purchasable->isNotEmpty(),
             'is_bestseller' => $product->is_bestseller,
             'variant_count' => $variants->count(),
-            'option_label' => $product->option_label,
+            'option_label' => $product->translated('option_label'),
             // Single-option products can be added straight from the grid.
             'quick_add_variant_id' => $variants->count() === 1 && $purchasable->count() === 1 ? $purchasable->first()->id : null,
         ];
@@ -69,24 +69,22 @@ final class ProductPresenter
 
         $sections = [];
         foreach (self::SECTIONS as $field => $title) {
-            $text = $product->getAttribute($field);
+            $text = $product->translated($field);
             if (is_string($text) && trim($text) !== '') {
-                $sections[] = ['id' => $field, 'title' => $title, 'html' => self::markdown($text)];
+                $sections[] = ['id' => $field, 'title' => __($title), 'html' => self::markdown($text)];
             }
         }
 
         return [
             ...self::card($product),
-            'description_html' => $product->description ? self::markdown($product->description) : null,
+            'description_html' => $product->translated('description') ? self::markdown((string) $product->translated('description')) : null,
             'sections' => $sections,
-            'specifications' => array_values(array_filter(
-                $product->specifications ?? [],
-                fn ($row) => is_array($row) && filled($row['label'] ?? null) && filled($row['value'] ?? null),
-            )),
-            'images' => $product->images->map(fn (ProductImage $img) => ImagePresenter::present($img, $product->name))->values()->all(),
+            'specifications' => self::specifications($product),
+            'size' => self::size($product),
+            'images' => $product->images->map(fn (ProductImage $img) => ImagePresenter::present($img, (string) $product->translated('name')))->values()->all(),
             'variants' => $variants->map(fn (ProductVariant $v) => [
                 'id' => $v->id,
-                'name' => $v->name,
+                'name' => $v->translated('name'),
                 'sku' => $v->sku,
                 'price_minor' => $v->effectivePriceMinor(),
                 'regular_price_minor' => $v->price_minor,
@@ -109,6 +107,48 @@ final class ProductPresenter
             'allow_unsafe_links' => false,
             'max_nesting_level' => 10,
         ]);
+    }
+
+    /**
+     * Details table rows in the current language. A row is {label, value}
+     * with optional label_fr / value_fr.
+     *
+     * @return list<array{label: string, value: string}>
+     */
+    public static function specifications(Product $product, ?string $locale = null): array
+    {
+        $locale ??= app()->getLocale();
+
+        $rows = [];
+        foreach ($product->specifications ?? [] as $row) {
+            if (! is_array($row) || blank($row['label'] ?? null) || blank($row['value'] ?? null)) {
+                continue;
+            }
+            $label = $row["label_{$locale}"] ?? null;
+            $value = $row["value_{$locale}"] ?? null;
+            $rows[] = [
+                'label' => (string) (filled($label) ? $label : $row['label']),
+                'value' => (string) (filled($value) ? $value : $row['value']),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /** The "Size" details row (e.g. "60 tablets"), shown under the price. */
+    public static function size(Product $product, ?string $locale = null): ?string
+    {
+        $locale ??= app()->getLocale();
+
+        foreach ($product->specifications ?? [] as $row) {
+            if (is_array($row) && mb_strtolower(trim((string) ($row['label'] ?? ''))) === 'size' && filled($row['value'] ?? null)) {
+                $value = $row["value_{$locale}"] ?? null;
+
+                return (string) (filled($value) ? $value : $row['value']);
+            }
+        }
+
+        return null;
     }
 
     /** @return Collection<int, ProductVariant> */

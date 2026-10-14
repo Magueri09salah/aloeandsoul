@@ -19,39 +19,46 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', HomeController::class)->name('home');
+// Registered once per language: English at the root, French under /fr with
+// route names prefixed "fr." (use localized_route() to link to the right one).
+$storefront = function () {
+    Route::get('/', HomeController::class)->name('home');
 
-Route::get('/shop', [ShopController::class, 'index'])->middleware('throttle:search')->name('shop');
-Route::get('/shop/{category:slug}', [ShopController::class, 'category'])->middleware('throttle:search')->name('shop.category');
-Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('/shop', [ShopController::class, 'index'])->middleware('throttle:search')->name('shop');
+    Route::get('/shop/{category:slug}', [ShopController::class, 'category'])->middleware('throttle:search')->name('shop.category');
+    Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 
-Route::get('/cart', [CartController::class, 'show'])->name('cart');
-Route::middleware('throttle:cart')->group(function () {
-    Route::post('/cart/items', [CartController::class, 'store'])->name('cart.items.store');
-    Route::patch('/cart/items/{item}', [CartController::class, 'update'])->name('cart.items.update');
-    Route::delete('/cart/items/{item}', [CartController::class, 'destroy'])->name('cart.items.destroy');
-    Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
-    Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
-});
+    Route::get('/cart', [CartController::class, 'show'])->name('cart');
+    Route::middleware('throttle:cart')->group(function () {
+        Route::post('/cart/items', [CartController::class, 'store'])->name('cart.items.store');
+        Route::patch('/cart/items/{item}', [CartController::class, 'update'])->name('cart.items.update');
+        Route::delete('/cart/items/{item}', [CartController::class, 'destroy'])->name('cart.items.destroy');
+        Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
+        Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
+    });
 
-Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
-Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:checkout')->name('checkout.store');
-Route::get('/checkout/confirmation/{order:reference}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
+    Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:checkout')->name('checkout.store');
+    Route::get('/checkout/confirmation/{order:reference}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
 
-Route::get('/track-order', [TrackOrderController::class, 'show'])->name('track-order');
-Route::post('/track-order', [TrackOrderController::class, 'lookup'])->middleware('throttle:track-order')->name('track-order.lookup');
+    Route::get('/track-order', [TrackOrderController::class, 'show'])->name('track-order');
+    Route::post('/track-order', [TrackOrderController::class, 'lookup'])->middleware('throttle:track-order')->name('track-order.lookup');
 
-Route::get('/our-story', [ContentController::class, 'story'])->name('story');
-Route::get('/blog', [BlogController::class, 'index'])->name('blog');
-Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
-Route::get('/faq', [ContentController::class, 'faq'])->name('faq');
-Route::get('/contact', [ContactController::class, 'show'])->name('contact');
-Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:forms')->name('contact.store');
-Route::post('/newsletter', [ContactController::class, 'subscribe'])->middleware('throttle:forms')->name('newsletter.subscribe');
+    Route::get('/our-story', [ContentController::class, 'story'])->name('story');
+    Route::get('/blog', [BlogController::class, 'index'])->name('blog');
+    Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
+    Route::get('/faq', [ContentController::class, 'faq'])->name('faq');
+    Route::get('/contact', [ContactController::class, 'show'])->name('contact');
+    Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:forms')->name('contact.store');
+    Route::post('/newsletter', [ContactController::class, 'subscribe'])->middleware('throttle:forms')->name('newsletter.subscribe');
 
-Route::get('/{slug}', [ContentController::class, 'page'])
-    ->whereIn('slug', ['shipping-returns', 'privacy-policy', 'terms', 'legal-notice'])
-    ->name('page');
+    Route::get('/{slug}', [ContentController::class, 'page'])
+        ->whereIn('slug', ['shipping-returns', 'privacy-policy', 'terms', 'legal-notice'])
+        ->name('page');
+};
+
+Route::group([], $storefront);
+Route::prefix('fr')->name('fr.')->group($storefront);
 
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');

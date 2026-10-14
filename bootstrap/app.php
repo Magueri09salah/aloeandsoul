@@ -5,6 +5,7 @@ use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\EnsureAdminIsActive;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\ThrottlePasswordResetRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(AssignRequestId::class);
+        // Before routing, so 404 and 419 pages are in the visitor's language too.
+        $middleware->append(SetLocale::class);
 
         $middleware->web(append: [
             ThrottlePasswordResetRequests::class,
@@ -52,7 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
             $status = $response->getStatusCode();
 
             if ($status === 419) {
-                return back()->with('error', 'This page expired. Please try again.');
+                return back()->with('error', __('This page expired. Please try again.'));
             }
 
             $friendly = [403, 404, 410, 429];

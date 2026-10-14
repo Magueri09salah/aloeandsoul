@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Database\Factories\ShippingZoneFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,12 @@ class ShippingZone extends Model
     /** @use HasFactory<ShippingZoneFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'fee_minor', 'free_over_minor', 'estimate', 'is_active', 'sort_order'];
+    use HasTranslations;
+
+    /** Columns with a French version ("name" → "name_fr"). */
+    public const TRANSLATABLE = ['name', 'estimate'];
+
+    protected $fillable = ['name', 'fee_minor', 'free_over_minor', 'estimate', 'is_active', 'sort_order', 'name_fr', 'estimate_fr'];
 
     protected function casts(): array
     {

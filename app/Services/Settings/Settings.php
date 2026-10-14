@@ -3,8 +3,10 @@
 namespace App\Services\Settings;
 
 use App\Models\Setting;
+use App\Support\Locales;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 /**
@@ -57,6 +59,57 @@ class Settings
     public function get(string $key, mixed $default = null): mixed
     {
         return Arr::get($this->all(), $key, $default);
+    }
+
+    /**
+     * A group as the storefront shows it in the current language: a filled
+     * "<key>_fr" replaces "<key>" (also inside lists such as the story
+     * chapters) and the translation keys are dropped.
+     *
+     * @return array<string, mixed>
+     */
+    public function localized(string $group, ?string $locale = null): array
+    {
+        return self::localize($this->group($group), $locale ?? app()->getLocale());
+    }
+
+    /** Dot access in the current language: settings()->localizedGet('checkout.cod_instructions'). */
+    public function localizedGet(string $key, mixed $default = null): mixed
+    {
+        [$group, $rest] = array_pad(explode('.', $key, 2), 2, null);
+        if ($rest === null || ! array_key_exists($group, $this->all())) {
+            return $default;
+        }
+
+        return Arr::get($this->localized($group), $rest, $default);
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $values
+     * @return array<array-key, mixed>
+     */
+    public static function localize(array $values, string $locale): array
+    {
+        $suffixes = array_map(fn (string $l) => "_{$l}", Locales::translations());
+
+        $localized = [];
+        foreach ($values as $key => $value) {
+            if (is_string($key) && Str::endsWith($key, $suffixes)) {
+                continue;
+            }
+            if (is_string($key) && $locale !== Locales::DEFAULT) {
+                $translation = $values["{$key}_{$locale}"] ?? null;
+                if (is_string($translation) && trim($translation) !== '') {
+                    $value = $translation;
+                }
+            }
+            if (is_array($value)) {
+                $value = array_map(fn ($item) => is_array($item) ? self::localize($item, $locale) : $item, $value);
+            }
+            $localized[$key] = $value;
+        }
+
+        return $localized;
     }
 
     public function currency(): string

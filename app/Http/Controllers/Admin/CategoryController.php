@@ -28,7 +28,7 @@ class CategoryController extends Controller
                 ->orderBy('sort_order')->orderBy('name')
                 ->get()
                 ->map(fn (Category $c) => [
-                    ...$c->only(['id', 'name', 'slug', 'tagline', 'description', 'tint', 'motif', 'sort_order', 'is_active', 'seo_title', 'seo_description']),
+                    ...$c->only(['id', 'name', 'slug', 'tagline', 'description', 'tint', 'motif', 'sort_order', 'is_active', 'seo_title', 'seo_description', ...Category::translationColumns()]),
                     'products_count' => $c->products_count,
                     'published_products_count' => $c->published_products_count,
                     'url' => route('shop.category', $c),
@@ -91,6 +91,11 @@ class CategoryController extends Controller
             'is_active' => ['boolean'],
             'seo_title' => ['nullable', 'string', 'max:70'],
             'seo_description' => ['nullable', 'string', 'max:170'],
+            'name_fr' => ['nullable', 'string', 'max:100'],
+            'tagline_fr' => ['nullable', 'string', 'max:160'],
+            'description_fr' => ['nullable', 'string', 'max:2000'],
+            'seo_title_fr' => ['nullable', 'string', 'max:70'],
+            'seo_description_fr' => ['nullable', 'string', 'max:170'],
         ], [
             'slug.unique' => 'Another category already uses this web address.',
             'tint.regex' => 'Use a colour like #EDE5D8.',

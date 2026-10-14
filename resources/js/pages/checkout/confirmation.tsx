@@ -3,7 +3,7 @@ import { Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { OrderTotals } from '@/components/store/order-totals';
 import { useShared } from '@/hooks/use-shared';
-import { formatMoney } from '@/lib/money';
+import { useI18n } from '@/lib/i18n';
 
 interface ConfirmationProps {
     order: {
@@ -23,30 +23,31 @@ interface ConfirmationProps {
 
 export default function Confirmation({ order, checkout }: ConfirmationProps) {
     const { contact } = useShared();
-    const firstName = order.delivery.name.split(' ')[0];
+    const { t, to, money } = useI18n();
+    const firstName = order.delivery.name.split(' ')[0] ?? '';
 
     const steps = [
-        checkout.confirmation_note || 'We review your order and prepare it.',
-        'We pack your order and hand it to the courier.',
-        `You pay ${formatMoney(order.total_minor, order.currency)} in cash when it arrives.`,
+        checkout.confirmation_note || t('We review your order and prepare it.'),
+        t('We pack your order and hand it to the courier.'),
+        t('You pay :amount in cash when it arrives.', { amount: money(order.total_minor, order.currency) }),
     ];
 
     return (
         <div className="container-page py-12 lg:py-20">
             <div className="max-w-3xl">
-                <p className="text-dune-deep">Order received</p>
-                <h1 className="mt-2 font-display text-display">Thank you, {firstName}.</h1>
+                <p className="text-dune-deep">{t('Order received')}</p>
+                <h1 className="mt-2 font-display text-display">{t('Thank you, :name.', { name: firstName })}</h1>
                 <p className="mt-6 text-lg">
-                    Your order reference is{' '}
-                    <strong className="rounded bg-sand px-2 py-0.5 font-semibold tracking-wide select-all">{order.reference}</strong>. Keep it to follow your
-                    order.
+                    {t('Your order reference is')}{' '}
+                    <strong className="rounded bg-sand px-2 py-0.5 font-semibold tracking-wide select-all">{order.reference}</strong>
+                    {t('. Keep it to follow your order.')}
                 </p>
             </div>
 
             <div className="mt-12 grid gap-12 lg:grid-cols-12">
                 <section aria-labelledby="next-heading" className="lg:col-span-5">
                     <h2 id="next-heading" className="font-display text-2xl">
-                        What happens next
+                        {t('What happens next')}
                     </h2>
                     <ol className="mt-6 space-y-6">
                         {steps.map((step, i) => (
@@ -60,12 +61,16 @@ export default function Confirmation({ order, checkout }: ConfirmationProps) {
                     </ol>
                     <div className="mt-10 flex flex-wrap gap-3">
                         <Button asChild variant="secondary">
-                            <Link href="/track-order">Track this order</Link>
+                            <Link href={to('/track-order')}>{t('Track this order')}</Link>
                         </Button>
                         {contact?.whatsapp && (
                             <Button asChild variant="ghost">
-                                <a href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(`Order ${order.reference}`)}`} target="_blank" rel="noopener noreferrer">
-                                    Questions? WhatsApp us
+                                <a
+                                    href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(t('Order :reference', { reference: order.reference }))}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {t('Questions? WhatsApp us')}
                                 </a>
                             </Button>
                         )}
@@ -74,7 +79,7 @@ export default function Confirmation({ order, checkout }: ConfirmationProps) {
 
                 <section aria-labelledby="summary-heading" className="rounded-lg border border-line bg-white p-6 lg:col-span-6 lg:col-start-7">
                     <h2 id="summary-heading" className="font-display text-2xl">
-                        Order summary
+                        {t('Order summary')}
                     </h2>
                     <ul className="mt-4 divide-y divide-line border-y border-line">
                         {order.items.map((item, i) => (
@@ -84,7 +89,7 @@ export default function Confirmation({ order, checkout }: ConfirmationProps) {
                                     {item.variant && <span className="text-stone"> — {item.variant}</span>}
                                     <span className="text-stone"> × {item.quantity}</span>
                                 </span>
-                                <span className="tabular-nums">{formatMoney(item.line_total_minor, order.currency)}</span>
+                                <span className="tabular-nums">{money(item.line_total_minor, order.currency)}</span>
                             </li>
                         ))}
                     </ul>
@@ -98,13 +103,13 @@ export default function Confirmation({ order, checkout }: ConfirmationProps) {
                         couponCode={order.coupon_code}
                     />
                     <div className="mt-6 border-t border-line pt-5 text-[0.95rem]">
-                        <h3 className="font-medium">Delivery to</h3>
+                        <h3 className="font-medium">{t('Delivery to')}</h3>
                         <p className="mt-1 text-stone">
                             {order.delivery.name}, {order.delivery.phone}
                             <br />
                             {order.delivery.address}, {order.delivery.city} ({order.delivery.zone})
                         </p>
-                        {order.delivery.notes && <p className="mt-2 text-stone">Notes: {order.delivery.notes}</p>}
+                        {order.delivery.notes && <p className="mt-2 text-stone">{t('Notes: :notes', { notes: order.delivery.notes })}</p>}
                     </div>
                 </section>
             </div>

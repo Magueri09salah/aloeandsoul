@@ -35,8 +35,8 @@ class ContactRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'message.min' => 'Please write a little more so we can help.',
-            'website.prohibited' => 'Your message could not be sent.',
+            'message.min' => __('Please write a little more so we can help.'),
+            'website.prohibited' => __('Your message could not be sent.'),
         ];
     }
 }

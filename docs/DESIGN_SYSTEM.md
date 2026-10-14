@@ -122,10 +122,17 @@ Measure: editorial text max **66ch**, UI paragraphs max **72ch**. Display text t
 | `Sheet` | Right (cart), left (mobile nav), bottom (mobile filters) |
 | `Dialog`, `AlertDialog` | Confirm destructive admin actions |
 | `QuantityStepper` | Pill with −/+ buttons (44 px targets), min/max enforcement, announces value |
-| `Price` | Formats minor units with `Intl.NumberFormat`; sale price shows the original struck through with accessible text |
+| `Price` | Formats minor units for the page language (`290 MAD`, `289.50 MAD` in English; `1 077 MAD`, `289,50 MAD` in French); sale price shows the original struck through with accessible text |
+| Language switch (`components/store/language-switcher.tsx`) | Header: one link to the other language, its name written in that language (*Français* / *English*), shortened to *FR* / *EN* under 640 px. Mobile menu and footer: both languages, the current one underlined. A full page load, so the whole document changes language |
 | `ResponsiveImage` | `srcset`/`sizes`, explicit width/height (no CLS), lazy by default, `priority` for LCP |
 | `Skeleton` | Product card and table row placeholders |
 | `Toaster` (sonner) | Success/error feedback for async actions |
+
+### Language and layout
+
+- French runs about 15–20 % longer than English: buttons and labels wrap instead of truncating, and fixed widths are avoided in the storefront.
+- French typography: a no-break space before `:` `;` `?` `!` and inside « », decimal comma and spaced thousands (`1 077,50`).
+- On phones the header holds menu, logo, language, search and cart from 360 px: below 640 px the wordmark is set slightly smaller and the gaps tighter; every button keeps its 44 px target.
 
 ## 7. Motion
 

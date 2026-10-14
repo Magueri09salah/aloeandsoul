@@ -3,6 +3,7 @@ import { AlertDialog as AlertPrimitive, Dialog as DialogPrimitive } from 'radix-
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
+import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 const overlay =
@@ -21,6 +22,8 @@ function DialogContent({
     children,
     ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & { title: string; description?: string }) {
+    const { t } = useI18n();
+
     return (
         <DialogPrimitive.Portal>
             <DialogPrimitive.Overlay className={overlay} />
@@ -34,7 +37,7 @@ function DialogContent({
                     </div>
                     <DialogPrimitive.Close className="-mt-1 -mr-2 inline-flex size-9 items-center justify-center rounded-full hover:bg-sand">
                         <X className="size-4" aria-hidden="true" />
-                        <span className="sr-only">Close</span>
+                        <span className="sr-only">{t('Close')}</span>
                     </DialogPrimitive.Close>
                 </div>
                 {children}

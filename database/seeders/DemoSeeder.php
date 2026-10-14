@@ -51,13 +51,19 @@ class DemoSeeder extends Seeder
             // packshot, run through the real upload pipeline so demo products
             // meet the same publishing rules as real ones.
             if ($product->images()->doesntExist()) {
-                $product->images()->create([...$this->placeholderImage($product), 'alt' => "{$product->name} (placeholder image)"]);
+                $product->images()->create([
+                    ...$this->placeholderImage($product),
+                    'alt' => "{$product->name} (placeholder image)",
+                    'alt_fr' => $product->translated('name', 'fr').' (image provisoire)',
+                ]);
             }
 
             $product->forceFill([
                 'summary' => 'Demo summary. Replace with the official product information.',
                 'description' => "**Demo description.** This text is a placeholder for development.\n\nReplace it with the official product information before publishing.",
-                'specifications' => [['label' => 'Size', 'value' => 'To be confirmed']],
+                'summary_fr' => 'Résumé de démonstration. À remplacer par les informations officielles du produit.',
+                'description_fr' => "**Description de démonstration.** Ce texte est provisoire.\n\nRemplacez-le par les informations officielles du produit avant de publier.",
+                'specifications' => [['label' => 'Size', 'value' => 'To be confirmed', 'label_fr' => 'Contenance', 'value_fr' => 'À confirmer']],
                 'status' => ProductStatus::Published,
                 'published_at' => now()->subDays($i),
                 'is_featured' => $i % 5 === 0,
@@ -65,21 +71,32 @@ class DemoSeeder extends Seeder
             ])->save();
         });
 
-        foreach ([['Marrakech', 2000, 50000, '1–2 days'], ['Casablanca', 3000, 50000, '2–3 days'], ['Other cities', 4000, null, '3–5 days']] as $i => [$name, $fee, $free, $estimate]) {
+        $zones = [
+            ['Marrakech', null, 2000, 50000, '1–2 days', '1 à 2 jours'],
+            ['Casablanca', null, 3000, 50000, '2–3 days', '2 à 3 jours'],
+            ['Other cities', 'Autres villes', 4000, null, '3–5 days', '3 à 5 jours'],
+        ];
+        foreach ($zones as $i => [$name, $nameFr, $fee, $free, $estimate, $estimateFr]) {
             ShippingZone::query()->firstOrCreate(['name' => $name], [
+                'name_fr' => $nameFr,
                 'fee_minor' => $fee,
                 'free_over_minor' => $free,
                 'estimate' => $estimate,
+                'estimate_fr' => $estimateFr,
                 'is_active' => true,
                 'sort_order' => $i,
             ]);
         }
 
-        foreach (['Demo post: a slower morning', 'Demo post: notes from Essaouira'] as $i => $title) {
+        $posts = ['Demo post: a slower morning' => 'Article de démonstration : un matin plus lent', 'Demo post: notes from Essaouira' => 'Article de démonstration : notes d’Essaouira'];
+        foreach (array_keys($posts) as $i => $title) {
             BlogPost::query()->firstOrCreate(['slug' => Str::slug($title)], [
                 'title' => $title,
                 'excerpt' => 'Placeholder post for development. Replace or delete it in Admin → Blog.',
                 'body' => "This is a **demo post** used while building the site.\n\nWrite real posts in Admin → Blog and delete this one.\n\n## A subheading\n\n- A list item\n- Another item",
+                'title_fr' => $posts[$title],
+                'excerpt_fr' => 'Article provisoire pour le développement. À remplacer ou supprimer dans Admin → Blog.',
+                'body_fr' => "Ceci est un **article de démonstration** utilisé pendant la création du site.\n\nÉcrivez de vrais articles dans Admin → Blog et supprimez celui-ci.\n\n## Un intertitre\n\n- Un élément de liste\n- Un autre élément",
                 'status' => PostStatus::Published,
                 'published_at' => now()->subDays(2 + $i * 5),
             ]);
@@ -88,6 +105,7 @@ class DemoSeeder extends Seeder
         foreach (['Demo Collaborator One', 'Demo Studio', 'Demo Wellness Coach'] as $i => $name) {
             Collaborator::query()->firstOrCreate(['name' => $name], [
                 'description' => 'Placeholder, replace in Admin → Collaborators',
+                'description_fr' => 'Exemple, à remplacer dans Admin → Collaborators',
                 'image_style' => 'photo',
                 'sort_order' => $i,
                 'is_visible' => true,

@@ -30,7 +30,7 @@ class TrackOrderRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'reference.regex' => 'Order references look like AS-2610-K7Q3X.',
+            'reference.regex' => __('Order references look like AS-2610-K7Q3X.'),
         ];
     }
 }

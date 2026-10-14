@@ -67,12 +67,13 @@ class ProductImageController extends Controller
             'images' => ['required', 'array', 'max:'.self::MAX_IMAGES],
             'images.*.id' => ['required', 'integer', Rule::exists('product_images', 'id')->where('product_id', $product->id)],
             'images.*.alt' => ['nullable', 'string', 'max:160'],
+            'images.*.alt_fr' => ['nullable', 'string', 'max:160'],
         ]);
 
         DB::transaction(function () use ($data, $product) {
             foreach (array_values($data['images']) as $position => $row) {
                 ProductImage::query()->where('product_id', $product->id)->whereKey($row['id'])
-                    ->update(['alt' => $row['alt'] ?: null, 'sort_order' => $position]);
+                    ->update(['alt' => ($row['alt'] ?? null) ?: null, 'alt_fr' => ($row['alt_fr'] ?? null) ?: null, 'sort_order' => $position]);
             }
         });
 

@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import type { PostCard as PostCardData } from '@/types';
 
 import { PostCard } from '@/components/store/post-card';
+import { useI18n } from '@/lib/i18n';
 
 interface BlogIndexProps {
     heading: string;
@@ -13,6 +14,7 @@ interface BlogIndexProps {
 export default function BlogIndex({ heading, intro, posts }: BlogIndexProps) {
     const [first, ...rest] = posts.data;
     const isFirstPage = posts.current_page === 1;
+    const { t } = useI18n();
 
     return (
         <div className="container-page py-12 lg:py-20">
@@ -22,7 +24,7 @@ export default function BlogIndex({ heading, intro, posts }: BlogIndexProps) {
             </header>
 
             {posts.data.length === 0 ? (
-                <p className="mt-16 text-lg text-stone">The first posts are on their way. Please come back soon.</p>
+                <p className="mt-16 text-lg text-stone">{t('The first posts are on their way. Please come back soon.')}</p>
             ) : (
                 <>
                     {isFirstPage && first && (
@@ -39,17 +41,17 @@ export default function BlogIndex({ heading, intro, posts }: BlogIndexProps) {
             )}
 
             {posts.last_page > 1 && (
-                <nav aria-label="Pages" className="mt-16 flex justify-between border-t border-line pt-6">
+                <nav aria-label={t('Pages')} className="mt-16 flex justify-between border-t border-line pt-6">
                     {posts.prev ? (
                         <Link href={posts.prev} rel="prev" className="underline underline-offset-4 hover:text-aloe">
-                            Newer posts
+                            {t('Newer posts')}
                         </Link>
                     ) : (
                         <span />
                     )}
                     {posts.next && (
                         <Link href={posts.next} rel="next" className="underline underline-offset-4 hover:text-aloe">
-                            Older posts
+                            {t('Older posts')}
                         </Link>
                     )}
                 </nav>

@@ -45,6 +45,8 @@ final class AdminOrderPresenter
                 'phone_e164' => $order->customer_phone,
                 'whatsapp' => Phone::whatsappDigits($order->customer_phone),
                 'email' => $order->customer_email,
+                // The site language the customer ordered in, so the team replies in it.
+                'locale' => $order->locale,
                 'orders_count' => $order->customer?->orders()->count(),
             ],
             'delivery' => [

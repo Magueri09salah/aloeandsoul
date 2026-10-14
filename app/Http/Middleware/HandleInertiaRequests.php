@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Category;
 use App\Models\User;
 use App\Services\Cart\CartService;
+use App\Support\Locales;
 use App\Support\Phone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -22,8 +23,8 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $isAdmin = $request->is('admin', 'admin/*');
-        $store = settings()->group('store');
-        $contact = settings()->group('contact');
+        $store = settings()->localized('store');
+        $contact = settings()->localized('contact');
 
         $shared = [
             ...parent::share($request),
@@ -73,10 +74,18 @@ class HandleInertiaRequests extends Middleware
             'social' => array_filter(settings()->group('social')),
             'newsletter_enabled' => (bool) settings()->get('home.newsletter_enabled'),
             'announcement' => fn () => $this->announcement(),
-            'navigation' => fn () => Cache::remember(self::NAV_CACHE_KEY, now()->addMinutes(10), fn () => Category::query()
+            'alternates' => $this->alternates($request),
+            'navigation' => fn () => Cache::remember(self::NAV_CACHE_KEY.'.'.app()->getLocale(), now()->addMinutes(10), fn () => Category::query()
                 ->active()
-                ->get(['name', 'slug', 'tagline', 'tint', 'motif'])
-                ->toArray()),
+                ->get()
+                ->map(fn (Category $c) => [
+                    'name' => $c->translated('name'),
+                    'slug' => $c->slug,
+                    'tagline' => $c->translated('tagline'),
+                    'tint' => $c->tint,
+                    'motif' => $c->motif,
+                ])
+                ->all()),
             'cart' => fn () => app(CartService::class)->view(),
         ];
     }
@@ -84,10 +93,33 @@ class HandleInertiaRequests extends Middleware
     /** @return array{text: string, link_label: string, link_url: string}|null */
     private function announcement(): ?array
     {
-        $a = settings()->group('announcement');
+        $a = settings()->localized('announcement');
+        $url = (string) $a['link_url'];
+        // Links to our own pages open in the visitor's language.
+        if (str_starts_with($url, '/') && ! str_starts_with($url, '//')) {
+            $url = Locales::path($url, app()->getLocale());
+        }
 
         return $a['enabled'] && filled($a['text'])
-            ? ['text' => $a['text'], 'link_label' => $a['link_label'], 'link_url' => $a['link_url']]
+            ? ['text' => $a['text'], 'link_label' => $a['link_label'], 'link_url' => $url]
             : null;
+    }
+
+    /**
+     * This page in every language, for the language switcher.
+     *
+     * @return array<string, string>
+     */
+    private function alternates(Request $request): array
+    {
+        $query = $request->getQueryString();
+        $path = '/'.$request->path().($query ? "?{$query}" : '');
+
+        $urls = [];
+        foreach (Locales::codes() as $locale) {
+            $urls[$locale] = url(Locales::path($path, $locale));
+        }
+
+        return $urls;
     }
 }

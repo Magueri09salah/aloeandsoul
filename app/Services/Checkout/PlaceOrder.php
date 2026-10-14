@@ -49,12 +49,12 @@ class PlaceOrder
         }
 
         if (! settings()->get('store.ordering_enabled')) {
-            throw new DomainException((string) settings()->get('store.closed_message'));
+            throw new DomainException((string) settings()->localizedGet('store.closed_message'));
         }
 
         $cart = $this->cart->current();
         if ($cart === null || $cart->items()->doesntExist()) {
-            throw new DomainException('Your cart is empty.', 'cart');
+            throw new DomainException(__('Your cart is empty.'), 'cart');
         }
 
         try {
@@ -90,7 +90,7 @@ class PlaceOrder
         if ($cart === null || $items->isEmpty()) {
             // An identical submission that held the lock may have just won.
             return $this->findByKey($data->idempotencyKey)
-                ?? throw new DomainException('Your cart is empty.', 'cart');
+                ?? throw new DomainException(__('Your cart is empty.'), 'cart');
         }
 
         // Lock variant rows in a stable order so concurrent checkouts queue
@@ -109,14 +109,14 @@ class PlaceOrder
             /** @var ProductVariant|null $variant */
             $variant = $variants->get($item->product_variant_id);
             if ($variant === null) {
-                throw new DomainException('An item in your cart is no longer available.', 'cart');
+                throw new DomainException(__('An item in your cart is no longer available.'), 'cart');
             }
             if (($reason = $variant->unavailableReason()) !== null) {
                 throw new DomainException("{$variant->displayName()}: {$reason}", 'cart');
             }
             $available = $variant->purchasableQuantity($maxPerLine);
             if ($item->quantity > $available) {
-                throw new DomainException("Only {$available} of {$variant->displayName()} available. Please update your cart.", 'cart');
+                throw new DomainException(__('Only :count of :item available. Please update your cart.', ['count' => $available, 'item' => $variant->displayName()]), 'cart');
             }
 
             $lines[] = new QuoteLine($variant->id, (int) $variant->effectivePriceMinor(), (int) $variant->price_minor, $item->quantity);
@@ -125,7 +125,7 @@ class PlaceOrder
 
         $zone = ShippingZone::query()->where('is_active', true)->find($data->shippingZoneId);
         if ($zone === null) {
-            throw new DomainException('Choose a delivery area.', 'shipping_zone_id');
+            throw new DomainException(__('Choose a delivery area.'), 'shipping_zone_id');
         }
 
         $customer = Customer::query()->where('phone', $data->phone)->lockForUpdate()->first();
@@ -136,11 +136,11 @@ class PlaceOrder
         $quote = $this->pricing->quote($lines, $currency, $zone, $coupon, $customer?->id);
 
         if ($cart->coupon_code !== null && $quote->coupon === null) {
-            throw new DomainException(($quote->couponError ?? 'This code is not valid.').' Remove the code to continue.', 'coupon');
+            throw new DomainException(($quote->couponError ?? __('This code is not valid.')).' '.__('Remove the code to continue.'), 'coupon');
         }
 
         if ($quote->totalMinor() !== $data->expectedTotalMinor) {
-            throw new DomainException('Prices or delivery fees have changed since you opened this page. Please check the updated total and place your order again.', 'total');
+            throw new DomainException(__('Prices or delivery fees have changed since you opened this page. Please check the updated total and place your order again.'), 'total');
         }
 
         $now = now();
@@ -166,6 +166,7 @@ class PlaceOrder
             'shipping_zone_id' => $zone->id,
             'shipping_zone_name' => $zone->name,
             'currency' => $currency,
+            'locale' => app()->getLocale(),
             'subtotal_minor' => $quote->subtotalMinor,
             'discount_minor' => $quote->discountMinor,
             'shipping_minor' => (int) $quote->shippingMinor,

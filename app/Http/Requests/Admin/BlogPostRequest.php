@@ -19,7 +19,7 @@ class BlogPostRequest extends AdminRequest
 
     protected function prepareForValidation(): void
     {
-        $this->nullIfBlank('excerpt', 'cover_alt', 'seo_title', 'seo_description', 'published_at');
+        $this->nullIfBlank('excerpt', 'cover_alt', 'seo_title', 'seo_description', 'published_at', ...BlogPost::translationColumns());
 
         $title = is_string($this->input('title')) ? trim($this->input('title')) : $this->input('title');
         $slug = is_string($this->input('slug')) ? trim($this->input('slug')) : '';
@@ -49,6 +49,13 @@ class BlogPostRequest extends AdminRequest
             'cover_alt' => ['nullable', 'string', 'max:160'],
             'seo_title' => ['nullable', 'string', 'max:70'],
             'seo_description' => ['nullable', 'string', 'max:170'],
+            // French version (optional: empty fields show the English text).
+            'title_fr' => ['nullable', 'string', 'max:160'],
+            'excerpt_fr' => ['nullable', 'string', 'max:300'],
+            'body_fr' => ['nullable', 'string', 'max:100000'],
+            'cover_alt_fr' => ['nullable', 'string', 'max:160'],
+            'seo_title_fr' => ['nullable', 'string', 'max:70'],
+            'seo_description_fr' => ['nullable', 'string', 'max:170'],
         ];
     }
 
@@ -88,6 +95,7 @@ class BlogPostRequest extends AdminRequest
             'cover_alt' => $this->validated('cover_alt'),
             'seo_title' => $this->validated('seo_title'),
             'seo_description' => $this->validated('seo_description'),
+            ...$this->safe()->only(BlogPost::translationColumns()),
         ];
     }
 }

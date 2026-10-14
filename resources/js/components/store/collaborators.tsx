@@ -1,6 +1,7 @@
 import type { Collaborator } from '@/types';
 
 import { ResponsiveImage } from '@/components/ui/responsive-image';
+import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 function initials(name: string): string {
@@ -30,6 +31,7 @@ function Portrait({ c }: { c: Collaborator }) {
 }
 
 export function Collaborators({ heading, intro, items }: { heading: string; intro: string; items: Collaborator[] }) {
+    const { t } = useI18n();
     if (items.length === 0) return null;
 
     return (
@@ -54,7 +56,7 @@ export function Collaborators({ heading, intro, items }: { heading: string; intr
                             {c.url ? (
                                 <a href={c.url} target="_blank" rel="noopener noreferrer" className="group block">
                                     {body}
-                                    <span className="sr-only"> (opens their website in a new tab)</span>
+                                    <span className="sr-only"> {t('(opens their website in a new tab)')}</span>
                                 </a>
                             ) : (
                                 <div>{body}</div>

@@ -2,9 +2,9 @@
 
 Online shop for **Aloe & Soul** — wellness, beauty, fitness and nutrition, founded by a woman whose journey led from London to Marrakech. *Nourish the Body. Inspire the Soul.*
 
-- Storefront with four categories, product variants, search and filters, a founder-story feature, a blog, a collaborators section and policy pages
+- Storefront in **English and French** (`/fr`), with four categories, product variants, search and filters, a founder-story feature, a blog, a collaborators section and policy pages
 - Guest checkout, **cash on delivery only** (no payment gateway, no card data)
-- Admin for orders, products, stock, customers, discount codes, delivery areas, blog posts, collaborators, content, settings and team roles
+- Admin (in English) for orders, products, stock, customers, discount codes, delivery areas, blog posts, collaborators, content, settings and team roles; every customer-facing text can be written in English and French
 - Built to run on Hostinger PHP hosting: no Node.js, Redis or worker process in production
 
 | Docs | |
@@ -88,7 +88,7 @@ The password is typed interactively (never passed on the command line). Further 
 
 | Command | What it runs |
 |---|---|
-| `php vendor/bin/pest` | 178 PHP tests: unit (money, phone, pricing, status rules), feature (catalogue, cart, checkout, admin, security), and a **multi-process concurrency test** on MySQL. Uses `aloeandsoul_test`. |
+| `php vendor/bin/pest` | 209 PHP tests: unit (money, phone, pricing, status rules, translations), feature (catalogue, cart, checkout, admin, security, English and French pages), and a **multi-process concurrency test** on MySQL. Uses `aloeandsoul_test`. |
 | `npm test` | Vitest + Testing Library component tests |
 | `npm run build && npm run test:e2e` | Playwright journeys (desktop + mobile) against a fresh `aloeandsoul_e2e` database; create that database first |
 | `npm run typecheck` | `tsc --noEmit` (strict) |
@@ -119,15 +119,25 @@ Full Hostinger guide: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Production never
 - **Stock** is reserved when an order is placed and returned automatically if it is cancelled (or returned, if you choose). Every change appears in Stock → History.
 - **Privacy requests**: Admin → Customers → customer → *Remove personal data* (owners).
 
+## Languages
+
+English is at the root (`/shop`), French under `/fr` (`/fr/shop`). The header, mobile menu and footer link each page to its other language.
+
+- **Interface text** is written in English in the code and translated in [lang/fr.json](lang/fr.json): `__('…')` in PHP, `t('…')` from `useI18n()` in React. To add a sentence, write it in English with `t()` / `__()` and add its French version to `lang/fr.json`; `tests/Unit/TranslationsTest.php` fails until you do. Placeholders use `:name`; plurals are `"one|many"` with `tc()`.
+- **Content** (products, categories, pages, FAQ, blog, collaborators, delivery areas, home page, story, checkout wording, search texts) has a French version: each admin form has an **English / Français** switch. An empty French field shows the English text on the French site.
+- **Links** in React use `to('/shop')`, which adds `/fr` on French pages; PHP uses `localized_route('shop')`.
+- Orders remember the language the customer used (shown on the admin order page).
+
 ## Product information, photos and prices
 
 `database/assets/products/<product-slug>/` contains, for each of the 26 catalogue products:
 
 - `details.md`: the product information in English, translated from the official foreverliving.fr product page (summary, description, benefits, how to use with precautions, ingredients, nutrition table, SEO title and description), plus the Forever reference, size and **Moroccan retail price in dirhams** from Forever Living Products Morocco's *Catalogue Général 2026/2027*. Sections start with `# Heading`; the rest is Markdown.
+- `details.fr.md`: the same information in French, using the wording of Forever France's original pages (same sections; only `size` in its front matter).
 - `01.webp`, `02.webp`…: all the product's official photographs in display order (packshot first, then photos and nutrition labels). `sources.json` lists where each one comes from.
 
 ```bash
-php artisan catalog:import                              # fill empty fields; attach photos to products without any
+php artisan catalog:import                              # fill empty fields (English and French); attach photos to products without any
 php artisan catalog:import --overwrite --replace-images # local demo data: replace demo prices, texts and placeholder photos
 ```
 

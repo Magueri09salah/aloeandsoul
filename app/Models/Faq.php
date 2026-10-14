@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Faq extends Model
 {
-    protected $fillable = ['question', 'answer', 'sort_order', 'is_published', 'show_on_home'];
+    use HasTranslations;
+
+    /** Columns with a French version ("name" → "name_fr"). */
+    public const TRANSLATABLE = ['question', 'answer'];
+
+    protected $fillable = ['question', 'answer', 'sort_order', 'is_published', 'show_on_home', 'question_fr', 'answer_fr'];
 
     protected function casts(): array
     {

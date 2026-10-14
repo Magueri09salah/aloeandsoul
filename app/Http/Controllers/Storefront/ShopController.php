@@ -32,21 +32,22 @@ class ShopController extends Controller
         $page = $request->page();
         $products = $query->paginate($filters, $category);
 
-        $base = $category ? route('shop.category', $category) : route('shop');
+        $base = $category ? localized_route('shop.category', $category) : localized_route('shop');
         // Filtered/searched views are not indexed; plain paginated pages are.
         $canonical = $page > 1 ? "{$base}?page={$page}" : $base;
-        $title = $category ? ($category->seo_title ?: $category->name) : 'Shop';
+        $name = $category ? (string) $category->translated('name') : null;
+        $title = $category ? (string) ($category->translated('seo_title') ?: $name) : __('Shop');
         $description = $category
-            ? ($category->seo_description ?: ($category->tagline ?: "Shop {$category->name} at Aloe & Soul. Pay in cash on delivery."))
-            : 'Browse wellness, beauty, hygiene, fitness and nutrition products from Aloe & Soul. Pay in cash on delivery.';
+            ? (string) ($category->translated('seo_description') ?: ($category->translated('tagline') ?: __('Shop :category at Aloe & Soul. Pay in cash on delivery.', ['category' => $name])))
+            : __('Browse wellness, beauty, hygiene, fitness and nutrition products from Aloe & Soul. Pay in cash on delivery.');
 
-        $crumbs = [['name' => 'Home', 'url' => url('/')], ['name' => 'Shop', 'url' => route('shop')]];
+        $crumbs = [['name' => __('Home'), 'url' => localized_route('home')], ['name' => __('Shop'), 'url' => localized_route('shop')]];
         if ($category) {
-            $crumbs[] = ['name' => $category->name, 'url' => route('shop.category', $category)];
+            $crumbs[] = ['name' => (string) $name, 'url' => localized_route('shop.category', $category)];
         }
 
         $seo = new Seo(
-            title: $page > 1 ? "{$title} — page {$page}" : $title,
+            title: $page > 1 ? __(':title — page :page', ['title' => $title, 'page' => $page]) : $title,
             description: $description,
             canonical: $canonical,
             index: ! $request->hasRefinements(),
@@ -55,17 +56,17 @@ class ShopController extends Controller
 
         return $this->render('shop/index', [
             'category' => $category ? [
-                'name' => $category->name,
+                'name' => $name,
                 'slug' => $category->slug,
-                'tagline' => $category->tagline,
-                'description' => $category->description,
+                'tagline' => $category->translated('tagline'),
+                'description' => $category->translated('description'),
                 'tint' => $category->tint,
                 'motif' => $category->motif,
             ] : null,
             'categories' => Category::query()->active()
                 ->withCount(['publishedProducts as product_count'])
-                ->get(['id', 'name', 'slug', 'tint'])
-                ->map(fn (Category $c) => ['name' => $c->name, 'slug' => $c->slug, 'tint' => $c->tint, 'product_count' => $c->product_count]),
+                ->get(['id', 'name', 'name_fr', 'slug', 'tint'])
+                ->map(fn (Category $c) => ['name' => $c->translated('name'), 'slug' => $c->slug, 'tint' => $c->tint, 'product_count' => $c->product_count]),
             'products' => [
                 'data' => collect($products->items())->map(fn (Product $p) => ProductPresenter::card($p)),
                 'meta' => [

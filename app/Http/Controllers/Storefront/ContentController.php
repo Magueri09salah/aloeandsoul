@@ -18,16 +18,16 @@ class ContentController extends Controller
 {
     public function story(): Response
     {
-        $story = settings()->group('story');
+        $story = settings()->localized('story');
 
         $seo = Seo::page(
-            'Our story',
-            'How the founder of Aloe & Soul went from London to Marrakech, and why wellbeing and personal growth are at the heart of the brand.',
+            __('Our story'),
+            __('How the founder of Aloe & Soul went from London to Marrakech, and why wellbeing and personal growth are at the heart of the brand.'),
         );
         $seo->image = ContentPresenter::storyImage($story)['src'];
         $seo->jsonLd = [StructuredData::breadcrumbs([
-            ['name' => 'Home', 'url' => url('/')],
-            ['name' => 'Our story', 'url' => route('story')],
+            ['name' => __('Home'), 'url' => localized_route('home')],
+            ['name' => __('Our story'), 'url' => localized_route('story')],
         ])];
 
         return $this->render('story', [
@@ -43,7 +43,7 @@ class ContentController extends Controller
                 ], $story['chapters']),
                 'closing' => $story['closing'],
                 'disclaimer' => $story['disclaimer'],
-                'tagline' => settings()->get('store.tagline'),
+                'tagline' => settings()->localizedGet('store.tagline'),
             ],
         ], $seo);
     }
@@ -51,8 +51,9 @@ class ContentController extends Controller
     public function faq(): Response
     {
         return $this->render('faq', [
-            'faqs' => Faq::query()->published()->get(['id', 'question', 'answer']),
-        ], Seo::page('Frequently asked questions', 'Answers about ordering, cash on delivery, delivery areas and your order at Aloe & Soul.'));
+            'faqs' => Faq::query()->published()->get()
+                ->map(fn (Faq $f) => ['id' => $f->id, 'question' => $f->translated('question'), 'answer' => $f->translated('answer')]),
+        ], Seo::page(__('Frequently asked questions'), __('Answers about ordering, cash on delivery, delivery areas and your order at Aloe & Soul.')));
     }
 
     public function page(string $slug): Response
@@ -61,11 +62,11 @@ class ContentController extends Controller
 
         return $this->render('page', [
             'page' => [
-                'title' => $page->title,
+                'title' => $page->translated('title'),
                 'slug' => $page->slug,
-                'body_html' => ProductPresenter::markdown($page->body),
+                'body_html' => ProductPresenter::markdown((string) $page->translated('body')),
                 'updated_at' => $page->updated_at?->toDateString(),
             ],
-        ], Seo::page($page->seo_title ?: $page->title, $page->seo_description));
+        ], Seo::page((string) ($page->translated('seo_title') ?: $page->translated('title')), $page->translated('seo_description')));
     }
 }

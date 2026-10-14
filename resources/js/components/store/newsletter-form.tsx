@@ -3,15 +3,17 @@ import { useId, type FormEvent } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useI18n } from '@/lib/i18n';
 
 /** Email opt-in with explicit, unticked consent. */
 export function NewsletterForm({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
     const id = useId();
     const form = useForm({ email: '', consent: false, website: '' });
+    const { t, to } = useI18n();
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        form.post('/newsletter', { preserveScroll: true, onSuccess: () => form.reset() });
+        form.post(to('/newsletter'), { preserveScroll: true, onSuccess: () => form.reset() });
     };
 
     const dark = tone === 'dark';
@@ -20,7 +22,7 @@ export function NewsletterForm({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
         <form onSubmit={submit} noValidate className="w-full max-w-md">
             <div className="flex gap-2">
                 <label htmlFor={`${id}-email`} className="sr-only">
-                    Email address
+                    {t('Email address')}
                 </label>
                 <input
                     id={`${id}-email`}
@@ -28,7 +30,7 @@ export function NewsletterForm({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
                     autoComplete="email"
                     value={form.data.email}
                     onChange={(e) => form.setData('email', e.target.value)}
-                    placeholder="Your email address"
+                    placeholder={t('Your email address')}
                     aria-invalid={form.errors.email ? true : undefined}
                     aria-describedby={form.errors.email ? `${id}-error` : undefined}
                     className={
@@ -49,7 +51,7 @@ export function NewsletterForm({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
                     aria-hidden="true"
                 />
                 <Button type="submit" loading={form.processing} variant={dark ? 'quiet' : 'primary'} className="shrink-0">
-                    Subscribe
+                    {t('Subscribe')}
                 </Button>
             </div>
             <div className="mt-3 flex items-start gap-3">
@@ -61,7 +63,8 @@ export function NewsletterForm({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
                     className={dark ? 'border-ivory/50 bg-transparent data-[state=checked]:border-ivory data-[state=checked]:bg-ivory data-[state=checked]:text-ink' : undefined}
                 />
                 <label htmlFor={`${id}-consent`} className={dark ? 'text-sm text-ivory/75' : 'text-sm text-stone'}>
-                    I agree to receive occasional emails from Aloe &amp; Soul. I can unsubscribe at any time.
+                    {/* Same wording as NewsletterRequest::CONSENT_TEXT, which is stored as the record of consent. */}
+                    {t('I agree to receive occasional emails from Aloe & Soul. I can unsubscribe at any time.')}
                 </label>
             </div>
             {(form.errors.email || form.errors.consent || form.errors.website) && (

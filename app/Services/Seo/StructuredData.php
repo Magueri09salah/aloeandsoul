@@ -59,14 +59,15 @@ class StructuredData
         return array_filter([
             '@context' => 'https://schema.org',
             '@type' => 'BlogPosting',
-            'headline' => Str::limit($post->title, 110, ''),
-            'description' => $post->excerpt,
+            'headline' => Str::limit((string) $post->translated('title'), 110, ''),
+            'description' => $post->translated('excerpt'),
+            'inLanguage' => app()->getLocale(),
             'image' => $imageUrl,
             'datePublished' => $post->published_at?->toIso8601String(),
             'dateModified' => $post->updated_at?->toIso8601String(),
-            'author' => ['@type' => 'Organization', 'name' => settings()->get('store.name'), 'url' => url('/')],
+            'author' => ['@type' => 'Organization', 'name' => settings()->get('store.name'), 'url' => localized_route('home')],
             'publisher' => $publisher,
-            'mainEntityOfPage' => route('blog.show', $post),
+            'mainEntityOfPage' => localized_route('blog.show', $post),
         ], fn ($v) => $v !== null && $v !== '');
     }
 
@@ -102,7 +103,7 @@ class StructuredData
             return null;
         }
 
-        $url = route('products.show', $product);
+        $url = localized_route('products.show', $product);
         $availability = fn (ProductVariant $v) => (! $v->track_stock || $v->stock > 0)
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock';
@@ -136,11 +137,11 @@ class StructuredData
         return array_filter([
             '@context' => 'https://schema.org',
             '@type' => 'Product',
-            'name' => $product->name,
-            'description' => Str::limit(strip_tags(Str::markdown((string) ($product->description ?: $product->summary))), 500),
+            'name' => $product->translated('name'),
+            'description' => Str::limit(strip_tags(Str::markdown((string) ($product->translated('description') ?: $product->translated('summary')))), 500),
             'image' => $product->images->map(fn ($img) => $img->urlFor(max($img->widths)))->values()->all() ?: null,
             'sku' => $single?->sku,
-            'category' => $product->category?->name,
+            'category' => $product->category?->translated('name'),
             'url' => $url,
             'offers' => $offers,
         ], fn ($v) => $v !== null && $v !== '');

@@ -51,6 +51,8 @@ class ContentController extends Controller
             'announcement.text' => ['nullable', 'string', 'max:140'],
             'announcement.link_label' => ['nullable', 'string', 'max:40'],
             'announcement.link_url' => ['nullable', 'string', 'max:255', self::SAFE_LINK],
+            'announcement.text_fr' => ['nullable', 'string', 'max:140'],
+            'announcement.link_label_fr' => ['nullable', 'string', 'max:40'],
             'home.hero_heading' => ['required', 'string', 'max:120'],
             'home.hero_text' => ['nullable', 'string', 'max:400'],
             'home.hero_attribution' => ['nullable', 'string', 'max:80'],
@@ -67,6 +69,18 @@ class ContentController extends Controller
             'home.newsletter_enabled' => ['boolean'],
             'home.blog_enabled' => ['boolean'],
             'home.blog_heading' => ['nullable', 'string', 'max:80'],
+            // French versions; empty ones show the English text on /fr.
+            'home.hero_heading_fr' => ['nullable', 'string', 'max:120'],
+            'home.hero_text_fr' => ['nullable', 'string', 'max:400'],
+            'home.hero_attribution_fr' => ['nullable', 'string', 'max:80'],
+            'home.hero_image_alt_fr' => ['nullable', 'string', 'max:160'],
+            'home.intro_heading_fr' => ['nullable', 'string', 'max:120'],
+            'home.intro_text_fr' => ['nullable', 'string', 'max:600'],
+            'home.featured_heading_fr' => ['nullable', 'string', 'max:80'],
+            'home.ritual_heading_fr' => ['nullable', 'string', 'max:80'],
+            'home.ritual_intro_fr' => ['nullable', 'string', 'max:400'],
+            'home.ritual_steps.*.note_fr' => ['nullable', 'string', 'max:160'],
+            'home.blog_heading_fr' => ['nullable', 'string', 'max:80'],
         ], [
             'announcement.link_url.regex' => 'Use a link starting with / (a page on this site) or https://.',
         ]);
@@ -76,6 +90,8 @@ class ContentController extends Controller
             'text' => (string) ($data['announcement']['text'] ?? ''),
             'link_label' => (string) ($data['announcement']['link_label'] ?? ''),
             'link_url' => (string) ($data['announcement']['link_url'] ?? ''),
+            'text_fr' => (string) ($data['announcement']['text_fr'] ?? ''),
+            'link_label_fr' => (string) ($data['announcement']['link_label_fr'] ?? ''),
         ];
         $home = [
             ...array_map(fn ($v) => $v ?? '', $data['home']),
@@ -85,6 +101,7 @@ class ContentController extends Controller
             'ritual_steps' => array_values(array_map(fn ($s) => [
                 'product_id' => (int) $s['product_id'],
                 'note' => (string) ($s['note'] ?? ''),
+                'note_fr' => (string) ($s['note_fr'] ?? ''),
             ], $data['home']['ritual_steps'] ?? [])),
         ];
 
@@ -118,12 +135,21 @@ class ContentController extends Controller
             'milestones' => ['array', 'max:6'],
             'milestones.*.place' => ['required', 'string', 'max:40'],
             'milestones.*.text' => ['required', 'string', 'max:200'],
+            'milestones.*.place_fr' => ['nullable', 'string', 'max:40'],
+            'milestones.*.text_fr' => ['nullable', 'string', 'max:200'],
             'chapters' => ['required', 'array', 'min:1', 'max:6'],
             'chapters.*.key' => ['required', 'string', 'max:30', 'regex:/^[a-z0-9-]+$/', 'distinct'],
             'chapters.*.title' => ['required', 'string', 'max:80'],
             'chapters.*.body' => ['required', 'string', 'max:8000'],
+            'chapters.*.title_fr' => ['nullable', 'string', 'max:80'],
+            'chapters.*.body_fr' => ['nullable', 'string', 'max:8000'],
             'closing' => ['nullable', 'string', 'max:600'],
             'disclaimer' => ['nullable', 'string', 'max:600'],
+            'heading_fr' => ['nullable', 'string', 'max:120'],
+            'intro_fr' => ['nullable', 'string', 'max:400'],
+            'image_alt_fr' => ['nullable', 'string', 'max:160'],
+            'closing_fr' => ['nullable', 'string', 'max:600'],
+            'disclaimer_fr' => ['nullable', 'string', 'max:600'],
         ], [
             'chapters.*.key.regex' => 'Use lowercase letters, numbers and dashes (used in links such as /our-story#wellness).',
         ]);
@@ -133,6 +159,11 @@ class ContentController extends Controller
             'intro' => $data['intro'] ?? '',
             'closing' => $data['closing'] ?? '',
             'disclaimer' => $data['disclaimer'] ?? '',
+            'heading_fr' => $data['heading_fr'] ?? '',
+            'intro_fr' => $data['intro_fr'] ?? '',
+            'image_alt_fr' => $data['image_alt_fr'] ?? '',
+            'closing_fr' => $data['closing_fr'] ?? '',
+            'disclaimer_fr' => $data['disclaimer_fr'] ?? '',
             'milestones' => array_values($data['milestones'] ?? []),
             'chapters' => array_values($data['chapters']),
         ]);

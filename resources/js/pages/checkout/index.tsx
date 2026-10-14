@@ -11,7 +11,7 @@ import { Input, Select, Textarea } from '@/components/ui/input';
 import { CouponForm } from '@/components/store/coupon-form';
 import { OrderTotals } from '@/components/store/order-totals';
 import { useShared } from '@/hooks/use-shared';
-import { formatMoney } from '@/lib/money';
+import { useI18n } from '@/lib/i18n';
 
 interface CheckoutProps {
     idempotencyKey: string;
@@ -23,6 +23,7 @@ interface CheckoutProps {
 
 export default function Checkout({ idempotencyKey, quote, zones, checkout, country }: CheckoutProps) {
     const { cart, store, errors: pageErrors } = useShared();
+    const { t, to, money } = useI18n();
     const lines = (cart?.lines ?? []).filter((l) => !l.issue);
     const currency = store.currency;
 
@@ -40,13 +41,13 @@ export default function Checkout({ idempotencyKey, quote, zones, checkout, count
     const chooseZone = (id: string) => {
         form.setData('shipping_zone_id', id);
         // Recalculate delivery and total on the server; nothing is computed here.
-        router.get('/checkout', id ? { zone: id } : {}, { only: ['quote'], preserveState: true, preserveScroll: true, replace: true });
+        router.get(to('/checkout'), id ? { zone: id } : {}, { only: ['quote'], preserveState: true, preserveScroll: true, replace: true });
     };
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
         form.transform((data) => ({ ...data, idempotency_key: idempotencyKey, expected_total: quote.total_minor ?? 0 }));
-        form.post('/checkout', { preserveScroll: true });
+        form.post(to('/checkout'), { preserveScroll: true });
     };
 
     const generalErrors = {
@@ -61,15 +62,15 @@ export default function Checkout({ idempotencyKey, quote, zones, checkout, count
     return (
         <div className="container-page py-10 lg:py-14">
             <div className="flex flex-wrap items-baseline justify-between gap-4">
-                <h1 className="font-display text-display-sm">Checkout</h1>
-                <Link href="/cart" className="text-sm underline underline-offset-4 hover:text-aloe">
-                    Back to cart
+                <h1 className="font-display text-display-sm">{t('Checkout')}</h1>
+                <Link href={to('/cart')} className="text-sm underline underline-offset-4 hover:text-aloe">
+                    {t('Back to cart')}
                 </Link>
             </div>
 
             {!checkout.open ? (
                 <div className="mt-8 max-w-xl rounded-lg border border-line bg-white p-6">
-                    <p className="font-display text-2xl">Ordering is paused</p>
+                    <p className="font-display text-2xl">{t('Ordering is paused')}</p>
                     <p className="mt-2 text-stone">{checkout.closed_message}</p>
                 </div>
             ) : (
@@ -78,16 +79,16 @@ export default function Checkout({ idempotencyKey, quote, zones, checkout, count
                         <FormErrorSummary errors={generalErrors} />
 
                         <fieldset className="space-y-5">
-                            <legend className="mb-5 font-display text-2xl">Your details</legend>
-                            <Field label="Full name" name="name" error={form.errors.name} required>
+                            <legend className="mb-5 font-display text-2xl">{t('Your details')}</legend>
+                            <Field label={t('Full name')} name="name" error={form.errors.name} required>
                                 {(p) => <Input {...p} autoComplete="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} maxLength={120} />}
                             </Field>
                             <Field
-                                label="Phone number"
+                                label={t('Phone number')}
                                 name="phone"
                                 error={form.errors.phone}
                                 required
-                                hint={isMorocco ? 'For example 06 12 34 56 78. The courier will call this number.' : 'The courier will call this number.'}
+                                hint={isMorocco ? t('For example 06 12 34 56 78. The courier will call this number.') : t('The courier will call this number.')}
                             >
                                 {(p) => (
                                     <Input
@@ -101,20 +102,20 @@ export default function Checkout({ idempotencyKey, quote, zones, checkout, count
                                     />
                                 )}
                             </Field>
-                            <Field label="Email" name="email" optional error={form.errors.email} hint="Only used for messages about this order.">
+                            <Field label={t('Email')} name="email" optional error={form.errors.email} hint={t('Only used for messages about this order.')}>
                                 {(p) => <Input {...p} type="email" autoComplete="email" value={form.data.email} onChange={(e) => form.setData('email', e.target.value)} maxLength={255} />}
                             </Field>
                         </fieldset>
 
                         <fieldset className="space-y-5">
-                            <legend className="mb-5 font-display text-2xl">Delivery</legend>
-                            <Field label="Delivery area" name="shipping_zone_id" error={form.errors.shipping_zone_id} required>
+                            <legend className="mb-5 font-display text-2xl">{t('Delivery')}</legend>
+                            <Field label={t('Delivery area')} name="shipping_zone_id" error={form.errors.shipping_zone_id} required>
                                 {(p) => (
                                     <Select {...p} value={form.data.shipping_zone_id} onChange={(e) => chooseZone(e.target.value)}>
-                                        <option value="">Choose your area</option>
+                                        <option value="">{t('Choose your area')}</option>
                                         {zones.map((z) => (
                                             <option key={z.id} value={z.id}>
-                                                {z.name}: {formatMoney(z.fee_minor, currency)}
+                                                {z.name}: {money(z.fee_minor, currency)}
                                                 {z.estimate ? ` (${z.estimate})` : ''}
                                             </option>
                                         ))}
@@ -122,14 +123,14 @@ export default function Checkout({ idempotencyKey, quote, zones, checkout, count
                                 )}
                             </Field>
                             <div className="grid gap-5 sm:grid-cols-3">
-                                <Field label="City" name="city" error={form.errors.city} required className="sm:col-span-1">
+                                <Field label={t('City')} name="city" error={form.errors.city} required className="sm:col-span-1">
                                     {(p) => <Input {...p} autoComplete="address-level2" value={form.data.city} onChange={(e) => form.setData('city', e.target.value)} maxLength={80} />}
                                 </Field>
-                                <Field label="Address" name="address" error={form.errors.address} required hint="Street, number, building, floor." className="sm:col-span-2">
+                                <Field label={t('Address')} name="address" error={form.errors.address} required hint={t('Street, number, building, floor.')} className="sm:col-span-2">
                                     {(p) => <Input {...p} autoComplete="street-address" value={form.data.address} onChange={(e) => form.setData('address', e.target.value)} maxLength={255} />}
                                 </Field>
                             </div>
-                            <Field label="Delivery notes" name="notes" optional error={form.errors.notes} hint="Landmark, best time to call, anything that helps the courier.">
+                            <Field label={t('Delivery notes')} name="notes" optional error={form.errors.notes} hint={t('Landmark, best time to call, anything that helps the courier.')}>
                                 {(p) => <Textarea {...p} rows={3} value={form.data.notes} onChange={(e) => form.setData('notes', e.target.value)} maxLength={500} />}
                             </Field>
                         </fieldset>
@@ -138,7 +139,7 @@ export default function Checkout({ idempotencyKey, quote, zones, checkout, count
                             <div className="flex gap-4">
                                 <Banknote className="mt-0.5 size-6 shrink-0 text-dune-deep" strokeWidth={1.5} aria-hidden="true" />
                                 <div>
-                                    <p className="font-medium">Payment: cash on delivery</p>
+                                    <p className="font-medium">{t('Payment: cash on delivery')}</p>
                                     <p className="mt-1 text-[0.95rem] text-ink/80">{checkout.cod_instructions}</p>
                                     {checkout.confirmation_note && <p className="mt-1 text-[0.95rem] text-ink/80">{checkout.confirmation_note}</p>}
                                 </div>
@@ -156,9 +157,9 @@ export default function Checkout({ idempotencyKey, quote, zones, checkout, count
                                     className="mt-0.5"
                                 />
                                 <label htmlFor="privacy" className="text-[0.95rem]">
-                                    I agree that my details are used to deliver this order, as described in the{' '}
-                                    <a href="/privacy-policy" target="_blank" rel="noopener" className="underline underline-offset-4">
-                                        privacy policy
+                                    {t('I agree that my details are used to deliver this order, as described in the')}{' '}
+                                    <a href={to('/privacy-policy')} target="_blank" rel="noopener" className="underline underline-offset-4">
+                                        {t('privacy policy')}
                                     </a>
                                     .
                                 </label>
@@ -175,9 +176,9 @@ export default function Checkout({ idempotencyKey, quote, zones, checkout, count
                         </div>
                     </div>
 
-                    <aside aria-label="Order summary" className="lg:col-span-5">
+                    <aside aria-label={t('Order summary')} className="lg:col-span-5">
                         <div className="rounded-lg border border-line bg-white p-6 lg:sticky lg:top-28">
-                            <h2 className="font-display text-2xl">Your order</h2>
+                            <h2 className="font-display text-2xl">{t('Your order')}</h2>
                             <ul className="mt-4 divide-y divide-line border-y border-line">
                                 {lines.map((l) => (
                                     <li key={l.id} className="flex justify-between gap-4 py-3 text-[0.95rem]">
@@ -186,7 +187,7 @@ export default function Checkout({ idempotencyKey, quote, zones, checkout, count
                                             {l.variant_name && <span className="text-stone"> — {l.variant_name}</span>}
                                             <span className="text-stone"> × {l.quantity}</span>
                                         </span>
-                                        <span className="shrink-0 tabular-nums">{formatMoney(l.line_total_minor, currency)}</span>
+                                        <span className="shrink-0 tabular-nums">{money(l.line_total_minor, currency)}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -204,7 +205,7 @@ export default function Checkout({ idempotencyKey, quote, zones, checkout, count
                             />
                             {quote.free_shipping_remaining_minor !== null && quote.free_shipping_remaining_minor > 0 && (
                                 <p className="mt-3 text-sm text-stone">
-                                    Add {formatMoney(quote.free_shipping_remaining_minor, currency)} more for free delivery to this area.
+                                    {t('Add :amount more for free delivery to this area.', { amount: money(quote.free_shipping_remaining_minor, currency) })}
                                 </p>
                             )}
                             <div className="mt-6 hidden lg:block">
@@ -219,14 +220,16 @@ export default function Checkout({ idempotencyKey, quote, zones, checkout, count
 }
 
 function SubmitBlock({ processing, total, currency }: { processing: boolean; total: number | null; currency: string }) {
+    const { t, money } = useI18n();
+
     return (
         <div>
             <Button type="submit" size="lg" className="w-full" loading={processing}>
-                Place order
+                {t('Place order')}
             </Button>
             <p className="mt-3 flex items-center justify-center gap-2 text-center text-sm text-stone">
                 <Lock className="size-3.5" aria-hidden="true" />
-                {total !== null ? `You will pay ${formatMoney(total, currency)} in cash on delivery.` : 'Choose a delivery area to see your total.'}
+                {total !== null ? t('You will pay :amount in cash on delivery.', { amount: money(total, currency) }) : t('Choose a delivery area to see your total.')}
             </p>
         </div>
     );

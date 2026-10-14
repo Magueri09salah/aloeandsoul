@@ -2,11 +2,14 @@ import { Link } from '@inertiajs/react';
 
 import type { Breadcrumb } from '@/types';
 
+import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 export function Breadcrumbs({ items, className }: { items: Breadcrumb[]; className?: string }) {
+    const { t } = useI18n();
+
     return (
-        <nav aria-label="Breadcrumb" className={cn('text-sm text-stone', className)}>
+        <nav aria-label={t('Breadcrumb')} className={cn('text-sm text-stone', className)}>
             <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 {items.map((item, i) => {
                     const last = i === items.length - 1;

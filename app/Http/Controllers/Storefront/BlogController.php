@@ -16,17 +16,17 @@ class BlogController extends Controller
 
     public function index(Request $request): Response
     {
-        $blog = settings()->group('blog');
+        $blog = settings()->localized('blog');
         $posts = BlogPost::query()->live()->latest('published_at')->latest('id')->paginate(self::PER_PAGE);
         $page = $posts->currentPage();
 
         $seo = new Seo(
-            title: $page > 1 ? "{$blog['heading']} — page {$page}" : (string) $blog['heading'],
-            description: (string) ($blog['intro'] ?: settings()->get('seo.description')),
-            canonical: $page > 1 ? route('blog').'?page='.$page : route('blog'),
+            title: $page > 1 ? __(':title — page :page', ['title' => $blog['heading'], 'page' => $page]) : (string) $blog['heading'],
+            description: (string) ($blog['intro'] ?: settings()->localizedGet('seo.description')),
+            canonical: $page > 1 ? localized_route('blog').'?page='.$page : localized_route('blog'),
             jsonLd: [StructuredData::breadcrumbs([
-                ['name' => 'Home', 'url' => url('/')],
-                ['name' => (string) $blog['heading'], 'url' => route('blog')],
+                ['name' => __('Home'), 'url' => localized_route('home')],
+                ['name' => (string) $blog['heading'], 'url' => localized_route('blog')],
             ])],
         );
 
@@ -49,20 +49,20 @@ class BlogController extends Controller
         abort_unless($post->isLive(), 404);
 
         $detail = PostPresenter::detail($post);
-        $blog = settings()->group('blog');
+        $blog = settings()->localized('blog');
 
         $seo = new Seo(
-            title: $post->seo_title ?: $post->title,
-            description: $post->seo_description ?: (string) $detail['excerpt'],
-            canonical: route('blog.show', $post),
+            title: (string) ($post->translated('seo_title') ?: $post->translated('title')),
+            description: (string) ($post->translated('seo_description') ?: $detail['excerpt']),
+            canonical: localized_route('blog.show', $post),
             image: $detail['cover']['src'] ?? null,
             type: 'article',
             jsonLd: [
                 StructuredData::blogPosting($post, $detail['cover']['src'] ?? null),
                 StructuredData::breadcrumbs([
-                    ['name' => 'Home', 'url' => url('/')],
-                    ['name' => (string) $blog['heading'], 'url' => route('blog')],
-                    ['name' => $post->title, 'url' => route('blog.show', $post)],
+                    ['name' => __('Home'), 'url' => localized_route('home')],
+                    ['name' => (string) $blog['heading'], 'url' => localized_route('blog')],
+                    ['name' => (string) $post->translated('title'), 'url' => localized_route('blog.show', $post)],
                 ]),
             ],
         );

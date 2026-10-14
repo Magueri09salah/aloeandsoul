@@ -25,7 +25,7 @@ class TrackOrderController extends Controller
 
         return $this->render('track-order', [
             'order' => $order ? OrderPresenter::forCustomer($order) : null,
-        ], Seo::private('Track your order'));
+        ], Seo::private(__('Track your order')));
     }
 
     public function lookup(TrackOrderRequest $request): RedirectResponse
@@ -38,9 +38,9 @@ class TrackOrderController extends Controller
             ->first();
 
         if ($order === null) {
-            return back()->withErrors(['reference' => 'We could not find an order with this reference and phone number.'])->withInput();
+            return back()->withErrors(['reference' => __('We could not find an order with this reference and phone number.')])->withInput();
         }
 
-        return redirect()->route('track-order')->with('tracked_order', $order->id);
+        return redirect(localized_route('track-order'))->with('tracked_order', $order->id);
     }
 }

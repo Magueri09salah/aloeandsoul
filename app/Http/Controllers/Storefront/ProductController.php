@@ -26,9 +26,9 @@ class ProductController extends Controller
 
         if ($product->status === ProductStatus::Archived) {
             return $this->render('product/unavailable', [
-                'name' => $product->name,
-                'category' => ['name' => $product->category->name, 'slug' => $product->category->slug],
-            ], Seo::page($product->name, null, index: false))->toResponse(request())->setStatusCode(410);
+                'name' => $product->translated('name'),
+                'category' => ['name' => $product->category->translated('name'), 'slug' => $product->category->slug],
+            ], Seo::page((string) $product->translated('name'), null, index: false))->toResponse(request())->setStatusCode(410);
         }
 
         $detail = ProductPresenter::detail($product, $cart->maxPerLine());
@@ -36,10 +36,10 @@ class ProductController extends Controller
         abort_if($detail['variants'] === [], 404);
 
         $crumbs = [
-            ['name' => 'Home', 'url' => url('/')],
-            ['name' => 'Shop', 'url' => route('shop')],
-            ['name' => $product->category->name, 'url' => route('shop.category', $product->category)],
-            ['name' => $product->name, 'url' => route('products.show', $product)],
+            ['name' => __('Home'), 'url' => localized_route('home')],
+            ['name' => __('Shop'), 'url' => localized_route('shop')],
+            ['name' => (string) $product->category->translated('name'), 'url' => localized_route('shop.category', $product->category)],
+            ['name' => (string) $product->translated('name'), 'url' => localized_route('products.show', $product)],
         ];
 
         $related = $query->published()
@@ -51,9 +51,9 @@ class ProductController extends Controller
         $zones = ShippingZone::query()->active()->get();
 
         $seo = new Seo(
-            title: $product->seo_title ?: $product->name,
-            description: $product->seo_description ?: ($product->summary ?: Str::limit(strip_tags((string) $detail['description_html']), 155)),
-            canonical: route('products.show', $product),
+            title: (string) ($product->translated('seo_title') ?: $product->translated('name')),
+            description: (string) ($product->translated('seo_description') ?: ($product->translated('summary') ?: Str::limit(strip_tags((string) $detail['description_html']), 155))),
+            canonical: localized_route('products.show', $product),
             image: $product->images->first()?->urlFor(max($product->images->first()->widths)),
             type: 'product',
             jsonLd: array_values(array_filter([StructuredData::product($product), StructuredData::breadcrumbs($crumbs)])),
@@ -64,14 +64,14 @@ class ProductController extends Controller
             'related' => $related->map(fn (Product $p) => ProductPresenter::card($p)),
             'breadcrumbs' => $crumbs,
             'delivery' => [
-                'cod_instructions' => settings()->get('checkout.cod_instructions'),
-                'info' => settings()->get('checkout.delivery_info'),
+                'cod_instructions' => settings()->localizedGet('checkout.cod_instructions'),
+                'info' => settings()->localizedGet('checkout.delivery_info'),
                 'min_fee_minor' => $zones->min('fee_minor'),
                 'zones' => $zones->map(fn (ShippingZone $z) => [
-                    'name' => $z->name,
+                    'name' => $z->translated('name'),
                     'fee_minor' => $z->fee_minor,
                     'free_over_minor' => $z->free_over_minor,
-                    'estimate' => $z->estimate,
+                    'estimate' => $z->translated('estimate'),
                 ]),
             ],
         ], $seo);

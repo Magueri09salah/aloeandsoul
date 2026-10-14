@@ -41,11 +41,16 @@ it('fills empty products with the translated information, Moroccan price, refere
         ->and($gel->usage)->toContain('40 ml diluted in 240 ml')
         ->and($gel->ingredients)->toContain('Stabilised aloe vera gel')
         ->and($gel->seo_title)->toStartWith('Forever Aloe Vera Gel')
-        ->and($gel->specifications)->toBe([['label' => 'Size', 'value' => '1 litre']])
+        ->and($gel->specifications)->toBe([['label' => 'Size', 'value' => '1 litre', 'label_fr' => 'Contenance', 'value_fr' => '1 litre']])
         ->and($gel->variants[0]->price_minor)->toBe(42500)
         ->and($gel->variants[0]->sku)->toBe('815')
         ->and($gel->images)->toHaveCount(5)
-        ->and($gel->images[0]->alt)->toBe('Forever Aloe Vera Gel 1 litre bottle');
+        ->and($gel->images[0]->alt)->toBe('Forever Aloe Vera Gel 1 litre bottle')
+        // The French version from details.fr.md.
+        ->and($gel->summary_fr)->toContain('99,7')
+        ->and($gel->usage_fr)->toContain('40 ml dilués dans 240 ml')
+        ->and($gel->seo_title_fr)->toStartWith('Forever Aloe Vera Gel')
+        ->and($gel->images[0]->alt_fr)->toBe('Bouteille d’un litre de Forever Aloe Vera Gel');
 
     // The first photo is padded to the 4:5 product tile; the others stay whole.
     expect(round($gel->images[0]->height / $gel->images[0]->width, 2))->toBe(1.25)
@@ -58,6 +63,17 @@ it('fills empty products with the translated information, Moroccan price, refere
         ->and($c9->variants->pluck('price_minor')->filter()->all())->toBe([])
         ->and($c9->summary)->toContain('9-day programme')
         ->and($c9->images->pluck('alt')->all())->toBe(['Own photo']);
+});
+
+it('adds the French descriptions to photos an earlier import attached', function () {
+    config(['store.images.widths' => [480]]);
+    $lotion = emptyProduct('heat-lotion');
+    ProductImage::query()->create(['product_id' => $lotion->id, 'path' => 'products/x/tube', 'widths' => [480], 'width' => 800, 'height' => 1000, 'alt' => 'Aloe Heat Lotion tube']);
+
+    $this->artisan('catalog:import')->assertSuccessful();
+
+    expect($lotion->images()->value('alt_fr'))->toBe('Tube d’Aloe Heat Lotion')
+        ->and($lotion->fresh()->summary_fr)->toContain('lotion de massage chauffante');
 });
 
 it('keeps what the owner already filled in unless asked to overwrite', function () {
@@ -79,7 +95,7 @@ it('keeps what the owner already filled in unless asked to overwrite', function 
 
     $lotion->refresh()->load('variants', 'images');
     expect($lotion->description)->toStartWith('Aloe Heat Lotion is a massage cream')
-        ->and($lotion->specifications)->toBe([['label' => 'Size', 'value' => '118 ml']])
+        ->and($lotion->specifications)->toBe([['label' => 'Size', 'value' => '118 ml', 'label_fr' => 'Contenance', 'value_fr' => '118 ml']])
         ->and($lotion->variants[0]->only('price_minor', 'sale_price_minor', 'sku'))->toBe(['price_minor' => 24200, 'sale_price_minor' => null, 'sku' => '64'])
         ->and($lotion->images->pluck('alt')->all())->toBe(['Aloe Heat Lotion tube']);
 });
@@ -131,5 +147,16 @@ it('bundles valid information for every catalogue product', function () {
         $files = array_map('basename', glob("{$dir}/*.webp"));
         sort($listed);
         expect($listed)->toBe($files, "{$slug}: every image is listed once with its alternative text");
+
+        // The French sheet has the same sections and photos, within the same limits.
+        $french = ProductSheet::fromFile("{$dir}/details.fr.md");
+        foreach (['summary', 'description', 'benefits', 'how to use', 'ingredients', 'nutrition', 'seo title', 'seo description'] as $section) {
+            expect($french->section($section) === null)->toBe($sheet->section($section) === null, "{$slug}: French {$section}");
+        }
+        expect(array_column($french->images(), 'file'))->toBe(array_column($sheet->images(), 'file'), "{$slug}: French image list")
+            ->and(mb_strlen((string) $french->section('summary')))->toBeLessThanOrEqual(255)
+            ->and(mb_strlen((string) $french->section('seo title')))->toBeLessThanOrEqual(70)
+            ->and(mb_strlen((string) $french->section('seo description')))->toBeLessThanOrEqual(170)
+            ->and($french->meta('size'))->not->toBeNull();
     }
 });

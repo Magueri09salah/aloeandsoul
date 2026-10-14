@@ -48,9 +48,11 @@ Evidence from the current site: phone `+212 6 12 03 34 30`, cities Marrakech / E
 | Currency | `MAD` (2 minor units) | Admin → Settings → Store |
 | Delivery areas and fees | none until configured **[CLIENT]** | Admin → Delivery zones |
 | Free-delivery threshold | per zone, optional **[CLIENT]** | Admin → Delivery zones |
-| UI language | English | French is a post-MVP item (§15) **[CLIENT]** |
+| Languages | English (default, `/shop`) and French (`/fr/shop`) | Interface: `lang/fr.json`; content: French fields in each admin form |
 
 Checkout is **closed** until at least one active delivery zone exists, so the shop cannot take an order with an unknown delivery fee.
+
+**Languages.** The storefront exists in English and French. The language comes from the address alone (`/fr/…` is French), never from the browser, so every page has one stable URL per language; a switch in the header, the mobile menu and the footer opens the same page in the other language. Product, category, page, FAQ, blog, collaborator, delivery-area, home page, story and checkout texts each have a French version edited in the admin; an empty French field shows the English text. Orders record the language the customer used, and the admin shows it so the team replies in that language. The admin interface stays in English.
 
 ---
 
@@ -274,7 +276,8 @@ No public registration. The first owner is created with `php artisan admin:creat
 
 - `/our-story` uses the founder's published texts (Wellness, Business and Freedom journeys) **verbatim** as the authoritative copy, editable in admin.
 - Facts from the brief that are not yet in the founder's own words (20+ years in London; interior architecture, art and business; Chris Immo, properties and riads) are shown only as short factual timeline entries. **[CLIENT]** The full narrative referred to in the brief was not supplied; the story chapters are editable so it can be added.
-- Tagline: **Aloe & Soul — Nourish the Body. Inspire the Soul.**
+- Tagline: **Aloe & Soul — Nourish the Body. Inspire the Soul.** In French: *Nourrir le corps. Inspirer l’âme.*
+- The French site uses French versions of the story chapters, home page, policy pages, FAQ and product information, written for this build. **[CLIENT]** They should be read by the founder or a native speaker, the story above all, since it is in her own voice.
 
 ---
 
@@ -317,11 +320,11 @@ See SEO.md. Summary: server-rendered meta (title, description, canonical, Open G
 
 ### MVP (this build)
 
-Everything in §§5–12, plus optional TOTP two-factor authentication for admins: storefront, four categories, product pages, cart, COD checkout, confirmation and tracking, founder story, support/legal pages, full admin (overview, products, variants, images, categories, orders, inventory, customers, discount codes, delivery zones, content, settings, users, audit log), contact form, newsletter opt-in with consent, blog, collaborators section, SEO, rate limiting, tests, deployment docs.
+Everything in §§5–12, plus optional TOTP two-factor authentication for admins: storefront, four categories, product pages, cart, COD checkout, confirmation and tracking, founder story, support/legal pages, full admin (overview, products, variants, images, categories, orders, inventory, customers, discount codes, delivery zones, content, settings, users, audit log), contact form, newsletter opt-in with consent, blog, collaborators section, English and French storefront with French content editing in the admin, SEO, rate limiting, tests, deployment docs.
 
 ### Important post-MVP
 
-- French UI (and Arabic with RTL), with translated product content.
+- Arabic storefront (right-to-left), and the admin interface in French if the team needs it.
 - Order notification by email to the customer and WhatsApp click-to-chat confirmation templates for the admin.
 - Courier integration (e.g. a Moroccan delivery provider API) for tracking numbers.
 - CSV export of orders and customers.
@@ -342,7 +345,7 @@ Everything in §§5–12, plus optional TOTP two-factor authentication for admin
 | Feature / integration | Pest (SQLite in-memory + MySQL group) | Catalogue visibility, cart, checkout validation, transactional order creation, idempotency, inventory, coupons, rate limits, admin authz, product and order mutations, SEO responses |
 | Concurrency | Pest + parallel PHP processes on MySQL | Two+ simultaneous orders for the last unit → exactly one succeeds |
 | Component | Vitest + React Testing Library | Quantity stepper, price display, cart line, checkout summary |
-| End-to-end | Playwright | Browse → product → cart → checkout → confirmation; invalid checkout; duplicate submit; admin login → edit product → process order |
+| End-to-end | Playwright | Browse → product → cart → checkout → confirmation; invalid checkout; duplicate submit; admin login → edit product → process order; switch to French and order in French |
 
 Tests never run against production; the test environment uses its own database.
 
@@ -360,7 +363,7 @@ Tests never run against production; the test environment uses its own database.
 4. Return and exchange policy.
 5. Legal identity for the legal notice (business name, registration number / ICE, address) and CNDP declaration status.
 6. Whether orders should be confirmed by phone/WhatsApp before dispatch (the workflow supports it either way).
-7. Language priority: English only at launch, or French too?
+7. **French texts.** The site is bilingual. Please review the French versions (story, home page, policy pages, FAQ, product information) and confirm English should stay the default language at the root address.
 8. Social media links (Instagram, Facebook, TikTok, YouTube).
 9. The full founder narrative referred to in the brief (Chris Immo, riads, London years), if it should appear beyond the three published journeys.
 10. Hostinger plan type (shared Premium/Business, Cloud, or VPS) and whether SSH is enabled.

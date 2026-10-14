@@ -4,6 +4,7 @@ import { type FormEvent } from 'react';
 
 import type { ImageData } from '@/types';
 
+import { ContentLanguageSwitch, hasFrenchErrors, useContentLanguage } from '@/components/admin/content-language';
 import { PageHeader, Panel } from '@/components/admin/ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,12 @@ interface PostData {
     cover_alt: string | null;
     seo_title: string | null;
     seo_description: string | null;
+    title_fr: string | null;
+    excerpt_fr: string | null;
+    body_fr: string | null;
+    cover_alt_fr: string | null;
+    seo_title_fr: string | null;
+    seo_description_fr: string | null;
     url: string | null;
 }
 
@@ -42,6 +49,12 @@ export default function BlogPostForm({ post }: { post: PostData | null }) {
         cover_alt: string;
         seo_title: string;
         seo_description: string;
+        title_fr: string;
+        excerpt_fr: string;
+        body_fr: string;
+        cover_alt_fr: string;
+        seo_title_fr: string;
+        seo_description_fr: string;
     }>({
         title: post?.title ?? '',
         slug: post?.slug ?? '',
@@ -54,7 +67,15 @@ export default function BlogPostForm({ post }: { post: PostData | null }) {
         cover_alt: post?.cover_alt ?? '',
         seo_title: post?.seo_title ?? '',
         seo_description: post?.seo_description ?? '',
+        title_fr: post?.title_fr ?? '',
+        excerpt_fr: post?.excerpt_fr ?? '',
+        body_fr: post?.body_fr ?? '',
+        cover_alt_fr: post?.cover_alt_fr ?? '',
+        seo_title_fr: post?.seo_title_fr ?? '',
+        seo_description_fr: post?.seo_description_fr ?? '',
     });
+    const c = useContentLanguage();
+    const err = (key: string) => (form.errors as Record<string, string | undefined>)[key];
 
     const preview = useObjectUrl(form.data.cover);
 
@@ -93,19 +114,39 @@ export default function BlogPostForm({ post }: { post: PostData | null }) {
 
             <form onSubmit={submit} noValidate className="grid gap-6 lg:grid-cols-3">
                 <div className="space-y-6 lg:col-span-2">
+                    <ContentLanguageSwitch value={c.lang} onChange={c.setLang} frenchErrors={hasFrenchErrors(form.errors)} />
                     <Panel>
                         <div className="space-y-5">
-                            <Field label="Title" name="title" error={form.errors.title} required>
-                                {(p) => <Input {...p} value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} maxLength={160} className="text-lg" />}
+                            <Field label={c.label('Title')} name={c.field('title')} error={err(c.field('title'))} required={!c.fr} optional={c.fr}>
+                                {(p) => (
+                                    <Input
+                                        {...p}
+                                        value={form.data[c.field('title')]}
+                                        onChange={(e) => form.setData(c.field('title'), e.target.value)}
+                                        placeholder={c.source(form.data.title)}
+                                        maxLength={160}
+                                        className="text-lg"
+                                    />
+                                )}
                             </Field>
-                            <Field label="Summary" name="excerpt" error={form.errors.excerpt} hint="One or two sentences shown on the blog page and in search results." optional>
-                                {(p) => <Textarea {...p} rows={2} value={form.data.excerpt} onChange={(e) => form.setData('excerpt', e.target.value)} maxLength={300} />}
+                            <Field label={c.label('Summary')} name={c.field('excerpt')} error={err(c.field('excerpt'))} hint="One or two sentences shown on the blog page and in search results." optional>
+                                {(p) => (
+                                    <Textarea
+                                        {...p}
+                                        rows={2}
+                                        value={form.data[c.field('excerpt')]}
+                                        onChange={(e) => form.setData(c.field('excerpt'), e.target.value)}
+                                        placeholder={c.source(form.data.excerpt)}
+                                        maxLength={300}
+                                    />
+                                )}
                             </Field>
                             <Field
-                                label="Text"
-                                name="body"
-                                error={form.errors.body}
-                                required
+                                label={c.label('Text')}
+                                name={c.field('body')}
+                                error={err(c.field('body'))}
+                                required={!c.fr}
+                                optional={c.fr}
                                 hint={
                                     <>
                                         Leave an empty line between paragraphs. Headings start with <code>##</code>, lists with <code>-</code>, bold is <code>**text**</code>, links are{' '}
@@ -113,7 +154,16 @@ export default function BlogPostForm({ post }: { post: PostData | null }) {
                                     </>
                                 }
                             >
-                                {(p) => <Textarea {...p} rows={20} className="font-serif text-base leading-relaxed" value={form.data.body} onChange={(e) => form.setData('body', e.target.value)} />}
+                                {(p) => (
+                                    <Textarea
+                                        {...p}
+                                        rows={20}
+                                        className="font-serif text-base leading-relaxed"
+                                        value={form.data[c.field('body')]}
+                                        onChange={(e) => form.setData(c.field('body'), e.target.value)}
+                                        placeholder={c.fr ? 'Empty: the French blog shows the English text.' : undefined}
+                                    />
+                                )}
                             </Field>
                         </div>
                     </Panel>
@@ -123,11 +173,28 @@ export default function BlogPostForm({ post }: { post: PostData | null }) {
                             <Field label="Web address" name="slug" error={form.errors.slug} hint={`/blog/${form.data.slug || '…'} (leave empty to create it from the title)`} optional>
                                 {(p) => <Input {...p} value={form.data.slug} onChange={(e) => form.setData('slug', e.target.value)} maxLength={180} />}
                             </Field>
-                            <Field label="Page title" name="seo_title" error={form.errors.seo_title} hint={`${form.data.seo_title.length}/70`} optional>
-                                {(p) => <Input {...p} value={form.data.seo_title} onChange={(e) => form.setData('seo_title', e.target.value)} maxLength={70} />}
+                            <Field label={c.label('Page title')} name={c.field('seo_title')} error={err(c.field('seo_title'))} hint={`${form.data[c.field('seo_title')].length}/70`} optional>
+                                {(p) => (
+                                    <Input {...p} value={form.data[c.field('seo_title')]} onChange={(e) => form.setData(c.field('seo_title'), e.target.value)} placeholder={c.source(form.data.seo_title)} maxLength={70} />
+                                )}
                             </Field>
-                            <Field label="Description" name="seo_description" error={form.errors.seo_description} hint={`${form.data.seo_description.length}/170`} optional>
-                                {(p) => <Textarea {...p} rows={2} value={form.data.seo_description} onChange={(e) => form.setData('seo_description', e.target.value)} maxLength={170} />}
+                            <Field
+                                label={c.label('Description')}
+                                name={c.field('seo_description')}
+                                error={err(c.field('seo_description'))}
+                                hint={`${form.data[c.field('seo_description')].length}/170`}
+                                optional
+                            >
+                                {(p) => (
+                                    <Textarea
+                                        {...p}
+                                        rows={2}
+                                        value={form.data[c.field('seo_description')]}
+                                        onChange={(e) => form.setData(c.field('seo_description'), e.target.value)}
+                                        placeholder={c.source(form.data.seo_description)}
+                                        maxLength={170}
+                                    />
+                                )}
                             </Field>
                         </div>
                     </Panel>
@@ -203,8 +270,10 @@ export default function BlogPostForm({ post }: { post: PostData | null }) {
                                 </Label>
                             </div>
                         )}
-                        <Field label="Photo description" name="cover_alt" error={form.errors.cover_alt} hint="For screen readers and search engines." optional className="mt-4">
-                            {(p) => <Input {...p} value={form.data.cover_alt} onChange={(e) => form.setData('cover_alt', e.target.value)} maxLength={160} />}
+                        <Field label={c.label('Photo description')} name={c.field('cover_alt')} error={err(c.field('cover_alt'))} hint="For screen readers and search engines." optional className="mt-4">
+                            {(p) => (
+                                <Input {...p} value={form.data[c.field('cover_alt')]} onChange={(e) => form.setData(c.field('cover_alt'), e.target.value)} placeholder={c.source(form.data.cover_alt)} maxLength={160} />
+                            )}
                         </Field>
                     </Panel>
 

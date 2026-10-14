@@ -113,6 +113,13 @@ Every state-changing endpoint follows the same nine steps (from the brief), impl
 
 Inertia v3 sends the first page as full HTML with the page data in a `<script type="application/json">`. Because the target host cannot run a persistent Node SSR process, **SEO-critical tags are rendered by Blade** from a `Seo` object passed as view data: `<title>`, description, canonical, robots, Open Graph, Twitter, and JSON-LD. Crawlers and social scrapers get them without executing JavaScript; Google renders the React content. An SSR entry (`resources/js/ssr.tsx`) is built and tested so SSR can be switched on (`INERTIA_SSR_ENABLED=true`) on a plan that supports a Node process.
 
+## Languages
+
+- **Routing.** The storefront routes are registered twice in `routes/web.php`: at the root (English, names like `shop`) and under `/fr` (French, names like `fr.shop`). `SetLocale` (global middleware) sets the locale from the first URL segment, so even 404 and 419 responses are in the right language; the admin is always English. Server code links with `localized_route('shop')`.
+- **Interface text.** Written in English in the code and translated in `lang/fr.json`, shared by PHP (`__()`) and React (`useI18n().t()`, imported at build time). French validation messages are in `lang/fr/validation.php`. `tests/Unit/TranslationsTest.php` fails if a string has no French version or its `:placeholders` differ.
+- **Content.** Database text columns have `_fr` twins and settings have `_fr` keys (see DATABASE.md); presenters and controllers read them through `translated()` / `settings()->localized()`. Admin forms show an *English / Français* switch that swaps the text fields in place.
+- **Front end.** `useI18n()` gives `t`, `tc` (plurals: French treats 0 as singular), `to('/shop')` (path in the current language), `money()` and `date()` formatted for the language. The language switch is a full page load so `<html lang>` and the metadata change too.
+
 ## Hosting constraints and how the design meets them
 
 | Constraint (shared hosting) | Design response |
@@ -130,7 +137,7 @@ Inertia v3 sends the first page as full HTML with the page data in a `<script ty
 | `tests/Unit` | Pest | Money, phone, pricing, status/permission rules |
 | `tests/Feature` | Pest + `RefreshDatabase` (MySQL `aloeandsoul_test`, or SQLite) | HTTP-level tests through real routes and middleware |
 | `tests/Concurrency` | Pest + `DatabaseTruncation` | Spawns parallel PHP processes (`place-order.php`) racing for the same stock; MySQL only |
-| `tests/js` | Vitest + Testing Library | UI primitives and money formatting |
+| `tests/js` | Vitest + Testing Library | UI primitives, money formatting, translation helpers |
 | `tests/e2e` | Playwright | Full journeys on a freshly seeded `aloeandsoul_e2e` database (`E2eSeeder`) |
 
 ## Conventions

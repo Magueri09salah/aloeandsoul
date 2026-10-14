@@ -34,7 +34,7 @@ class InventoryService
             ->decrement('stock', $quantity);
 
         if ($affected !== 1) {
-            throw new DomainException('Not enough stock for '.$variant->displayName().'.', 'cart');
+            throw new DomainException(__('Not enough stock for :item.', ['item' => $variant->displayName()]), 'cart');
         }
 
         $variant->stock -= $quantity;

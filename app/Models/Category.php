@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProductStatus;
+use App\Models\Concerns\HasTranslations;
 use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,11 +22,17 @@ class Category extends Model
     /** @use HasFactory<CategoryFactory> */
     use HasFactory;
 
+    use HasTranslations;
+
     public const MOTIFS = ['horizon', 'circle', 'wave', 'leaf'];
+
+    /** Columns with a French version ("name" → "name_fr"). */
+    public const TRANSLATABLE = ['name', 'tagline', 'description', 'seo_title', 'seo_description'];
 
     protected $fillable = [
         'name', 'slug', 'tagline', 'description', 'tint', 'motif',
         'sort_order', 'is_active', 'seo_title', 'seo_description',
+        'name_fr', 'tagline_fr', 'description_fr', 'seo_title_fr', 'seo_description_fr',
     ];
 
     protected function casts(): array

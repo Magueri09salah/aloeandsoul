@@ -21,7 +21,7 @@ class FaqController extends Controller
         Gate::authorize(Permission::ManageContent->value);
 
         return Inertia::render('admin/faqs/index', [
-            'faqs' => Faq::query()->orderBy('sort_order')->orderBy('id')->get(['id', 'question', 'answer', 'sort_order', 'is_published', 'show_on_home']),
+            'faqs' => Faq::query()->orderBy('sort_order')->orderBy('id')->get(['id', 'question', 'answer', 'question_fr', 'answer_fr', 'sort_order', 'is_published', 'show_on_home']),
         ]);
     }
 
@@ -58,6 +58,8 @@ class FaqController extends Controller
         $data = $request->validate([
             'question' => ['required', 'string', 'max:255'],
             'answer' => ['required', 'string', 'max:3000'],
+            'question_fr' => ['nullable', 'string', 'max:255'],
+            'answer_fr' => ['nullable', 'string', 'max:3000'],
             'sort_order' => ['nullable', 'integer', 'between:0,1000'],
             'is_published' => ['boolean'],
             'show_on_home' => ['boolean'],

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProductStatus;
+use App\Models\Concerns\HasTranslations;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,11 +25,17 @@ class Product extends Model
     /** @use HasFactory<ProductFactory> */
     use HasFactory;
 
+    use HasTranslations;
+
+    /** Columns with a French version ("name" → "name_fr"). */
+    public const TRANSLATABLE = ['name', 'summary', 'description', 'benefits', 'usage', 'ingredients', 'nutrition', 'option_label', 'seo_title', 'seo_description'];
+
     protected $fillable = [
         'category_id', 'name', 'slug', 'summary', 'description',
         'benefits', 'usage', 'ingredients', 'nutrition', 'specifications',
         'option_label', 'status', 'is_featured', 'is_bestseller', 'sort_order',
         'seo_title', 'seo_description', 'published_at',
+        'name_fr', 'summary_fr', 'description_fr', 'benefits_fr', 'usage_fr', 'ingredients_fr', 'nutrition_fr', 'option_label_fr', 'seo_title_fr', 'seo_description_fr',
     ];
 
     protected function casts(): array

@@ -2,6 +2,7 @@ import { router, useForm } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
+import { ContentLanguageSwitch, hasFrenchErrors, useContentLanguage } from '@/components/admin/content-language';
 import { EmptyState, PageHeader, Panel } from '@/components/admin/ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,8 @@ interface Faq {
     id: number;
     question: string;
     answer: string;
+    question_fr: string | null;
+    answer_fr: string | null;
     sort_order: number;
     is_published: boolean;
     show_on_home: boolean;
@@ -46,6 +49,7 @@ export default function Faqs({ faqs }: { faqs: Faq[] }) {
                                     <div className="mt-2 flex gap-2">
                                         {!f.is_published && <Badge tone="warning">Hidden</Badge>}
                                         {f.show_on_home && <Badge tone="info">On home page</Badge>}
+                                        {!(f.question_fr && f.answer_fr) && <Badge>No French yet</Badge>}
                                     </div>
                                 </div>
                                 <Button size="sm" variant="ghost" onClick={() => setEditing(f)}>
@@ -71,10 +75,15 @@ function FaqForm({ faq, onDone }: { faq: Faq | null; onDone: () => void }) {
     const form = useForm({
         question: faq?.question ?? '',
         answer: faq?.answer ?? '',
+        question_fr: faq?.question_fr ?? '',
+        answer_fr: faq?.answer_fr ?? '',
         sort_order: faq?.sort_order ?? 0,
         is_published: faq?.is_published ?? true,
         show_on_home: faq?.show_on_home ?? false,
     });
+
+    const c = useContentLanguage();
+    const err = (key: string) => (form.errors as Record<string, string | undefined>)[key];
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
@@ -85,11 +94,23 @@ function FaqForm({ faq, onDone }: { faq: Faq | null; onDone: () => void }) {
 
     return (
         <form onSubmit={submit} noValidate className="space-y-4">
-            <Field label="Question" name="question" error={form.errors.question} required>
-                {(p) => <Input {...p} value={form.data.question} onChange={(e) => form.setData('question', e.target.value)} maxLength={255} />}
+            <ContentLanguageSwitch value={c.lang} onChange={c.setLang} frenchErrors={hasFrenchErrors(form.errors)} />
+            <Field label={c.label('Question')} name={c.field('question')} error={err(c.field('question'))} required={!c.fr} optional={c.fr}>
+                {(p) => (
+                    <Input {...p} value={form.data[c.field('question')]} onChange={(e) => form.setData(c.field('question'), e.target.value)} placeholder={c.source(form.data.question)} maxLength={255} />
+                )}
             </Field>
-            <Field label="Answer" name="answer" error={form.errors.answer} required>
-                {(p) => <Textarea {...p} rows={5} value={form.data.answer} onChange={(e) => form.setData('answer', e.target.value)} maxLength={3000} />}
+            <Field label={c.label('Answer')} name={c.field('answer')} error={err(c.field('answer'))} required={!c.fr} optional={c.fr}>
+                {(p) => (
+                    <Textarea
+                        {...p}
+                        rows={5}
+                        value={form.data[c.field('answer')]}
+                        onChange={(e) => form.setData(c.field('answer'), e.target.value)}
+                        placeholder={c.source(form.data.answer)}
+                        maxLength={3000}
+                    />
+                )}
             </Field>
             <Field label="Position" name="sort_order" error={form.errors.sort_order}>
                 {(p) => <Input {...p} type="number" className="max-w-28" value={form.data.sort_order} onChange={(e) => form.setData('sort_order', Number(e.target.value))} />}

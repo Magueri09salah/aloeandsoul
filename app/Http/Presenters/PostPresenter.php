@@ -13,10 +13,10 @@ final class PostPresenter
     {
         return [
             'id' => $post->id,
-            'title' => $post->title,
+            'title' => $post->translated('title'),
             'slug' => $post->slug,
-            'excerpt' => $post->excerpt ?: Str::limit(self::plainText($post->body), 180),
-            'cover' => ImagePresenter::fromArray($post->cover, (string) ($post->cover_alt ?: $post->title)),
+            'excerpt' => $post->translated('excerpt') ?: Str::limit(self::plainText((string) $post->translated('body')), 180),
+            'cover' => ImagePresenter::fromArray($post->cover, (string) ($post->translated('cover_alt') ?: $post->translated('title'))),
             'published_at' => $post->published_at?->toIso8601String(),
             'reading_minutes' => $post->readingMinutes(),
         ];
@@ -27,7 +27,7 @@ final class PostPresenter
     {
         return [
             ...self::card($post),
-            'body_html' => ProductPresenter::markdown($post->body),
+            'body_html' => ProductPresenter::markdown((string) $post->translated('body')),
             'updated_at' => $post->updated_at?->toIso8601String(),
         ];
     }
@@ -38,7 +38,7 @@ final class PostPresenter
         return [
             'id' => $c->id,
             'name' => $c->name,
-            'description' => $c->description,
+            'description' => $c->translated('description'),
             'url' => $c->url,
             'image' => ImagePresenter::fromArray($c->image, $c->name),
             'image_style' => $c->image_style,

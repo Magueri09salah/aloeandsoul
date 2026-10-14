@@ -28,7 +28,7 @@ final class Seo
     {
         return new self(
             title: $title,
-            description: $description ?? (string) settings()->get('seo.description'),
+            description: $description ?? (string) settings()->localizedGet('seo.description'),
             canonical: url()->current(),
             index: $index,
         );
@@ -36,13 +36,13 @@ final class Seo
 
     public static function private(string $title): self
     {
-        return new self(title: $title, description: (string) settings()->get('seo.description'), canonical: null, index: false);
+        return new self(title: $title, description: (string) settings()->localizedGet('seo.description'), canonical: null, index: false);
     }
 
     public function fullTitle(): string
     {
         $store = (string) settings()->get('store.name');
-        $default = (string) settings()->get('seo.title');
+        $default = (string) settings()->localizedGet('seo.title');
 
         if ($this->title === '' || $this->title === $default) {
             return $default;

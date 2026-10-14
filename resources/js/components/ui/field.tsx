@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { Label } from '@/components/ui/input';
+import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 export interface ControlProps {
@@ -28,6 +29,7 @@ interface FieldProps {
  */
 export function Field({ label, name, error, hint, required, optional, className, children }: FieldProps) {
     const id = `${React.useId()}-${name}`;
+    const { t } = useI18n();
     const hintId = hint ? `${id}-hint` : undefined;
     const errorId = error ? `${id}-error` : undefined;
 
@@ -35,7 +37,7 @@ export function Field({ label, name, error, hint, required, optional, className,
         <div className={cn('flex flex-col gap-1.5', className)}>
             <Label htmlFor={id}>
                 {label}
-                {optional && <span className="ml-1 font-normal text-stone">(optional)</span>}
+                {optional && <span className="ml-1 font-normal text-stone">{t('(optional)')}</span>}
             </Label>
             {children({
                 id,
@@ -62,6 +64,7 @@ export function Field({ label, name, error, hint, required, optional, className,
 export function FormErrorSummary({ errors, className }: { errors: Record<string, string | undefined>; className?: string }) {
     const messages = Object.values(errors).filter((m): m is string => Boolean(m));
     const ref = React.useRef<HTMLDivElement>(null);
+    const { t } = useI18n();
 
     React.useEffect(() => {
         if (messages.length > 0) ref.current?.focus();
@@ -80,7 +83,7 @@ export function FormErrorSummary({ errors, className }: { errors: Record<string,
                 <p>{messages[0]}</p>
             ) : (
                 <>
-                    <p className="font-medium">Please check the following:</p>
+                    <p className="font-medium">{t('Please check the following:')}</p>
                     <ul className="mt-1 list-disc pl-5">
                         {messages.map((m) => (
                             <li key={m}>{m}</li>

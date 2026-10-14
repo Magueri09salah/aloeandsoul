@@ -146,3 +146,40 @@ test.describe('Search engine metadata', () => {
         expect(category).toContain('<meta name="robots" content="index,follow"');
     });
 });
+
+test.describe('French storefront', () => {
+    test('switch to French on a product, order in French, then switch back @mobile', async ({ page }) => {
+        await page.goto('/products/shampoo');
+        await page.getByRole('link', { name: 'Français' }).first().click();
+        await expect(page).toHaveURL(/\/fr\/products\/shampoo$/);
+        await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
+        await expect(page.getByRole('heading', { level: 1, name: 'Shampooing' })).toBeVisible();
+
+        await page.getByRole('button', { name: 'Ajouter au panier' }).click();
+        const drawer = page.getByRole('dialog', { name: 'Votre panier' });
+        await expect(drawer.getByRole('link', { name: 'Shampooing' })).toBeVisible();
+        await drawer.getByRole('link', { name: 'Passer la commande' }).click();
+        await expect(page).toHaveURL(/\/fr\/checkout$/);
+
+        // A missing field is explained in French.
+        await page.getByRole('button', { name: 'Valider la commande' }).filter({ visible: true }).click();
+        await expect(page.getByText('Saisissez votre nom complet.')).toBeVisible();
+
+        await page.getByLabel('Nom complet').fill('Fatima Zahra');
+        await page.getByLabel('Numéro de téléphone').fill('06 12 34 56 78');
+        await page.getByLabel('Zone de livraison').selectOption({ index: 1 });
+        await expect(page.getByText(/Vous paierez .* en espèces à la livraison/).filter({ visible: true })).toBeVisible();
+        await page.getByLabel('Ville', { exact: true }).fill('Marrakech');
+        await page.getByLabel('Adresse', { exact: true }).fill('12 Rue de la Kasbah, Medina');
+        await page.getByRole('checkbox', { name: /politique de confidentialité/ }).click();
+        await page.getByRole('button', { name: 'Valider la commande' }).filter({ visible: true }).click();
+
+        await expect(page).toHaveURL(/\/fr\/checkout\/confirmation\//);
+        await expect(page.getByRole('heading', { name: 'Merci, Fatima.' })).toBeVisible();
+
+        // The same page in English.
+        await page.getByRole('link', { name: 'English' }).first().click();
+        await expect(page).not.toHaveURL(/\/fr\//);
+        await expect(page.getByRole('heading', { name: 'Thank you, Fatima.' })).toBeVisible();
+    });
+});

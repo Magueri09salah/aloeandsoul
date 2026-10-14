@@ -1,6 +1,6 @@
 @php
     /** @var \App\Services\Seo\Seo|null $seo */
-    $seo ??= \App\Services\Seo\Seo::page((string) settings()->get('seo.title'), null, index: ! request()->is('admin', 'admin/*'));
+    $seo ??= \App\Services\Seo\Seo::page((string) settings()->localizedGet('seo.title'), null, index: ! request()->is('admin', 'admin/*'));
     $isAdmin = request()->is('admin', 'admin/*');
 @endphp
 <!DOCTYPE html>
@@ -17,10 +17,23 @@
     <meta name="robots" content="{{ $isAdmin ? 'noindex,nofollow' : $seo->robots() }}" data-inertia="robots">
     @if ($seo->canonical && ! $isAdmin)
         <link rel="canonical" href="{{ $seo->canonical }}" data-inertia="canonical">
+        @if ($seo->index)
+            {{-- The same page in each language; x-default is the English one. --}}
+            @foreach (\App\Support\Locales::codes() as $code)
+                <link rel="alternate" hreflang="{{ $code }}" href="{{ \App\Support\Locales::url($seo->canonical, $code) }}">
+            @endforeach
+            <link rel="alternate" hreflang="x-default" href="{{ \App\Support\Locales::url($seo->canonical, \App\Support\Locales::DEFAULT) }}">
+        @endif
     @endif
 
     @unless ($isAdmin)
         <meta property="og:site_name" content="{{ settings()->get('store.name') }}">
+        <meta property="og:locale" content="{{ \App\Support\Locales::REGIONS[app()->getLocale()] }}">
+        @foreach (\App\Support\Locales::codes() as $code)
+            @if ($code !== app()->getLocale())
+                <meta property="og:locale:alternate" content="{{ \App\Support\Locales::REGIONS[$code] }}">
+            @endif
+        @endforeach
         <meta property="og:type" content="{{ $seo->type }}">
         <meta property="og:title" content="{{ $seo->fullTitle() }}">
         <meta property="og:description" content="{{ \Illuminate\Support\Str::limit($seo->description, 200, '…') }}">
@@ -44,8 +57,7 @@
     @inertia
     <noscript>
         <p style="padding:16px;font-family:system-ui,sans-serif">
-            {{ settings()->get('store.name') }} needs JavaScript to show this page. Please enable it, or contact us at
-            {{ settings()->get('contact.email') }}.
+            {{ __(':store needs JavaScript to show this page. Please enable it, or contact us at :email.', ['store' => settings()->get('store.name'), 'email' => settings()->get('contact.email')]) }}
         </p>
     </noscript>
 </body>

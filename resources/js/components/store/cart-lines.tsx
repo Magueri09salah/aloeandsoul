@@ -8,12 +8,13 @@ import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { ResponsiveImage } from '@/components/ui/responsive-image';
 import { ProductPlaceholder } from '@/components/store/product-placeholder';
 import { useShared } from '@/hooks/use-shared';
-import { formatMoney } from '@/lib/money';
+import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 /** Cart lines with quantity controls; used by the drawer and the cart page. */
 export function CartLines({ lines, compact = false }: { lines: CartLine[]; compact?: boolean }) {
-    const { store, errors } = useShared();
+    const { errors } = useShared();
+    const { t, to, money } = useI18n();
     const [busy, setBusy] = useState<number | null>(null);
 
     const update = (line: CartLine, quantity: number) => {
@@ -24,9 +25,9 @@ export function CartLines({ lines, compact = false }: { lines: CartLine[]; compa
             onFinish: () => setBusy(null),
         };
         if (quantity < 1) {
-            router.delete(`/cart/items/${line.id}`, options);
+            router.delete(to(`/cart/items/${line.id}`), options);
         } else {
-            router.patch(`/cart/items/${line.id}`, { quantity }, options);
+            router.patch(to(`/cart/items/${line.id}`), { quantity }, options);
         }
     };
 
@@ -35,7 +36,7 @@ export function CartLines({ lines, compact = false }: { lines: CartLine[]; compa
             {lines.map((line) => (
                 <li key={line.id} className={cn('flex gap-4 py-5', busy === line.id && 'opacity-60')} aria-busy={busy === line.id || undefined}>
                     <Link
-                        href={`/products/${line.product_slug}`}
+                        href={to(`/products/${line.product_slug}`)}
                         className={cn('shrink-0 overflow-hidden', compact ? 'h-24 w-20' : 'h-32 w-26')}
                         style={{ backgroundColor: line.tint }}
                         tabIndex={-1}
@@ -46,7 +47,7 @@ export function CartLines({ lines, compact = false }: { lines: CartLine[]; compa
                     <div className="flex min-w-0 flex-1 flex-col">
                         <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                                <Link href={`/products/${line.product_slug}`} className="font-medium hover:text-aloe">
+                                <Link href={to(`/products/${line.product_slug}`)} className="font-medium hover:text-aloe">
                                     {line.product_name}
                                 </Link>
                                 {line.variant_name && (
@@ -57,11 +58,11 @@ export function CartLines({ lines, compact = false }: { lines: CartLine[]; compa
                                 )}
                                 {line.unit_price_minor !== null && (
                                     <p className="mt-0.5 text-sm text-stone">
-                                        <Price amount={line.unit_price_minor} regular={line.regular_price_minor} /> each
+                                        <Price amount={line.unit_price_minor} regular={line.regular_price_minor} /> {t('each')}
                                     </p>
                                 )}
                             </div>
-                            <p className="shrink-0 tabular-nums">{line.issue ? '—' : formatMoney(line.line_total_minor, store.currency)}</p>
+                            <p className="shrink-0 tabular-nums">{line.issue ? '—' : money(line.line_total_minor)}</p>
                         </div>
                         {line.issue && (
                             <p className="mt-2 text-sm text-clay" role="status">
@@ -72,7 +73,7 @@ export function CartLines({ lines, compact = false }: { lines: CartLine[]; compa
                             {line.max_quantity > 0 ? (
                                 <QuantityStepper
                                     size="sm"
-                                    label={`Quantity of ${line.product_name}`}
+                                    label={t('Quantity of :name', { name: line.product_name })}
                                     value={line.quantity}
                                     min={1}
                                     max={line.max_quantity}
@@ -88,7 +89,7 @@ export function CartLines({ lines, compact = false }: { lines: CartLine[]; compa
                                 disabled={busy === line.id}
                                 className="text-sm text-stone underline underline-offset-4 hover:text-clay"
                             >
-                                Remove<span className="sr-only"> {line.product_name}</span>
+                                {t('Remove')}<span className="sr-only"> {line.product_name}</span>
                             </button>
                         </div>
                     </div>

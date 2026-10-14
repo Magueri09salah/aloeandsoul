@@ -17,8 +17,8 @@ class ContactController extends Controller
     public function show(): Response
     {
         return $this->render('contact', [], Seo::page(
-            'Contact',
-            'Questions about a product or an order? Write to Aloe & Soul or message us on WhatsApp.',
+            __('Contact'),
+            __('Questions about a product or an order? Write to Aloe & Soul or message us on WhatsApp.'),
         ));
     }
 
@@ -31,7 +31,7 @@ class ContactController extends Controller
 
         Log::info('contact.received', ['id' => $message->id]);
 
-        return back()->with('success', 'Thank you. Your message has been sent and we will reply soon.');
+        return back()->with('success', __('Thank you. Your message has been sent and we will reply soon.'));
     }
 
     /**
@@ -45,12 +45,13 @@ class ContactController extends Controller
         if (! $subscriber->exists || $subscriber->unsubscribed_at !== null) {
             $subscriber->forceFill([
                 'consented_at' => now(),
-                'consent_text' => NewsletterRequest::CONSENT_TEXT,
+                // The wording the subscriber actually agreed to, in their language.
+                'consent_text' => __(NewsletterRequest::CONSENT_TEXT),
                 'unsubscribed_at' => null,
                 'ip_hash' => ip_hash($request->ip()),
             ])->save();
         }
 
-        return back()->with('success', 'Thank you for subscribing.');
+        return back()->with('success', __('Thank you for subscribing.'));
     }
 }

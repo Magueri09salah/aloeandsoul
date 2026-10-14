@@ -10,20 +10,22 @@ import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { useCartUi } from '@/components/store/cart-context';
+import { LanguageList, LanguageToggle } from '@/components/store/language-switcher';
 import { useShared } from '@/hooks/use-shared';
+import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-
-const LINKS = [
-    { href: '/our-story', label: 'Our story' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/faq', label: 'FAQ' },
-    { href: '/contact', label: 'Contact' },
-];
 
 export function SiteHeader() {
     const { navigation = [], cart, contact } = useShared();
     const { url } = usePage();
     const cartUi = useCartUi();
+    const { t, tc, to } = useI18n();
+    const links = [
+        { href: '/our-story', label: t('Our story') },
+        { href: '/blog', label: t('Blog') },
+        { href: '/faq', label: t('FAQ') },
+        { href: '/contact', label: t('Contact') },
+    ];
     const [mobileOpen, setMobileOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const count = cart?.count ?? 0;
@@ -41,23 +43,26 @@ export function SiteHeader() {
         previous.current = count;
     }, [count]);
 
-    const isActive = (href: string) => url === href || url.startsWith(`${href}/`) || url.startsWith(`${href}?`);
+    const isActive = (path: string) => {
+        const href = to(path);
+        return url === href || url.startsWith(`${href}/`) || url.startsWith(`${href}?`);
+    };
 
     return (
         <header className="sticky top-0 z-40 border-b border-line/70 bg-ivory/95 backdrop-blur supports-[backdrop-filter]:bg-ivory/85">
-            <div className="container-page flex h-[4.5rem] items-center gap-4">
+            <div className="container-page flex h-[4.5rem] items-center gap-2 sm:gap-4">
                 <button
                     type="button"
-                    className="-ml-2 inline-flex size-11 items-center justify-center rounded-full hover:bg-sand lg:hidden"
+                    className="-ml-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-sand lg:hidden"
                     onClick={() => setMobileOpen(true)}
-                    aria-label="Open menu"
+                    aria-label={t('Open menu')}
                 >
                     <Menu className="size-5" aria-hidden="true" />
                 </button>
 
-                <Logo className="mr-auto lg:mr-0" />
+                <Logo href={to('/')} className="mr-auto lg:mr-0" />
 
-                <NavigationMenu.Root className="relative ml-10 hidden flex-1 lg:block" aria-label="Main">
+                <NavigationMenu.Root className="relative ml-10 hidden flex-1 lg:block" aria-label={t('Main')}>
                     <NavigationMenu.List className="flex items-center gap-1">
                         <NavigationMenu.Item>
                             <NavigationMenu.Trigger
@@ -66,7 +71,7 @@ export function SiteHeader() {
                                     isActive('/shop') && 'text-aloe',
                                 )}
                             >
-                                Shop
+                                {t('Shop')}
                                 <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden="true" />
                             </NavigationMenu.Trigger>
                             <NavigationMenu.Content className="absolute top-full left-0 mt-3 w-[min(46rem,80vw)] rounded-lg border border-line bg-ivory p-3 shadow-overlay data-[motion^=from-]:animate-in data-[motion^=from-]:fade-in data-[motion^=to-]:animate-out data-[motion^=to-]:fade-out">
@@ -75,7 +80,7 @@ export function SiteHeader() {
                                         <li key={category.slug}>
                                             <NavigationMenu.Link asChild>
                                                 <Link
-                                                    href={`/shop/${category.slug}`}
+                                                    href={to(`/shop/${category.slug}`)}
                                                     className="flex items-start gap-4 rounded-md p-3 transition-colors hover:bg-sand focus-visible:bg-sand"
                                                 >
                                                     <span className="flex size-14 shrink-0 items-center justify-center rounded-full p-2.5 text-dune" style={{ backgroundColor: category.tint }}>
@@ -92,18 +97,18 @@ export function SiteHeader() {
                                 </ul>
                                 <div className="mt-2 border-t border-line px-3 pt-3 pb-1">
                                     <NavigationMenu.Link asChild>
-                                        <Link href="/shop" className="text-sm font-medium underline underline-offset-4 hover:text-aloe">
-                                            See all products
+                                        <Link href={to('/shop')} className="text-sm font-medium underline underline-offset-4 hover:text-aloe">
+                                            {t('See all products')}
                                         </Link>
                                     </NavigationMenu.Link>
                                 </div>
                             </NavigationMenu.Content>
                         </NavigationMenu.Item>
-                        {LINKS.map((link) => (
+                        {links.map((link) => (
                             <NavigationMenu.Item key={link.href}>
                                 <NavigationMenu.Link asChild active={isActive(link.href)}>
                                     <Link
-                                        href={link.href}
+                                        href={to(link.href)}
                                         className={cn(
                                             'inline-flex h-10 items-center rounded-full px-4 text-[0.95rem] hover:bg-sand',
                                             isActive(link.href) && 'text-aloe',
@@ -118,20 +123,21 @@ export function SiteHeader() {
                     </NavigationMenu.List>
                 </NavigationMenu.Root>
 
-                <div className="flex items-center gap-1">
+                <div className="flex shrink-0 items-center sm:gap-1">
+                    <LanguageToggle />
                     <button
                         type="button"
                         onClick={() => setSearchOpen(true)}
-                        className="inline-flex size-11 items-center justify-center rounded-full hover:bg-sand"
-                        aria-label="Search products"
+                        className="inline-flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-sand"
+                        aria-label={t('Search products')}
                     >
                         <Search className="size-5" aria-hidden="true" />
                     </button>
                     <button
                         type="button"
                         onClick={cartUi.open}
-                        className="relative -mr-2 inline-flex size-11 items-center justify-center rounded-full hover:bg-sand"
-                        aria-label={`Open cart, ${count} ${count === 1 ? 'item' : 'items'}`}
+                        className="relative -mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-sand"
+                        aria-label={tc('Open cart, :count item|Open cart, :count items', count)}
                     >
                         <ShoppingBag className="size-5" aria-hidden="true" />
                         {count > 0 && (
@@ -152,14 +158,14 @@ export function SiteHeader() {
             <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
 
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-                <SheetContent side="left" title="Menu">
-                    <nav aria-label="Main" className="flex-1 overflow-y-auto px-5 py-4">
-                        <p className="text-sm text-stone">Shop</p>
+                <SheetContent side="left" title={t('Menu')}>
+                    <nav aria-label={t('Main')} className="flex-1 overflow-y-auto px-5 py-4">
+                        <p className="text-sm text-stone">{t('Shop')}</p>
                         <ul className="mt-2 border-b border-line pb-4">
                             {navigation.map((c) => (
                                 <li key={c.slug}>
                                     <Link
-                                        href={`/shop/${c.slug}`}
+                                        href={to(`/shop/${c.slug}`)}
                                         onClick={() => setMobileOpen(false)}
                                         className="flex items-center gap-3 py-2.5 text-lg"
                                     >
@@ -169,26 +175,27 @@ export function SiteHeader() {
                                 </li>
                             ))}
                             <li>
-                                <Link href="/shop" onClick={() => setMobileOpen(false)} className="block py-2.5 text-lg underline underline-offset-4">
-                                    All products
+                                <Link href={to('/shop')} onClick={() => setMobileOpen(false)} className="block py-2.5 text-lg underline underline-offset-4">
+                                    {t('All products')}
                                 </Link>
                             </li>
                         </ul>
                         <ul className="mt-4 space-y-1">
-                            {[...LINKS, { href: '/track-order', label: 'Track an order' }].map((l) => (
+                            {[...links, { href: '/track-order', label: t('Track an order') }].map((l) => (
                                 <li key={l.href}>
-                                    <Link href={l.href} onClick={() => setMobileOpen(false)} className="block py-2 font-display text-2xl">
+                                    <Link href={to(l.href)} onClick={() => setMobileOpen(false)} className="block py-2 font-display text-2xl">
                                         {l.label}
                                     </Link>
                                 </li>
                             ))}
                         </ul>
+                        <LanguageList className="mt-6 border-t border-line pt-4" linkClassName="inline-block py-1.5" />
                     </nav>
                     {contact?.whatsapp && (
                         <div className="border-t border-line p-5">
                             <Button asChild variant="secondary" className="w-full">
                                 <a href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noopener noreferrer">
-                                    Message us on WhatsApp
+                                    {t('Message us on WhatsApp')}
                                 </a>
                             </Button>
                         </div>
@@ -201,31 +208,32 @@ export function SiteHeader() {
 
 function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
     const [q, setQ] = useState('');
+    const { t, to } = useI18n();
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
         const term = q.trim();
         onOpenChange(false);
-        router.get('/shop', term ? { q: term } : {});
+        router.get(to('/shop'), term ? { q: term } : {});
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent title="Search" description="Find a product by name." className="top-24 translate-y-0 sm:top-32">
+            <DialogContent title={t('Search')} description={t('Find a product by name.')} className="top-24 translate-y-0 sm:top-32">
                 <form onSubmit={submit} role="search" className="flex gap-2">
                     <label htmlFor="site-search" className="sr-only">
-                        Search products
+                        {t('Search products')}
                     </label>
                     <Input
                         id="site-search"
                         type="search"
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
-                        placeholder="Aloe vera gel, shampoo…"
+                        placeholder={t('Aloe vera gel, shampoo…')}
                         maxLength={100}
                         autoFocus
                     />
-                    <Button type="submit">Search</Button>
+                    <Button type="submit">{t('Search')}</Button>
                 </form>
             </DialogContent>
         </Dialog>

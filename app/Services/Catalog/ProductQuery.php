@@ -5,6 +5,7 @@ namespace App\Services\Catalog;
 use App\Enums\ProductStatus;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\Locales;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -50,8 +51,11 @@ class ProductQuery
         if (filled($filters['q'] ?? null)) {
             $term = '%'.addcslashes((string) $filters['q'], '%_\\').'%';
             $query->where(function (Builder $q) use ($term) {
+                // Both languages, so a name typed in either one is found.
                 $q->where('products.name', 'like', $term)
                     ->orWhere('products.summary', 'like', $term)
+                    ->orWhere('products.name_fr', 'like', $term)
+                    ->orWhere('products.summary_fr', 'like', $term)
                     ->orWhereHas('activeVariants', fn (Builder $v) => $v->where('sku', 'like', $term));
             });
         }
@@ -81,11 +85,15 @@ class ProductQuery
             });
         }
 
+        // Alphabetical order follows the names shown (the locale comes from a fixed list).
+        $locale = app()->getLocale();
+        $name = $locale === Locales::DEFAULT ? 'products.name' : "COALESCE(NULLIF(products.name_{$locale}, ''), products.name)";
+
         match ($filters['sort'] ?? 'featured') {
             'newest' => $query->orderByDesc('published_at')->orderByDesc('products.id'),
-            'price_asc' => $query->orderBy('min_price')->orderBy('products.name'),
-            'price_desc' => $query->orderByDesc('min_price')->orderBy('products.name'),
-            'name' => $query->orderBy('products.name'),
+            'price_asc' => $query->orderBy('min_price')->orderByRaw($name),
+            'price_desc' => $query->orderByDesc('min_price')->orderByRaw($name),
+            'name' => $query->orderByRaw($name),
             default => $query->orderByDesc('is_featured')->orderBy('sort_order')->orderByDesc('published_at')->orderByDesc('products.id'),
         };
 

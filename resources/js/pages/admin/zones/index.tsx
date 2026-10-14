@@ -2,6 +2,7 @@ import { router, useForm } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
+import { ContentLanguageSwitch, hasFrenchErrors, useContentLanguage } from '@/components/admin/content-language';
 import { EmptyState, PageHeader, Panel, Table, td, th } from '@/components/admin/ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,8 @@ interface Zone {
     fee: string;
     free_over: string;
     estimate: string | null;
+    name_fr: string | null;
+    estimate_fr: string | null;
     is_active: boolean;
     sort_order: number;
 }
@@ -90,9 +93,14 @@ function ZoneForm({ zone, currency, onDone }: { zone: Zone | null; currency: str
         fee: zone?.fee ?? '',
         free_over: zone?.free_over ?? '',
         estimate: zone?.estimate ?? '',
+        name_fr: zone?.name_fr ?? '',
+        estimate_fr: zone?.estimate_fr ?? '',
         is_active: zone?.is_active ?? true,
         sort_order: zone?.sort_order ?? 0,
     });
+
+    const c = useContentLanguage();
+    const err = (key: string) => (form.errors as Record<string, string | undefined>)[key];
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
@@ -103,8 +111,16 @@ function ZoneForm({ zone, currency, onDone }: { zone: Zone | null; currency: str
 
     return (
         <form onSubmit={submit} noValidate className="space-y-4">
-            <Field label="Area name" name="name" error={form.errors.name} hint="For example Marrakech, or Other cities." required>
-                {(p) => <Input {...p} value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} maxLength={80} />}
+            <ContentLanguageSwitch value={c.lang} onChange={c.setLang} frenchErrors={hasFrenchErrors(form.errors)} />
+            <Field
+                label={c.label('Area name')}
+                name={c.field('name')}
+                error={err(c.field('name'))}
+                hint={c.fr ? 'For example Autres villes. City names can stay the same.' : 'For example Marrakech, or Other cities.'}
+                required={!c.fr}
+                optional={c.fr}
+            >
+                {(p) => <Input {...p} value={form.data[c.field('name')]} onChange={(e) => form.setData(c.field('name'), e.target.value)} placeholder={c.source(form.data.name)} maxLength={80} />}
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
                 <Field label={`Delivery fee (${currency})`} name="fee" error={form.errors.fee} required>
@@ -114,8 +130,10 @@ function ZoneForm({ zone, currency, onDone }: { zone: Zone | null; currency: str
                     {(p) => <Input {...p} inputMode="decimal" value={form.data.free_over} onChange={(e) => form.setData('free_over', e.target.value)} />}
                 </Field>
             </div>
-            <Field label="Typical delivery time" name="estimate" error={form.errors.estimate} hint="Shown to customers, e.g. 1–2 days." optional>
-                {(p) => <Input {...p} value={form.data.estimate} onChange={(e) => form.setData('estimate', e.target.value)} maxLength={80} />}
+            <Field label={c.label('Typical delivery time')} name={c.field('estimate')} error={err(c.field('estimate'))} hint={c.fr ? 'e.g. 1 à 2 jours.' : 'Shown to customers, e.g. 1–2 days.'} optional>
+                {(p) => (
+                    <Input {...p} value={form.data[c.field('estimate')]} onChange={(e) => form.setData(c.field('estimate'), e.target.value)} placeholder={c.source(form.data.estimate)} maxLength={80} />
+                )}
             </Field>
             <div className="flex items-center gap-3">
                 <Switch id="zone-active" checked={form.data.is_active} onCheckedChange={(v) => form.setData('is_active', v)} />

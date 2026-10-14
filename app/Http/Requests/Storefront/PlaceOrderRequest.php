@@ -53,7 +53,7 @@ class PlaceOrderRequest extends FormRequest
                     return;
                 }
                 if (Phone::normalize((string) $this->input('phone'), settings()->country()) === null) {
-                    $validator->errors()->add('phone', 'Enter a valid phone number so the courier can reach you.');
+                    $validator->errors()->add('phone', __('Enter a valid phone number so the courier can reach you.'));
                 }
             },
         ];
@@ -62,15 +62,15 @@ class PlaceOrderRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Enter your full name.',
-            'phone.required' => 'Enter a phone number so the courier can reach you.',
-            'shipping_zone_id.required' => 'Choose a delivery area.',
-            'city.required' => 'Enter your city.',
-            'address.required' => 'Enter your delivery address.',
-            'address.min' => 'Enter your full delivery address (street, number, building).',
-            'privacy.accepted' => 'Please accept the privacy policy to place your order.',
-            'idempotency_key.*' => 'This checkout page has expired. Please reload the page.',
-            'expected_total.*' => 'This checkout page has expired. Please reload the page.',
+            'name.required' => __('Enter your full name.'),
+            'phone.required' => __('Enter a phone number so the courier can reach you.'),
+            'shipping_zone_id.required' => __('Choose a delivery area.'),
+            'city.required' => __('Enter your city.'),
+            'address.required' => __('Enter your delivery address.'),
+            'address.min' => __('Enter your full delivery address (street, number, building).'),
+            'privacy.accepted' => __('Please accept the privacy policy to place your order.'),
+            'idempotency_key.*' => __('This checkout page has expired. Please reload the page.'),
+            'expected_total.*' => __('This checkout page has expired. Please reload the page.'),
         ];
     }
 

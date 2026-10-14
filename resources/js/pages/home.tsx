@@ -11,6 +11,7 @@ import { Collaborators } from '@/components/store/collaborators';
 import { PostCard } from '@/components/store/post-card';
 import { ProductCard } from '@/components/store/product-card';
 import { SectionHeading } from '@/components/store/section-heading';
+import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 interface HomeProps {
@@ -29,6 +30,8 @@ interface HomeProps {
 }
 
 export default function Home({ hero, intro, featuredHeading, featured, bestsellers, categories, ritual, journeys, faqs, collaborators, latestPosts }: HomeProps) {
+    const { t, tc, to } = useI18n();
+
     return (
         <>
             {/* Hero: the founder in the riad arch — the page's one bold gesture. */}
@@ -45,10 +48,10 @@ export default function Home({ hero, intro, featuredHeading, featured, bestselle
                     )}
                     <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4">
                         <Button asChild size="lg">
-                            <Link href="/shop">Shop the collection</Link>
+                            <Link href={to('/shop')}>{t('Shop the collection')}</Link>
                         </Button>
-                        <Link href="/our-story" className="text-[0.95rem] font-medium underline underline-offset-4 hover:text-aloe">
-                            Read our story
+                        <Link href={to('/our-story')} className="text-[0.95rem] font-medium underline underline-offset-4 hover:text-aloe">
+                            {t('Read our story')}
                         </Link>
                     </div>
                 </div>
@@ -60,12 +63,12 @@ export default function Home({ hero, intro, featuredHeading, featured, bestselle
             </section>
 
             {/* What ordering here means, stated plainly. */}
-            <section aria-label="How ordering works" className="border-y border-line bg-white/60">
+            <section aria-label={t('How ordering works')} className="border-y border-line bg-white/60">
                 <ul className="container-page grid gap-6 py-8 sm:grid-cols-3">
                     {[
-                        { icon: Banknote, title: 'Pay in cash on delivery', text: 'No card or online payment needed.' },
-                        { icon: UserRoundCheck, title: 'No account needed', text: 'Order with your name, phone and address.' },
-                        { icon: PackageSearch, title: 'Follow your order', text: 'Use your order reference to check its status.' },
+                        { icon: Banknote, title: t('Pay in cash on delivery'), text: t('No card or online payment needed.') },
+                        { icon: UserRoundCheck, title: t('No account needed'), text: t('Order with your name, phone and address.') },
+                        { icon: PackageSearch, title: t('Follow your order'), text: t('Use your order reference to check its status.') },
                     ].map(({ icon: Icon, title, text }) => (
                         <li key={title} className="flex items-start gap-4">
                             <Icon className="mt-0.5 size-6 shrink-0 text-dune" strokeWidth={1.5} aria-hidden="true" />
@@ -92,13 +95,13 @@ export default function Home({ hero, intro, featuredHeading, featured, bestselle
             {categories.length > 0 && (
                 <section aria-labelledby="categories-heading" className="container-page pb-20 lg:pb-28">
                     <h2 id="categories-heading" className="sr-only">
-                        Shop by category
+                        {t('Shop by category')}
                     </h2>
                     <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
                         {categories.map((c, i) => (
                             <li key={c.slug} className={cn(i % 2 === 1 && 'lg:translate-y-12')}>
                                 <Link
-                                    href={`/shop/${c.slug}`}
+                                    href={to(`/shop/${c.slug}`)}
                                     className="group flex aspect-[3/4] flex-col justify-between p-5 transition-colors sm:p-7"
                                     style={{ backgroundColor: c.tint }}
                                 >
@@ -109,7 +112,7 @@ export default function Home({ hero, intro, featuredHeading, featured, bestselle
                                         <span className="block font-display text-2xl leading-tight sm:text-3xl">{c.name}</span>
                                         {c.tagline && <span className="mt-2 hidden text-sm text-stone sm:block">{c.tagline}</span>}
                                         <span className="mt-3 inline-block text-sm font-medium underline-offset-4 group-hover:underline">
-                                            {c.product_count > 0 ? `${c.product_count} products` : 'Coming soon'}
+                                            {c.product_count > 0 ? tc(':count product|:count products', c.product_count) : t('Coming soon')}
                                         </span>
                                     </span>
                                 </Link>
@@ -121,7 +124,7 @@ export default function Home({ hero, intro, featuredHeading, featured, bestselle
 
             {featured.length > 0 && (
                 <section className="container-page pt-8 pb-20 lg:pt-16">
-                    <SectionHeading title={featuredHeading} link={{ href: '/shop', label: 'See all products' }} />
+                    <SectionHeading title={featuredHeading} link={{ href: to('/shop'), label: t('See all products') }} />
                     <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
                         {featured.map((p) => (
                             <ProductCard key={p.id} product={p} />
@@ -151,7 +154,7 @@ export default function Home({ hero, intro, featuredHeading, featured, bestselle
 
             {bestsellers.length > 0 && (
                 <section className="container-page py-20">
-                    <SectionHeading title="Bestsellers" link={{ href: '/shop', label: 'Browse the shop' }} />
+                    <SectionHeading title={t('Bestsellers')} link={{ href: to('/shop'), label: t('Browse the shop') }} />
                     <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
                         {bestsellers.map((p) => (
                             <ProductCard key={p.id} product={p} />
@@ -164,16 +167,16 @@ export default function Home({ hero, intro, featuredHeading, featured, bestselle
             <section className="bg-sand py-20 lg:py-28">
                 <div className="container-page grid gap-12 lg:grid-cols-12">
                     <div className="lg:col-span-5">
-                        <h2 className="font-display text-display text-balance">From London to Marrakech</h2>
-                        <p className="mt-6 font-serif text-editorial italic">“I wasn’t looking for a business. I was simply looking for answers.”</p>
+                        <h2 className="font-display text-display text-balance">{t('From London to Marrakech')}</h2>
+                        <p className="mt-6 font-serif text-editorial italic">{t('“I wasn’t looking for a business. I was simply looking for answers.”')}</p>
                         <Button asChild variant="secondary" className="mt-8">
-                            <Link href="/our-story">Read the founder’s story</Link>
+                            <Link href={to('/our-story')}>{t('Read the founder’s story')}</Link>
                         </Button>
                     </div>
                     <ul className="grid gap-8 sm:grid-cols-3 lg:col-span-6 lg:col-start-7 lg:grid-cols-1 lg:gap-0 lg:divide-y lg:divide-dune/40">
                         {journeys.map((j) => (
                             <li key={j.key} className="lg:py-7 lg:first:pt-0">
-                                <Link href={`/our-story#${j.key}`} className="group block">
+                                <Link href={to(`/our-story#${j.key}`)} className="group block">
                                     <h3 className="font-display text-2xl group-hover:text-aloe">{j.title}</h3>
                                     <p className="mt-2 font-serif text-stone">{j.excerpt}</p>
                                 </Link>
@@ -187,7 +190,7 @@ export default function Home({ hero, intro, featuredHeading, featured, bestselle
 
             {latestPosts && latestPosts.items.length > 0 && (
                 <section className="container-page pt-20 lg:pt-28">
-                    <SectionHeading title={latestPosts.heading} link={{ href: '/blog', label: 'All posts' }} />
+                    <SectionHeading title={latestPosts.heading} link={{ href: to('/blog'), label: t('All posts') }} />
                     <div className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
                         {latestPosts.items.map((post) => (
                             <PostCard key={post.id} post={post} />
@@ -199,9 +202,9 @@ export default function Home({ hero, intro, featuredHeading, featured, bestselle
             {faqs.length > 0 && (
                 <section className="container-page grid gap-10 pt-20 lg:grid-cols-12 lg:pt-28">
                     <div className="lg:col-span-4">
-                        <h2 className="font-display text-display-sm">Questions before you order</h2>
-                        <Link href="/faq" className="mt-4 inline-block font-medium underline underline-offset-4 hover:text-aloe">
-                            All questions
+                        <h2 className="font-display text-display-sm">{t('Questions before you order')}</h2>
+                        <Link href={to('/faq')} className="mt-4 inline-block font-medium underline underline-offset-4 hover:text-aloe">
+                            {t('All questions')}
                         </Link>
                     </div>
                     <Accordion type="single" collapsible className="border-t border-line lg:col-span-7 lg:col-start-6">

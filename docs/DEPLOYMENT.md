@@ -151,14 +151,14 @@ Sign in at `https://aloeandsoul.com/admin/login`, then **Profile → Set up two-
 
 ### 3.5b Product information, photos and prices (first deployment only)
 
-`database/assets/products/<product>/` holds, for each of the 26 seeded products, the English product information (`details.md`), its official photographs and its Moroccan retail price and reference. Fill the catalogue once:
+`database/assets/products/<product>/` holds, for each of the 26 seeded products, the product information in English (`details.md`) and French (`details.fr.md`), its official photographs and its Moroccan retail price and reference. Fill the catalogue once:
 
 ```bash
 php artisan catalog:import --dry-run   # preview
 php artisan catalog:import             # takes several minutes (about 120 photos); products stay unpublished
 ```
 
-Only empty fields are filled, and products that already have photos keep them, so it is safe to run again. `--overwrite` replaces texts, prices and references (and removes sale prices); `--replace-images` replaces the photos. Five products get no price (C9 and four products missing from the Moroccan catalogue): the command lists them; set their prices in Admin → Products. Then review each product, add stock and publish.
+Only empty fields are filled (in each language), and products that already have photos keep them, so it is safe to run again. `--overwrite` replaces texts, prices and references (and removes sale prices); `--replace-images` replaces the photos. Five products get no price (C9 and four products missing from the Moroccan catalogue): the command lists them; set their prices in Admin → Products. Then review each product, add stock and publish.
 
 ### 3.6 Cron (scheduler + queue)
 hPanel → *Advanced* → **Cron Jobs** → *Custom*, every minute:
@@ -188,7 +188,7 @@ curl -s  -o /dev/null -w '%{http_code}\n' https://aloeandsoul.com/.env          
 curl -s  -o /dev/null -w '%{http_code}\n' https://aloeandsoul.com/composer.json # 404
 ```
 
-In a browser: home, a category, a product, add to cart, checkout page loads with delivery areas, `/admin/login`. Place one real test order with your own phone number, then cancel it in the admin (stock returns automatically).
+In a browser: home, a category, a product, add to cart, checkout page loads with delivery areas, the same pages in French (the **Français** link in the header, or `/fr`), `/admin/login`. Place one real test order with your own phone number, then cancel it in the admin (stock returns automatically).
 
 ## 5. Launch checklist (content)
 
@@ -198,6 +198,7 @@ The admin dashboard shows a "Before you launch" list. In short:
 - [ ] **Delivery areas** with fees (checkout stays closed until one exists)
 - [ ] Policy pages: replace every `[placeholder]` and untick "Still needs review"
 - [ ] Settings → contact details, social links, COD wording
+- [ ] French texts: switch each admin form to **Français** and check the French versions (story, home page, policy pages, FAQ, products, delivery areas); empty French fields show the English text on `/fr`
 - [ ] Two-factor authentication on for every admin
 - [ ] Confirm with Forever Living that your distributor terms allow this online shop (see PRD §17)
 
@@ -210,6 +211,8 @@ scp -P 65002 release-*.tar.gz u123456789@<server-ip>:~/
 # on the server
 DOMAIN=aloeandsoul.com bash ~/deploy.sh ~/release-…tar.gz
 ```
+
+`deploy.sh` runs the migrations and the safe `db:seed`, which only adds what is missing (for example French names and texts for the original categories, pages and FAQ, and never over an edit). After the update that added French, also run `php artisan catalog:import` once: it fills the empty French product information and leaves everything else as it is.
 
 Migrations must be **additive** (new tables/columns, nullable or defaulted). Never run `migrate:fresh`, `migrate:reset`, `db:wipe`, `DemoSeeder` or `E2eSeeder` on production (the seeders refuse to run there).
 

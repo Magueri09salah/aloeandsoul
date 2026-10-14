@@ -1,6 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { type FormEvent } from 'react';
 
+import { ContentLanguageSwitch, hasFrenchErrors, useContentLanguage } from '@/components/admin/content-language';
 import { PageHeader, Panel } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -15,6 +16,10 @@ interface Props {
         body: string;
         seo_title: string | null;
         seo_description: string | null;
+        title_fr: string | null;
+        body_fr: string | null;
+        seo_title_fr: string | null;
+        seo_description_fr: string | null;
         is_published: boolean;
         needs_review: boolean;
         url: string;
@@ -27,6 +32,10 @@ export default function PageEdit({ page }: Props) {
         body: page.body,
         seo_title: page.seo_title ?? '',
         seo_description: page.seo_description ?? '',
+        title_fr: page.title_fr ?? '',
+        body_fr: page.body_fr ?? '',
+        seo_title_fr: page.seo_title_fr ?? '',
+        seo_description_fr: page.seo_description_fr ?? '',
         is_published: page.is_published,
         needs_review: page.needs_review,
     });
@@ -36,7 +45,9 @@ export default function PageEdit({ page }: Props) {
         form.put(`/admin/pages/${page.id}`, { preserveScroll: true });
     };
 
-    const placeholders = (form.data.body.match(/\[[^\]]+\]/g) ?? []).length;
+    const c = useContentLanguage();
+    const err = (key: string) => (form.errors as Record<string, string | undefined>)[key];
+    const placeholders = (form.data[c.field('body')].match(/\[[^\]]+\]/g) ?? []).length;
 
     return (
         <>
@@ -52,16 +63,18 @@ export default function PageEdit({ page }: Props) {
                 }
             />
             <form onSubmit={submit} noValidate className="space-y-6">
+                <ContentLanguageSwitch value={c.lang} onChange={c.setLang} frenchErrors={hasFrenchErrors(form.errors)} />
                 <Panel>
                     <div className="space-y-4">
-                        <Field label="Title" name="title" error={form.errors.title} required>
-                            {(p) => <Input {...p} value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} maxLength={120} />}
+                        <Field label={c.label('Title')} name={c.field('title')} error={err(c.field('title'))} required={!c.fr} optional={c.fr}>
+                            {(p) => <Input {...p} value={form.data[c.field('title')]} onChange={(e) => form.setData(c.field('title'), e.target.value)} placeholder={c.source(form.data.title)} maxLength={120} />}
                         </Field>
                         <Field
-                            label="Text"
-                            name="body"
-                            error={form.errors.body}
-                            required
+                            label={c.label('Text')}
+                            name={c.field('body')}
+                            error={err(c.field('body'))}
+                            required={!c.fr}
+                            optional={c.fr}
                             hint={
                                 <>
                                     Headings start with <code>##</code>, lists with <code>-</code>, bold with <code>**text**</code>.
@@ -69,14 +82,33 @@ export default function PageEdit({ page }: Props) {
                                 </>
                             }
                         >
-                            {(p) => <Textarea {...p} rows={24} className="font-mono text-sm" value={form.data.body} onChange={(e) => form.setData('body', e.target.value)} />}
+                            {(p) => (
+                                <Textarea
+                                    {...p}
+                                    rows={24}
+                                    className="font-mono text-sm"
+                                    value={form.data[c.field('body')]}
+                                    onChange={(e) => form.setData(c.field('body'), e.target.value)}
+                                    placeholder={c.fr ? 'Empty: the French site shows the English text.' : undefined}
+                                />
+                            )}
                         </Field>
                         <div className="grid gap-4 sm:grid-cols-2">
-                            <Field label="Search title" name="seo_title" error={form.errors.seo_title} optional>
-                                {(p) => <Input {...p} value={form.data.seo_title} onChange={(e) => form.setData('seo_title', e.target.value)} maxLength={70} />}
+                            <Field label={c.label('Search title')} name={c.field('seo_title')} error={err(c.field('seo_title'))} optional>
+                                {(p) => (
+                                    <Input {...p} value={form.data[c.field('seo_title')]} onChange={(e) => form.setData(c.field('seo_title'), e.target.value)} placeholder={c.source(form.data.seo_title)} maxLength={70} />
+                                )}
                             </Field>
-                            <Field label="Search description" name="seo_description" error={form.errors.seo_description} optional>
-                                {(p) => <Input {...p} value={form.data.seo_description} onChange={(e) => form.setData('seo_description', e.target.value)} maxLength={170} />}
+                            <Field label={c.label('Search description')} name={c.field('seo_description')} error={err(c.field('seo_description'))} optional>
+                                {(p) => (
+                                    <Input
+                                        {...p}
+                                        value={form.data[c.field('seo_description')]}
+                                        onChange={(e) => form.setData(c.field('seo_description'), e.target.value)}
+                                        placeholder={c.source(form.data.seo_description)}
+                                        maxLength={170}
+                                    />
+                                )}
                             </Field>
                         </div>
                         <div className="flex flex-wrap gap-6">

@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
 import { Motif } from '@/components/brand/motif';
+import { ContentLanguageSwitch, hasFrenchErrors, useContentLanguage } from '@/components/admin/content-language';
 import { PageHeader, Panel } from '@/components/admin/ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,11 @@ interface Category {
     is_active: boolean;
     seo_title: string | null;
     seo_description: string | null;
+    name_fr: string | null;
+    tagline_fr: string | null;
+    description_fr: string | null;
+    seo_title_fr: string | null;
+    seo_description_fr: string | null;
     products_count: number;
     published_products_count: number;
     url: string;
@@ -94,7 +100,14 @@ function CategoryForm({ category, motifs, onDone }: { category: Category | null;
         is_active: category?.is_active ?? true,
         seo_title: category?.seo_title ?? '',
         seo_description: category?.seo_description ?? '',
+        name_fr: category?.name_fr ?? '',
+        tagline_fr: category?.tagline_fr ?? '',
+        description_fr: category?.description_fr ?? '',
+        seo_title_fr: category?.seo_title_fr ?? '',
+        seo_description_fr: category?.seo_description_fr ?? '',
     });
+    const c = useContentLanguage();
+    const err = (key: string) => (form.errors as Record<string, string | undefined>)[key];
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
@@ -105,19 +118,30 @@ function CategoryForm({ category, motifs, onDone }: { category: Category | null;
 
     return (
         <form onSubmit={submit} noValidate className="space-y-4">
+            <ContentLanguageSwitch value={c.lang} onChange={c.setLang} frenchErrors={hasFrenchErrors(form.errors)} />
             <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Name" name="name" error={form.errors.name} required>
-                    {(p) => <Input {...p} value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />}
+                <Field label={c.label('Name')} name={c.field('name')} error={err(c.field('name'))} required={!c.fr} optional={c.fr}>
+                    {(p) => <Input {...p} value={form.data[c.field('name')]} onChange={(e) => form.setData(c.field('name'), e.target.value)} placeholder={c.source(form.data.name)} />}
                 </Field>
                 <Field label="Web address" name="slug" error={form.errors.slug} hint="Changing it breaks existing links." optional>
                     {(p) => <Input {...p} value={form.data.slug} onChange={(e) => form.setData('slug', e.target.value)} />}
                 </Field>
             </div>
-            <Field label="Tagline" name="tagline" error={form.errors.tagline} optional>
-                {(p) => <Input {...p} value={form.data.tagline} onChange={(e) => form.setData('tagline', e.target.value)} maxLength={160} />}
+            <Field label={c.label('Tagline')} name={c.field('tagline')} error={err(c.field('tagline'))} optional>
+                {(p) => (
+                    <Input {...p} value={form.data[c.field('tagline')]} onChange={(e) => form.setData(c.field('tagline'), e.target.value)} placeholder={c.source(form.data.tagline)} maxLength={160} />
+                )}
             </Field>
-            <Field label="Description" name="description" error={form.errors.description} hint="Shown at the top of the category page. Describe the range without health claims." optional>
-                {(p) => <Textarea {...p} rows={3} value={form.data.description} onChange={(e) => form.setData('description', e.target.value)} />}
+            <Field
+                label={c.label('Description')}
+                name={c.field('description')}
+                error={err(c.field('description'))}
+                hint="Shown at the top of the category page. Describe the range without health claims."
+                optional
+            >
+                {(p) => (
+                    <Textarea {...p} rows={3} value={form.data[c.field('description')]} onChange={(e) => form.setData(c.field('description'), e.target.value)} placeholder={c.source(form.data.description)} />
+                )}
             </Field>
             <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Colour" name="tint" error={form.errors.tint}>
@@ -144,11 +168,21 @@ function CategoryForm({ category, motifs, onDone }: { category: Category | null;
                 </Field>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Search title" name="seo_title" error={form.errors.seo_title} optional>
-                    {(p) => <Input {...p} value={form.data.seo_title} onChange={(e) => form.setData('seo_title', e.target.value)} maxLength={70} />}
+                <Field label={c.label('Search title')} name={c.field('seo_title')} error={err(c.field('seo_title'))} optional>
+                    {(p) => (
+                        <Input {...p} value={form.data[c.field('seo_title')]} onChange={(e) => form.setData(c.field('seo_title'), e.target.value)} placeholder={c.source(form.data.seo_title)} maxLength={70} />
+                    )}
                 </Field>
-                <Field label="Search description" name="seo_description" error={form.errors.seo_description} optional>
-                    {(p) => <Input {...p} value={form.data.seo_description} onChange={(e) => form.setData('seo_description', e.target.value)} maxLength={170} />}
+                <Field label={c.label('Search description')} name={c.field('seo_description')} error={err(c.field('seo_description'))} optional>
+                    {(p) => (
+                        <Input
+                            {...p}
+                            value={form.data[c.field('seo_description')]}
+                            onChange={(e) => form.setData(c.field('seo_description'), e.target.value)}
+                            placeholder={c.source(form.data.seo_description)}
+                            maxLength={170}
+                        />
+                    )}
                 </Field>
             </div>
             <div className="flex items-center gap-3">

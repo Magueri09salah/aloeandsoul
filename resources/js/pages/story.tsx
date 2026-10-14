@@ -4,6 +4,7 @@ import type { ImageData } from '@/types';
 
 import { Button } from '@/components/ui/button';
 import { ResponsiveImage } from '@/components/ui/responsive-image';
+import { useI18n } from '@/lib/i18n';
 
 interface StoryProps {
     story: {
@@ -20,6 +21,8 @@ interface StoryProps {
 
 /** The founder's own words, set as a long-form editorial feature. */
 export default function Story({ story }: StoryProps) {
+    const { t, to } = useI18n();
+
     return (
         <article>
             <header className="container-page grid items-end gap-10 pt-10 pb-16 lg:grid-cols-12 lg:gap-8 lg:pt-16 lg:pb-24">
@@ -37,14 +40,14 @@ export default function Story({ story }: StoryProps) {
             </header>
 
             {story.milestones.length > 0 && (
-                <section aria-label="Journey" className="bg-sand">
+                <section aria-label={t('Journey')} className="bg-sand">
                     <ol className="container-page grid gap-8 py-12 sm:grid-cols-3 sm:gap-6">
                         {story.milestones.map((m, i) => (
                             <li key={m.place} className="relative sm:pt-8">
                                 <span aria-hidden="true" className="absolute top-3 right-0 left-0 hidden h-px bg-dune/50 sm:block" />
                                 <span aria-hidden="true" className="absolute top-1.5 left-0 hidden size-3 rounded-full border border-dune bg-ivory sm:block" />
                                 <p className="font-display text-2xl">
-                                    <span className="sr-only">Step {i + 1}: </span>
+                                    <span className="sr-only">{t('Step :number:', { number: i + 1 })} </span>
                                     {m.place}
                                 </p>
                                 <p className="mt-2 max-w-xs text-stone">{m.text}</p>
@@ -76,10 +79,10 @@ export default function Story({ story }: StoryProps) {
                 {story.closing && <p className="mx-auto mt-6 max-w-2xl font-serif text-editorial text-stone">{story.closing}</p>}
                 <div className="mt-10 flex flex-wrap justify-center gap-3">
                     <Button asChild size="lg">
-                        <Link href="/shop">Visit the shop</Link>
+                        <Link href={to('/shop')}>{t('Visit the shop')}</Link>
                     </Button>
                     <Button asChild size="lg" variant="secondary">
-                        <Link href="/contact">Get in touch</Link>
+                        <Link href={to('/contact')}>{t('Get in touch')}</Link>
                     </Button>
                 </div>
                 {story.disclaimer && <p className="mx-auto mt-16 max-w-2xl text-sm text-stone">{story.disclaimer}</p>}

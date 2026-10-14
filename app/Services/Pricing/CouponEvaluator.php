@@ -22,19 +22,19 @@ class CouponEvaluator
         $now ??= now();
 
         if (! $coupon->is_active) {
-            return 'This code is not active.';
+            return __('This code is not active.');
         }
         if ($coupon->starts_at !== null && $now->lt($coupon->starts_at)) {
-            return 'This code is not valid yet.';
+            return __('This code is not valid yet.');
         }
         if ($coupon->ends_at !== null && $now->gt($coupon->ends_at)) {
-            return 'This code has expired.';
+            return __('This code has expired.');
         }
         if ($coupon->max_uses !== null && $coupon->uses_count >= $coupon->max_uses) {
-            return 'This code has reached its usage limit.';
+            return __('This code has reached its usage limit.');
         }
         if ($coupon->min_subtotal_minor !== null && $subtotalMinor < $coupon->min_subtotal_minor) {
-            return 'This code needs a minimum order of '.Money::format($coupon->min_subtotal_minor, $currency).'.';
+            return __('This code needs a minimum order of :amount.', ['amount' => Money::format($coupon->min_subtotal_minor, $currency, app()->getLocale())]);
         }
         if ($coupon->once_per_customer && $customerId !== null) {
             $used = CouponRedemption::query()
@@ -43,7 +43,7 @@ class CouponEvaluator
                 ->whereNull('released_at')
                 ->exists();
             if ($used) {
-                return 'This code has already been used with this phone number.';
+                return __('This code has already been used with this phone number.');
             }
         }
 

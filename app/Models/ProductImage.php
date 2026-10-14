@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +12,12 @@ use Illuminate\Support\Facades\Storage;
  */
 class ProductImage extends Model
 {
-    protected $fillable = ['product_id', 'path', 'widths', 'width', 'height', 'alt', 'sort_order'];
+    use HasTranslations;
+
+    /** Columns with a French version ("name" → "name_fr"). */
+    public const TRANSLATABLE = ['alt'];
+
+    protected $fillable = ['product_id', 'path', 'widths', 'width', 'height', 'alt', 'sort_order', 'alt_fr'];
 
     protected function casts(): array
     {

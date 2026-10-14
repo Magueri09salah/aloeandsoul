@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { Dialog as DialogPrimitive } from 'radix-ui';
 import * as React from 'react';
 
+import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 const Sheet = DialogPrimitive.Root;
@@ -30,6 +31,8 @@ interface SheetContentProps extends React.ComponentProps<typeof DialogPrimitive.
 }
 
 function SheetContent({ side, className, children, title, description, hideTitle, ...props }: SheetContentProps) {
+    const { t } = useI18n();
+
     return (
         <DialogPrimitive.Portal>
             <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-ink/35 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
@@ -38,7 +41,7 @@ function SheetContent({ side, className, children, title, description, hideTitle
                     <DialogPrimitive.Title className="font-display text-2xl">{title}</DialogPrimitive.Title>
                     <DialogPrimitive.Close className="-mr-2 inline-flex size-10 items-center justify-center rounded-full hover:bg-sand">
                         <X className="size-5" aria-hidden="true" />
-                        <span className="sr-only">Close</span>
+                        <span className="sr-only">{t('Close')}</span>
                     </DialogPrimitive.Close>
                 </div>
                 {description ? (

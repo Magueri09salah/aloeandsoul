@@ -50,6 +50,9 @@ class SettingsController extends Controller
                 'cod_instructions' => ['required', 'string', 'max:300'],
                 'confirmation_note' => ['nullable', 'string', 'max:300'],
                 'delivery_info' => ['nullable', 'string', 'max:300'],
+                'cod_instructions_fr' => ['nullable', 'string', 'max:300'],
+                'confirmation_note_fr' => ['nullable', 'string', 'max:300'],
+                'delivery_info_fr' => ['nullable', 'string', 'max:300'],
             ]),
             'contact' => $this->contact($request),
             'social' => $request->validate(collect(['instagram', 'facebook', 'tiktok', 'youtube'])
@@ -57,6 +60,8 @@ class SettingsController extends Controller
             'seo' => $request->validate([
                 'title' => ['required', 'string', 'max:70'],
                 'description' => ['required', 'string', 'max:170'],
+                'title_fr' => ['nullable', 'string', 'max:70'],
+                'description_fr' => ['nullable', 'string', 'max:170'],
             ]),
             default => abort(404),
         };
@@ -82,6 +87,8 @@ class SettingsController extends Controller
             'max_quantity_per_line' => ['required', 'integer', 'between:1,99'],
             'ordering_enabled' => ['boolean'],
             'closed_message' => ['required', 'string', 'max:300'],
+            'tagline_fr' => ['nullable', 'string', 'max:120'],
+            'closed_message_fr' => ['nullable', 'string', 'max:300'],
         ], ['order_prefix.regex' => 'Use capital letters and numbers only (e.g. AS).']);
 
         $data['ordering_enabled'] = $request->boolean('ordering_enabled');
@@ -101,6 +108,7 @@ class SettingsController extends Controller
             'locations' => ['array', 'max:6'],
             'locations.*' => ['required', 'string', 'max:40'],
             'hours' => ['nullable', 'string', 'max:120'],
+            'hours_fr' => ['nullable', 'string', 'max:120'],
         ]);
 
         $country = settings()->country();

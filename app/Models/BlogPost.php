@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PostStatus;
+use App\Models\Concerns\HasTranslations;
 use Database\Factories\BlogPostFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,9 +26,15 @@ class BlogPost extends Model
     /** @use HasFactory<BlogPostFactory> */
     use HasFactory;
 
+    use HasTranslations;
+
+    /** Columns with a French version ("name" → "name_fr"). */
+    public const TRANSLATABLE = ['title', 'excerpt', 'body', 'cover_alt', 'seo_title', 'seo_description'];
+
     protected $fillable = [
         'title', 'slug', 'excerpt', 'body', 'cover_alt', 'status', 'published_at',
         'seo_title', 'seo_description',
+        'title_fr', 'excerpt_fr', 'body_fr', 'cover_alt_fr', 'seo_title_fr', 'seo_description_fr',
     ];
 
     protected function casts(): array
@@ -79,6 +86,9 @@ class BlogPost extends Model
     /** Estimated reading time in minutes (200 words a minute, at least 1). */
     public function readingMinutes(): int
     {
-        return max(1, (int) ceil(str_word_count(strip_tags($this->body)) / 200));
+        // Words in the version being read (French falls back to English).
+        $text = strip_tags((string) $this->translated('body'));
+
+        return max(1, (int) ceil(count(preg_split('/\s+/u', trim($text), -1, PREG_SPLIT_NO_EMPTY) ?: []) / 200));
     }
 }

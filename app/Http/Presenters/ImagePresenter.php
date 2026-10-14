@@ -15,7 +15,7 @@ final class ImagePresenter
      */
     public static function present(ProductImage $image, string $fallbackAlt = ''): array
     {
-        return self::fromStored($image->path, $image->widths, $image->width, $image->height, $image->alt ?: $fallbackAlt);
+        return self::fromStored($image->path, $image->widths, $image->width, $image->height, (string) ($image->translated('alt') ?: $fallbackAlt));
     }
 
     /**

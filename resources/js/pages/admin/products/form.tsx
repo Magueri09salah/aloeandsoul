@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react';
 
 import type { ImageData } from '@/types';
 
+import { ContentLanguageSwitch, hasFrenchErrors, useContentLanguage, type ContentLanguage } from '@/components/admin/content-language';
 import { PageHeader, Panel, ProductStatusBadge } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
 import { Checkbox, Switch } from '@/components/ui/checkbox';
@@ -14,6 +15,7 @@ import { Input, Label, Select, Textarea } from '@/components/ui/input';
 interface VariantForm {
     id: number | null;
     name: string;
+    name_fr: string;
     sku: string;
     price: string;
     sale_price: string;
@@ -34,20 +36,38 @@ interface ProductData {
     usage: string | null;
     ingredients: string | null;
     nutrition: string | null;
-    specifications: { label: string; value: string }[];
+    specifications: SpecRow[];
     option_label: string | null;
     is_featured: boolean;
     is_bestseller: boolean;
     sort_order: number;
     seo_title: string | null;
     seo_description: string | null;
+    name_fr: string | null;
+    summary_fr: string | null;
+    description_fr: string | null;
+    benefits_fr: string | null;
+    usage_fr: string | null;
+    ingredients_fr: string | null;
+    nutrition_fr: string | null;
+    option_label_fr: string | null;
+    seo_title_fr: string | null;
+    seo_description_fr: string | null;
     status: string;
     status_label: string;
     url: string | null;
     variants: VariantForm[];
-    images: (ImageData & { id: number })[];
+    images: (ImageData & { id: number; alt_fr: string | null })[];
     blockers: string[];
     has_orders: boolean;
+}
+
+/** A row of the details table; French label/value are optional. */
+interface SpecRow {
+    label: string;
+    value: string;
+    label_fr?: string;
+    value_fr?: string;
 }
 
 interface Props {
@@ -60,6 +80,7 @@ interface Props {
 const emptyVariant = (): VariantForm => ({
     id: null,
     name: '',
+    name_fr: '',
     sku: '',
     price: '',
     sale_price: '',
@@ -87,8 +108,18 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
         sort_order: product?.sort_order ?? 0,
         seo_title: product?.seo_title ?? '',
         seo_description: product?.seo_description ?? '',
+        name_fr: product?.name_fr ?? '',
+        summary_fr: product?.summary_fr ?? '',
+        description_fr: product?.description_fr ?? '',
+        benefits_fr: product?.benefits_fr ?? '',
+        usage_fr: product?.usage_fr ?? '',
+        ingredients_fr: product?.ingredients_fr ?? '',
+        nutrition_fr: product?.nutrition_fr ?? '',
+        option_label_fr: product?.option_label_fr ?? '',
+        seo_title_fr: product?.seo_title_fr ?? '',
+        seo_description_fr: product?.seo_description_fr ?? '',
         variants: product?.variants.length
-            ? product.variants.map((v) => ({ ...v, name: v.name ?? '', sku: v.sku ?? '', low_stock_threshold: v.low_stock_threshold ?? '' }))
+            ? product.variants.map((v) => ({ ...v, name: v.name ?? '', name_fr: v.name_fr ?? '', sku: v.sku ?? '', low_stock_threshold: v.low_stock_threshold ?? '' }))
             : [emptyVariant()],
     });
 
@@ -102,6 +133,12 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
     };
 
     const err = (key: string) => (form.errors as Record<string, string | undefined>)[key];
+    const c = useContentLanguage();
+    const setSpec = (i: number, patch: Partial<SpecRow>) =>
+        form.setData(
+            'specifications',
+            form.data.specifications.map((x, j) => (j === i ? { ...x, ...patch } : x)),
+        );
     const setVariant = (i: number, patch: Partial<VariantForm>) =>
         form.setData(
             'variants',
@@ -132,10 +169,20 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
                 <form onSubmit={submit} noValidate className="space-y-6 lg:col-span-2" id="product-form">
                     <FormErrorSummary errors={{ general: err('general') }} />
 
+                    <ContentLanguageSwitch value={c.lang} onChange={c.setLang} frenchErrors={hasFrenchErrors(form.errors)} />
+
                     <Panel title="Basics">
                         <div className="space-y-5">
-                            <Field label="Name" name="name" error={err('name')} required>
-                                {(p) => <Input {...p} value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} maxLength={160} />}
+                            <Field label={c.label('Name')} name={c.field('name')} error={err(c.field('name'))} required={!c.fr} optional={c.fr}>
+                                {(p) => (
+                                    <Input
+                                        {...p}
+                                        value={form.data[c.field('name')]}
+                                        onChange={(e) => form.setData(c.field('name'), e.target.value)}
+                                        placeholder={c.source(form.data.name)}
+                                        maxLength={160}
+                                    />
+                                )}
                             </Field>
                             <div className="grid gap-5 sm:grid-cols-2">
                                 <Field label="Category" name="category_id" error={err('category_id')} required>
@@ -153,16 +200,32 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
                                     {(p) => <Input {...p} value={form.data.slug} onChange={(e) => form.setData('slug', e.target.value)} maxLength={180} placeholder="aloe-vera-gel" />}
                                 </Field>
                             </div>
-                            <Field label="Short summary" name="summary" error={err('summary')} hint="One line shown under the name. Describe what it is, without health claims." optional>
-                                {(p) => <Input {...p} value={form.data.summary} onChange={(e) => form.setData('summary', e.target.value)} maxLength={255} />}
+                            <Field label={c.label('Short summary')} name={c.field('summary')} error={err(c.field('summary'))} hint="One line shown under the name. Describe what it is, without health claims." optional>
+                                {(p) => (
+                                    <Input
+                                        {...p}
+                                        value={form.data[c.field('summary')]}
+                                        onChange={(e) => form.setData(c.field('summary'), e.target.value)}
+                                        placeholder={c.source(form.data.summary)}
+                                        maxLength={255}
+                                    />
+                                )}
                             </Field>
                             <Field
-                                label="Description"
-                                name="description"
-                                error={err('description')}
+                                label={c.label('Description')}
+                                name={c.field('description')}
+                                error={err(c.field('description'))}
                                 hint="Use the official product information. You can use **bold**, *italic* and lists (- item). Do not promise to treat, cure or prevent any condition."
                             >
-                                {(p) => <Textarea {...p} rows={8} value={form.data.description} onChange={(e) => form.setData('description', e.target.value)} />}
+                                {(p) => (
+                                    <Textarea
+                                        {...p}
+                                        rows={8}
+                                        value={form.data[c.field('description')]}
+                                        onChange={(e) => form.setData(c.field('description'), e.target.value)}
+                                        placeholder={c.source(form.data.description)}
+                                    />
+                                )}
                             </Field>
                         </div>
                     </Panel>
@@ -172,41 +235,53 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
                         description="Each filled field becomes its own section on the product page, after the description. Same formatting as the description; tables are written as | Name | Amount | rows."
                     >
                         <div className="space-y-5">
-                            <Field label="Benefits" name="benefits" error={err('benefits')} optional>
-                                {(p) => <Textarea {...p} rows={6} value={form.data.benefits} onChange={(e) => form.setData('benefits', e.target.value)} />}
-                            </Field>
-                            <Field label="How to use" name="usage" error={err('usage')} hint="Dose, when to use it and precautions." optional>
-                                {(p) => <Textarea {...p} rows={5} value={form.data.usage} onChange={(e) => form.setData('usage', e.target.value)} />}
-                            </Field>
-                            <Field label="Ingredients" name="ingredients" error={err('ingredients')} hint="Copy the list from the packaging. Put allergens in **bold**." optional>
-                                {(p) => <Textarea {...p} rows={5} value={form.data.ingredients} onChange={(e) => form.setData('ingredients', e.target.value)} />}
-                            </Field>
-                            <Field label="Nutrition information" name="nutrition" error={err('nutrition')} optional>
-                                {(p) => <Textarea {...p} rows={6} value={form.data.nutrition} onChange={(e) => form.setData('nutrition', e.target.value)} className="font-mono text-sm" />}
-                            </Field>
+                            {(
+                                [
+                                    ['benefits', 'Benefits', 6, undefined],
+                                    ['usage', 'How to use', 5, 'Dose, when to use it and precautions.'],
+                                    ['ingredients', 'Ingredients', 5, 'Copy the list from the packaging. Put allergens in **bold**.'],
+                                    ['nutrition', 'Nutrition information', 6, undefined],
+                                ] as const
+                            ).map(([key, text, rows, hint]) => (
+                                <Field key={key} label={c.label(text)} name={c.field(key)} error={err(c.field(key))} hint={hint} optional>
+                                    {(p) => (
+                                        <Textarea
+                                            {...p}
+                                            rows={rows}
+                                            value={form.data[c.field(key)]}
+                                            onChange={(e) => form.setData(c.field(key), e.target.value)}
+                                            placeholder={c.source(form.data[key])}
+                                            className={key === 'nutrition' ? 'font-mono text-sm' : undefined}
+                                        />
+                                    )}
+                                </Field>
+                            ))}
 
                             <fieldset>
-                                <legend className="text-sm font-medium">Details table</legend>
-                                <p className="mt-1 text-sm text-stone">For example Volume: 1 litre, or Flavour: Vanilla.</p>
+                                <legend className="text-sm font-medium">{c.label('Details table')}</legend>
+                                <p className="mt-1 text-sm text-stone">
+                                    {c.fr ? 'French label and value for each row. Add or remove rows in English.' : 'For example Volume: 1 litre, or Flavour: Vanilla.'}
+                                </p>
                                 <div className="mt-3 space-y-2">
                                     {form.data.specifications.map((s, i) => (
                                         <div key={i} className="flex gap-2">
                                             <Input
-                                                aria-label={`Detail ${i + 1} label`}
-                                                aria-invalid={err(`specifications.${i}.label`) ? true : undefined}
-                                                placeholder="Label"
-                                                value={s.label}
-                                                onChange={(e) => form.setData('specifications', form.data.specifications.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))}
+                                                aria-label={c.label(`Detail ${i + 1} label`)}
+                                                aria-invalid={err(`specifications.${i}.${c.field('label')}`) ? true : undefined}
+                                                placeholder={c.fr ? s.label : 'Label'}
+                                                value={(c.fr ? s.label_fr : s.label) ?? ''}
+                                                onChange={(e) => setSpec(i, { [c.field('label')]: e.target.value })}
                                                 className="max-w-48"
                                             />
                                             <Input
-                                                aria-label={`Detail ${i + 1} value`}
-                                                aria-invalid={err(`specifications.${i}.value`) ? true : undefined}
-                                                placeholder="Value"
-                                                value={s.value}
-                                                onChange={(e) => form.setData('specifications', form.data.specifications.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)))}
+                                                aria-label={c.label(`Detail ${i + 1} value`)}
+                                                aria-invalid={err(`specifications.${i}.${c.field('value')}`) ? true : undefined}
+                                                placeholder={c.fr ? s.value : 'Value'}
+                                                value={(c.fr ? s.value_fr : s.value) ?? ''}
+                                                onChange={(e) => setSpec(i, { [c.field('value')]: e.target.value })}
                                             />
                                             <Button
+                                                hidden={c.fr}
                                                 type="button"
                                                 variant="ghost"
                                                 size="icon"
@@ -217,7 +292,7 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
                                             </Button>
                                         </div>
                                     ))}
-                                    {form.data.specifications.length < 20 && (
+                                    {!c.fr && form.data.specifications.length < 20 && (
                                         <Button type="button" variant="ghost" size="sm" onClick={() => form.setData('specifications', [...form.data.specifications, { label: '', value: '' }])}>
                                             <Plus aria-hidden="true" /> Add a detail
                                         </Button>
@@ -237,8 +312,16 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
                         }
                     >
                         {multi && (
-                            <Field label="What do the options differ by?" name="option_label" error={err('option_label')} hint="For example Flavour, Size or Volume." className="mb-5 max-w-xs">
-                                {(p) => <Input {...p} value={form.data.option_label} onChange={(e) => form.setData('option_label', e.target.value)} maxLength={40} />}
+                            <Field label={c.label('What do the options differ by?')} name={c.field('option_label')} error={err(c.field('option_label'))} hint="For example Flavour, Size or Volume." className="mb-5 max-w-xs">
+                                {(p) => (
+                                    <Input
+                                        {...p}
+                                        value={form.data[c.field('option_label')]}
+                                        onChange={(e) => form.setData(c.field('option_label'), e.target.value)}
+                                        placeholder={c.source(form.data.option_label)}
+                                        maxLength={40}
+                                    />
+                                )}
                             </Field>
                         )}
                         <div className="space-y-4">
@@ -247,8 +330,22 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
                                     <legend className="px-1 text-sm font-medium">{multi ? v.name || `Option ${i + 1}` : 'Price and stock'}</legend>
                                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                                         {multi && (
-                                            <Field label="Option name" name={`variants.${i}.name`} error={err(`variants.${i}.name`)} required className="sm:col-span-2">
-                                                {(p) => <Input {...p} value={v.name} onChange={(e) => setVariant(i, { name: e.target.value })} placeholder="e.g. Vanilla" maxLength={80} />}
+                                            <Field
+                                                label={c.label('Option name')}
+                                                name={`variants.${i}.${c.field('name')}`}
+                                                error={err(`variants.${i}.${c.field('name')}`)}
+                                                required={!c.fr}
+                                                className="sm:col-span-2"
+                                            >
+                                                {(p) => (
+                                                    <Input
+                                                        {...p}
+                                                        value={c.fr ? v.name_fr : v.name}
+                                                        onChange={(e) => setVariant(i, { [c.field('name')]: e.target.value })}
+                                                        placeholder={c.fr ? v.name : 'e.g. Vanilla'}
+                                                        maxLength={80}
+                                                    />
+                                                )}
                                             </Field>
                                         )}
                                         <Field label="SKU" name={`variants.${i}.sku`} error={err(`variants.${i}.sku`)} optional className={multi ? 'sm:col-span-2' : undefined}>
@@ -317,11 +414,34 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
 
                     <Panel title="Search engines" description="Optional. By default the product name and summary are used.">
                         <div className="space-y-5">
-                            <Field label="Page title" name="seo_title" error={err('seo_title')} hint={`${form.data.seo_title.length}/70 characters`} optional>
-                                {(p) => <Input {...p} value={form.data.seo_title} onChange={(e) => form.setData('seo_title', e.target.value)} maxLength={70} />}
+                            <Field label={c.label('Page title')} name={c.field('seo_title')} error={err(c.field('seo_title'))} hint={`${form.data[c.field('seo_title')].length}/70 characters`} optional>
+                                {(p) => (
+                                    <Input
+                                        {...p}
+                                        value={form.data[c.field('seo_title')]}
+                                        onChange={(e) => form.setData(c.field('seo_title'), e.target.value)}
+                                        placeholder={c.source(form.data.seo_title)}
+                                        maxLength={70}
+                                    />
+                                )}
                             </Field>
-                            <Field label="Description" name="seo_description" error={err('seo_description')} hint={`${form.data.seo_description.length}/170 characters`} optional>
-                                {(p) => <Textarea {...p} rows={2} value={form.data.seo_description} onChange={(e) => form.setData('seo_description', e.target.value)} maxLength={170} />}
+                            <Field
+                                label={c.label('Description')}
+                                name={c.field('seo_description')}
+                                error={err(c.field('seo_description'))}
+                                hint={`${form.data[c.field('seo_description')].length}/170 characters`}
+                                optional
+                            >
+                                {(p) => (
+                                    <Textarea
+                                        {...p}
+                                        rows={2}
+                                        value={form.data[c.field('seo_description')]}
+                                        onChange={(e) => form.setData(c.field('seo_description'), e.target.value)}
+                                        placeholder={c.source(form.data.seo_description)}
+                                        maxLength={170}
+                                    />
+                                )}
                             </Field>
                         </div>
                     </Panel>
@@ -358,7 +478,7 @@ export default function ProductForm({ product, categories, defaultCategoryId, cu
                     </Panel>
 
                     {product ? (
-                        <ImageManager product={product} />
+                        <ImageManager product={product} lang={c.lang} />
                     ) : (
                         <Panel title="Images">
                             <p className="text-sm text-stone">Create the draft first, then add images.</p>
@@ -440,9 +560,11 @@ function Visibility({ product }: { product: ProductData }) {
     );
 }
 
-function ImageManager({ product }: { product: ProductData }) {
+function ImageManager({ product, lang }: { product: ProductData; lang: ContentLanguage }) {
     const upload = useForm<{ images: File[] }>({ images: [] });
-    const [images, setImages] = useState(product.images.map((i) => ({ id: i.id, src: i.src, alt: i.alt })));
+    const fr = lang === 'fr';
+    const toState = () => product.images.map((i) => ({ id: i.id, src: i.src, alt: i.alt, alt_fr: i.alt_fr ?? '' }));
+    const [images, setImages] = useState(toState);
     const [dirty, setDirty] = useState(false);
 
     // Keep local order/alt edits in sync after uploads or deletions.
@@ -450,7 +572,7 @@ function ImageManager({ product }: { product: ProductData }) {
     const [syncedIds, setSyncedIds] = useState(serverIds);
     if (serverIds !== syncedIds) {
         setSyncedIds(serverIds);
-        setImages(product.images.map((i) => ({ id: i.id, src: i.src, alt: i.alt })));
+        setImages(toState());
         setDirty(false);
     }
 
@@ -504,13 +626,15 @@ function ImageManager({ product }: { product: ProductData }) {
                             <div className="min-w-0 flex-1">
                                 <label htmlFor={`alt-${img.id}`} className="text-xs text-stone">
                                     Description for screen readers{i === 0 ? ' (main image)' : ''}
+                                    {fr ? ' (French)' : ''}
                                 </label>
                                 <Input
                                     id={`alt-${img.id}`}
-                                    value={img.alt}
+                                    value={fr ? img.alt_fr : img.alt}
+                                    placeholder={fr ? img.alt : undefined}
                                     maxLength={160}
                                     onChange={(e) => {
-                                        setImages(images.map((x) => (x.id === img.id ? { ...x, alt: e.target.value } : x)));
+                                        setImages(images.map((x) => (x.id === img.id ? { ...x, [fr ? 'alt_fr' : 'alt']: e.target.value } : x)));
                                         setDirty(true);
                                     }}
                                     className="mt-1 h-9 text-sm"
@@ -544,7 +668,9 @@ function ImageManager({ product }: { product: ProductData }) {
                     size="sm"
                     variant="secondary"
                     className="mt-4 w-full"
-                    onClick={() => router.put(`/admin/products/${product.id}/images`, { images: images.map(({ id, alt }) => ({ id, alt })) }, { preserveScroll: true })}
+                    onClick={() =>
+                        router.put(`/admin/products/${product.id}/images`, { images: images.map(({ id, alt, alt_fr }) => ({ id, alt, alt_fr })) }, { preserveScroll: true })
+                    }
                 >
                     Save image order and descriptions
                 </Button>

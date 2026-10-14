@@ -4,6 +4,7 @@ import { type FormEvent } from 'react';
 
 import type { ImageData, Paginated } from '@/types';
 
+import { ContentLanguageSwitch, hasFrenchErrors, useContentLanguage } from '@/components/admin/content-language';
 import { EmptyState, PageHeader, Pagination, Panel, Table, td, th } from '@/components/admin/ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,7 @@ interface Row {
 interface Props {
     posts: Paginated<Row>;
     filter: string | null;
-    settings: { heading: string; intro: string };
+    settings: { heading: string; intro: string; heading_fr: string; intro_fr: string };
 }
 
 const TONE = { draft: 'warning', published: 'success', scheduled: 'info' } as const;
@@ -133,7 +134,9 @@ export default function BlogIndex({ posts, filter, settings }: Props) {
 }
 
 function BlogPageText({ settings }: { settings: Props['settings'] }) {
-    const form = useForm({ heading: settings.heading, intro: settings.intro });
+    const form = useForm({ heading: settings.heading, intro: settings.intro, heading_fr: settings.heading_fr, intro_fr: settings.intro_fr });
+    const c = useContentLanguage();
+    const err = (key: string) => (form.errors as Record<string, string | undefined>)[key];
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
@@ -143,11 +146,14 @@ function BlogPageText({ settings }: { settings: Props['settings'] }) {
     return (
         <Panel title="Blog page text" description="The title and introduction at the top of the blog page." className="mt-6">
             <form onSubmit={submit} noValidate className="grid gap-4 sm:grid-cols-3">
-                <Field label="Title" name="heading" error={form.errors.heading} required>
-                    {(p) => <Input {...p} value={form.data.heading} onChange={(e) => form.setData('heading', e.target.value)} maxLength={60} />}
+                <ContentLanguageSwitch value={c.lang} onChange={c.setLang} frenchErrors={hasFrenchErrors(form.errors)} className="sm:col-span-3" />
+                <Field label={c.label('Title')} name={c.field('heading')} error={err(c.field('heading'))} required={!c.fr} optional={c.fr}>
+                    {(p) => <Input {...p} value={form.data[c.field('heading')]} onChange={(e) => form.setData(c.field('heading'), e.target.value)} placeholder={c.source(form.data.heading)} maxLength={60} />}
                 </Field>
-                <Field label="Introduction" name="intro" error={form.errors.intro} optional className="sm:col-span-2">
-                    {(p) => <Textarea {...p} rows={2} value={form.data.intro} onChange={(e) => form.setData('intro', e.target.value)} maxLength={300} />}
+                <Field label={c.label('Introduction')} name={c.field('intro')} error={err(c.field('intro'))} optional className="sm:col-span-2">
+                    {(p) => (
+                        <Textarea {...p} rows={2} value={form.data[c.field('intro')]} onChange={(e) => form.setData(c.field('intro'), e.target.value)} placeholder={c.source(form.data.intro)} maxLength={300} />
+                    )}
                 </Field>
                 <div className="sm:col-span-3">
                     <Button type="submit" variant="secondary" loading={form.processing} disabled={!form.isDirty}>

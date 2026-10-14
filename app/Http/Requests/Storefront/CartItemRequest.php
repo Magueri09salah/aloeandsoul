@@ -26,7 +26,7 @@ class CartItemRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'quantity.max' => 'Please choose a smaller quantity.',
+            'quantity.max' => __('Please choose a smaller quantity.'),
         ];
     }
 }

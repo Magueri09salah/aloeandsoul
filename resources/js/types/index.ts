@@ -57,6 +57,8 @@ export interface ProductDetail extends ProductCard {
     /** Description, benefits, how to use, ingredients, nutrition: only the filled ones, in order. */
     sections: { id: string; title: string; html: string }[];
     specifications: { label: string; value: string }[];
+    /** The size details row ("60 tablets"), in the page language. */
+    size: string | null;
     images: ImageData[];
     variants: ProductVariant[];
 }
@@ -148,6 +150,8 @@ export interface SharedProps {
     newsletter_enabled?: boolean;
     navigation?: NavCategory[];
     cart?: CartView;
+    /** This page in each language: { en: url, fr: url }. */
+    alternates?: Record<string, string>;
     // Admin only
     auth?: { user: AdminUser | null };
 }

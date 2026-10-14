@@ -8,6 +8,14 @@ MySQL 8 / MariaDB 10.6+ (`utf8mb4_unicode_ci`, InnoDB). All schema changes are L
 - Precision follows the currency's minor unit (MAD/EUR/USD = 2). `App\Support\Money` handles arithmetic and percentage discounts with integer rounding (half-up, applied once per order).
 - Catalogue prices are denominated in the **store currency** (`settings.currency`). Each order stores its own `currency`, so changing the store currency never reinterprets past orders.
 
+## Translations (English and French)
+
+- English is the source language and lives in the original columns. Each customer-facing text column has a nullable French column next to it, named `<column>_fr` (`products.name_fr`, `pages.body_fr`…), with the same length limit. Models list these columns in a `TRANSLATABLE` constant and read them with `translated('name')` (`App\Models\Concerns\HasTranslations`), which returns the French text on `/fr` pages and falls back to English when it is empty.
+- Translated columns: `categories` (name, tagline, description, seo_title, seo_description), `products` (name, summary, description, benefits, usage, ingredients, nutrition, option_label, seo_title, seo_description), `product_variants.name`, `product_images.alt`, `shipping_zones` (name, estimate), `pages` (title, body, seo_title, seo_description), `faqs` (question, answer), `blog_posts` (title, excerpt, body, cover_alt, seo_title, seo_description), `collaborators.description`.
+- Inside JSON: details-table rows are `{label, value}` with optional `label_fr` / `value_fr`; settings keep French texts under `<key>_fr` in the same group (`home.hero_heading_fr`), also inside lists (`story.chapters[].title_fr`, `home.ritual_steps[].note_fr`). `Settings::localized()` applies them.
+- Slugs are shared by both languages, so `/products/aloe-vera-gel` and `/fr/products/aloe-vera-gel` are the same product.
+- Order lines keep the English names (the team's working language); customers reading in French see the current French name of a product that still exists.
+
 ## Entity overview
 
 ```
@@ -127,6 +135,7 @@ settings · pages · faqs · contact_messages · newsletter_subscribers
 | shipping_zone_name | varchar(80) | snapshot |
 | currency | char(3) | |
 | subtotal_minor, discount_minor, shipping_minor, total_minor | int unsigned | Server-computed, immutable |
+| locale | varchar(5) default `en` | Site language the customer ordered in (`en` / `fr`) |
 | coupon_id | FK null, nullOnDelete | |
 | coupon_code | varchar(40) null | snapshot |
 | payment_method | varchar(10) | always `cod` |

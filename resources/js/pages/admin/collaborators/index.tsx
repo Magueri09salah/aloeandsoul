@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react';
 
 import type { Collaborator } from '@/types';
 
+import { ContentLanguageSwitch, hasFrenchErrors, useContentLanguage } from '@/components/admin/content-language';
 import { EmptyState, PageHeader, Panel } from '@/components/admin/ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,11 +15,11 @@ import { Input, Label, Select, Textarea } from '@/components/ui/input';
 import { useObjectUrl } from '@/hooks/use-object-url';
 import { cn } from '@/lib/utils';
 
-type Row = Collaborator & { sort_order: number; is_visible: boolean };
+type Row = Collaborator & { description_fr: string | null; sort_order: number; is_visible: boolean };
 
 interface Props {
     collaborators: Row[];
-    section: { enabled: boolean; heading: string; intro: string };
+    section: { enabled: boolean; heading: string; intro: string; heading_fr: string; intro_fr: string };
 }
 
 export default function Collaborators({ collaborators, section }: Props) {
@@ -81,7 +82,9 @@ export default function Collaborators({ collaborators, section }: Props) {
 }
 
 function SectionSettings({ section }: { section: Props['section'] }) {
-    const form = useForm({ enabled: section.enabled, heading: section.heading, intro: section.intro });
+    const form = useForm({ enabled: section.enabled, heading: section.heading, intro: section.intro, heading_fr: section.heading_fr, intro_fr: section.intro_fr });
+    const c = useContentLanguage();
+    const err = (key: string) => (form.errors as Record<string, string | undefined>)[key];
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
@@ -91,11 +94,12 @@ function SectionSettings({ section }: { section: Props['section'] }) {
     return (
         <Panel title="Home page section" actions={<Switch aria-label="Show the section on the home page" checked={form.data.enabled} onCheckedChange={(v) => form.setData('enabled', v)} />}>
             <form onSubmit={submit} noValidate className="grid gap-4 sm:grid-cols-3">
-                <Field label="Heading" name="heading" error={form.errors.heading} required>
-                    {(p) => <Input {...p} value={form.data.heading} onChange={(e) => form.setData('heading', e.target.value)} maxLength={80} />}
+                <ContentLanguageSwitch value={c.lang} onChange={c.setLang} frenchErrors={hasFrenchErrors(form.errors)} className="sm:col-span-3" />
+                <Field label={c.label('Heading')} name={c.field('heading')} error={err(c.field('heading'))} required={!c.fr} optional={c.fr}>
+                    {(p) => <Input {...p} value={form.data[c.field('heading')]} onChange={(e) => form.setData(c.field('heading'), e.target.value)} placeholder={c.source(form.data.heading)} maxLength={80} />}
                 </Field>
-                <Field label="Introduction" name="intro" error={form.errors.intro} optional className="sm:col-span-2">
-                    {(p) => <Input {...p} value={form.data.intro} onChange={(e) => form.setData('intro', e.target.value)} maxLength={300} />}
+                <Field label={c.label('Introduction')} name={c.field('intro')} error={err(c.field('intro'))} optional className="sm:col-span-2">
+                    {(p) => <Input {...p} value={form.data[c.field('intro')]} onChange={(e) => form.setData(c.field('intro'), e.target.value)} placeholder={c.source(form.data.intro)} maxLength={300} />}
                 </Field>
                 <div className="sm:col-span-3">
                     <Button type="submit" variant="secondary" loading={form.processing} disabled={!form.isDirty}>
@@ -111,6 +115,7 @@ function CollaboratorForm({ collaborator, nextPosition, onDone }: { collaborator
     const form = useForm<{
         name: string;
         description: string;
+        description_fr: string;
         url: string;
         image_style: 'photo' | 'logo';
         sort_order: number;
@@ -120,6 +125,7 @@ function CollaboratorForm({ collaborator, nextPosition, onDone }: { collaborator
     }>({
         name: collaborator?.name ?? '',
         description: collaborator?.description ?? '',
+        description_fr: collaborator?.description_fr ?? '',
         url: collaborator?.url ?? '',
         image_style: collaborator?.image_style ?? 'photo',
         sort_order: collaborator?.sort_order ?? nextPosition,
@@ -192,6 +198,18 @@ function CollaboratorForm({ collaborator, nextPosition, onDone }: { collaborator
             </Field>
             <Field label="Short description" name="description" error={form.errors.description} hint="e.g. Yoga teacher, Essaouira" optional>
                 {(p) => <Textarea {...p} rows={2} value={form.data.description} onChange={(e) => form.setData('description', e.target.value)} maxLength={255} />}
+            </Field>
+            <Field label="French description" name="description_fr" error={form.errors.description_fr} hint="Shown on the French site. Empty: the English one is used." optional>
+                {(p) => (
+                    <Textarea
+                        {...p}
+                        rows={2}
+                        value={form.data.description_fr}
+                        onChange={(e) => form.setData('description_fr', e.target.value)}
+                        placeholder={form.data.description || 'e.g. Professeure de yoga, Essaouira'}
+                        maxLength={255}
+                    />
+                )}
             </Field>
             <Field label="Website or Instagram link" name="url" error={form.errors.url} hint="Full address starting with https://" optional>
                 {(p) => <Input {...p} type="url" inputMode="url" value={form.data.url} onChange={(e) => form.setData('url', e.target.value)} placeholder="https://" maxLength={255} />}
