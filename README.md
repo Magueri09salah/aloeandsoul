@@ -151,4 +151,4 @@ Notes for the client (PRD §17):
 
 ## Brand assets
 
-`database/assets` holds the source logo and founder photograph (from the client's current website). Regenerate the web renditions in `public/brand` with `php database/assets/build-brand-assets.php`.
+`database/assets` holds the client's logo (`logo.jpg`) and the founder photograph (from the client's current website). Regenerate the web renditions in `public/brand` with `php database/assets/build-brand-assets.php`.

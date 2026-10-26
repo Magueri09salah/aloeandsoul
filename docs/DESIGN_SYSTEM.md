@@ -10,7 +10,7 @@ Tokens live in [`resources/css/app.css`](../resources/css/app.css) (`@theme`) an
 
 | Source | What it gave us |
 |---|---|
-| Logo (`public/brand/logo.png`) | Dune-gold mark (aloe leaf + figure in a circle) ≈ `#A08A66`; grey classical-roman wordmark |
+| Logo (`database/assets/logo.jpg`) | Watercolour aloe with a figure and a rising sun inside a fine gold circle; olive classical-roman wordmark ≈ `#5C5A31` with a gold ampersand ≈ `#9D823F`; tagline "Nourish the body • Inspire the soul"; paper-white ground `#FFFBF8` |
 | Current site CSS | Ivory `#FBF9F4`, aloe-ink `#232B22`, gold `#C89F56`, sand `#E3DAC9`; Libre Caslon + Karla |
 | Founder photography | Warm desert light, white linen, pale sky — the imagery sets the warmth, so the UI stays calm |
 
@@ -132,7 +132,8 @@ Measure: editorial text max **66ch**, UI paragraphs max **72ch**. Display text t
 
 - French runs about 15–20 % longer than English: buttons and labels wrap instead of truncating, and fixed widths are avoided in the storefront.
 - French typography: a no-break space before `:` `;` `?` `!` and inside « », decimal comma and spaced thousands (`1 077,50`).
-- On phones the header holds menu, logo, language, search and cart from 360 px: below 640 px the wordmark is set slightly smaller and the gaps tighter; every button keeps its 44 px target.
+- On phones the header holds menu, logo, language, search and cart from 360 px: below 640 px the mark and wordmark are set slightly smaller and the gaps tighter; every button keeps its 44 px target.
+- The header logo is two images cut from the client's logo: the mark (aloe, figure and sun, without the circle) and the wordmark as drawn. Both are transparent PNGs with 2× versions; `php database/assets/build-brand-assets.php` regenerates them with the icons and the sharing image.
 
 ## 7. Motion
 

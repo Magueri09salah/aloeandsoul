@@ -153,7 +153,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
     const sidebarHeader = (
         <Link href="/admin" className="flex items-center gap-3 px-6 py-5">
-            <img src="/brand/logo-mark-96.png" alt="" width={32} height={32} className="size-8 rounded-full bg-ivory p-0.5" />
+            <img src="/brand/logo-mark-96.png" alt="" width={32} height={32} className="size-8 rounded-full bg-ivory object-contain p-1" />
             <span className="font-display tracking-[0.14em] text-ivory">ALOE &amp; SOUL</span>
         </Link>
     );

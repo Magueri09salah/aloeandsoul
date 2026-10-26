@@ -46,7 +46,7 @@
     @endunless
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="32x32">
-    <link rel="icon" href="{{ asset('brand/icon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset('brand/icon-192.png') }}" type="image/png" sizes="192x192">
     <link rel="apple-touch-icon" href="{{ asset('brand/apple-touch-icon.png') }}">
 
     @viteReactRefresh
