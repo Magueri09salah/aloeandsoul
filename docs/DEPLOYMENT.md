@@ -129,7 +129,7 @@ cd ~
 DOMAIN=aloeandsoul.com bash deploy.sh ~/release-YYYYmmdd-HHMMSS.tar.gz
 ```
 
-`deploy.sh` will: check PHP ≥ 8.3 → extract into `releases/<timestamp>` → link the shared `.env` and `storage` → `composer install --no-dev --optimize-autoloader` → **back up the database** to `~/backups` → `php artisan down` → `migrate --force` (additive migrations only) → `db:seed --force` (creates categories, draft products, policy pages and FAQs only if missing; no users, no prices) → `storage:link` → `optimize` → switch `current` atomically → `up` → keep the last 5 releases.
+`deploy.sh` will: check PHP ≥ 8.3 → extract into `releases/<timestamp>` → link the shared `.env` and `storage` → `composer install --no-dev --optimize-autoloader --no-scripts`, then `package:discover` (Hostinger disables `proc_open`, so Composer cannot run the package scripts itself) → **back up the database** to `~/backups` → `php artisan down` → `migrate --force` (additive migrations only) → `db:seed --force` (creates categories, draft products, policy pages and FAQs only if missing; no users, no prices) → link `public/storage` to the shared uploads → `optimize` → switch `current` atomically → `up` → keep the last 5 releases.
 
 Then point the web root at the release (first time only):
 
@@ -263,7 +263,8 @@ Use the same `.env` settings; Redis can replace the database cache/queue (`CACHE
 | 500 error, blank page | `tail -50 shared/storage/logs/laravel-*.log`; quote the request ID shown on the error page |
 | "Please provide a valid cache path" | `mkdir -p shared/storage/framework/{cache/data,sessions,views}` and check permissions (755 dirs, 644 files) |
 | Assets 404 | `public/build` missing: rebuild with `package-release.sh` |
-| Images 404 | `php artisan storage:link --force` in `current/` |
+| Images 404 | In `current/`: `ln -sfn ~/domains/aloeandsoul.com/aloeandsoul/shared/storage/app/public public/storage` |
+| "The Process class relies on proc_open" | The host disables `proc_open`: run Composer with `--no-scripts`, then `php artisan package:discover` (`deploy.sh` does this) |
 | Composer errors about PHP version | SSH `php` is not 8.3: see §2.2 |
 | Password reset emails not arriving | Check `MAIL_*` values; test with `php artisan tinker` → `Mail::raw('test', fn($m) => $m->to('you@example.com'))` |
 | Changes to `.env` ignored | `php artisan optimize:clear && php artisan optimize` |

@@ -40,9 +40,12 @@ mkdir -p "$APP_ROOT/shared/storage"/{app/public,framework/{cache/data,sessions,v
 cd "$RELEASE"
 if [[ ! -d vendor ]]; then
   echo "→ Installing PHP dependencies"
+  # Hostinger disables proc_open, so Composer cannot run the package scripts
+  # itself: skip them and run package discovery directly.
   # shellcheck disable=SC2086 # intentional word splitting of the command
-  $COMPOSER_CMD install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+  $COMPOSER_CMD install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts
 fi
+"$PHP" artisan package:discover --ansi
 
 echo "→ Backing up the database before migrating"
 DB_NAME=$(grep -E '^DB_DATABASE=' .env | cut -d= -f2- | tr -d '"')
@@ -57,7 +60,7 @@ echo "→ Migrating (additive migrations only; never fresh/reset in production)"
 "$PHP" artisan down --retry=30 || true
 "$PHP" artisan migrate --force --no-interaction
 "$PHP" artisan db:seed --force --no-interaction   # idempotent: only creates missing categories/pages
-"$PHP" artisan storage:link --force >/dev/null 2>&1 || true
+ln -sfn "$APP_ROOT/shared/storage/app/public" public/storage   # what storage:link does
 "$PHP" artisan optimize
 
 echo "→ Switching current → $STAMP"
