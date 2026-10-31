@@ -1,0 +1,40 @@
+# Builds the site for the server on every push to main: the compiled assets
+# (public/build) are committed to the `production` branch, which the server
+# pulls with scripts/update.sh. The server cannot run npm itself.
+name: Build production branch
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: production
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+
+      - name: Commit the build to the production branch
+        run: |
+          subject="$(git log -1 --format=%s)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B production
+          git add -f public/build
+          git commit -q -m "Build of ${GITHUB_SHA::7}: ${subject}"
+          git push -f origin production

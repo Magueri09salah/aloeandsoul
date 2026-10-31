@@ -29,3 +29,6 @@ Thumbs.db
 /test-results
 /blob-report
 /tests/e2e/.auth
+
+# Old release archives (deployment now goes through git)
+/release-*.tar.gz

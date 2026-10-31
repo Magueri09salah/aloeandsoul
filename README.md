@@ -101,11 +101,11 @@ The PHP suite uses MySQL by default (row locking matters). To run it on SQLite i
 
 ## Build and deploy
 
+Every push to `main` makes GitHub Actions build the assets and commit them to the `production` branch ([.github/workflows/production.yml](.github/workflows/production.yml)). The server follows that branch:
+
 ```bash
-./scripts/package-release.sh          # builds assets, creates release-*.tar.gz
-# upload, then on the server:
-bash deploy.sh release-*.tar.gz       # backup DB → migrate → atomic switch; keeps 5 releases
-bash rollback.sh                      # previous release
+bash ~/domains/aloeandsoul.com/aloeandsoul/scripts/update.sh            # backup DB → pull → composer → migrate → optimize
+bash ~/domains/aloeandsoul.com/aloeandsoul/scripts/update.sh <commit>   # go back to a version
 ```
 
 Full Hostinger guide: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Production never runs `npm`.
@@ -114,7 +114,7 @@ Full Hostinger guide: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Production never
 
 - **Cron**: one entry running `php artisan schedule:run` every minute (queue, cart/audit pruning, expired tokens and rate-limit rows).
 - **Logs**: `storage/logs/laravel-YYYY-MM-DD.log` (14 days). Each line carries a request ID; error pages show it so customers can quote it.
-- **Backups**: Hostinger automatic backups + a database dump before every deploy (`~/backups`).
+- **Backups**: Hostinger automatic backups + a database dump before every update (`~/backups`).
 - **Order workflow**: Admin → Orders. New orders arrive as *Awaiting confirmation*; confirm by phone/WhatsApp, prepare, hand to the courier, then mark delivered and record the cash collected. Revenue on the dashboard counts **collected cash only**.
 - **Stock** is reserved when an order is placed and returned automatically if it is cancelled (or returned, if you choose). Every change appears in Stock → History.
 - **Privacy requests**: Admin → Customers → customer → *Remove personal data* (owners).

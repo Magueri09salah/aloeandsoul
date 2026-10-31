@@ -2,7 +2,9 @@
 
 This guide deploys Aloe & Soul to a Hostinger **Premium, Business or Cloud** hosting plan (shared/cloud, LiteSpeed, hPanel). It needs **no Node.js on the server, no Redis and no long-running worker**. A VPS works too (see the end).
 
-> **Plan check (do this first).** In hPanel, confirm: PHP 8.3 available · SSH access available (Premium and above) · MySQL/MariaDB databases · Cron jobs. If SSH is not available on your plan, upgrade or use the "No SSH" notes in §9; everything else assumes SSH.
+How it works: every push to `main` makes GitHub Actions build the assets and commit them, with the code, to the **`production`** branch ([.github/workflows/production.yml](../.github/workflows/production.yml)). The server is a git clone of that branch, and [`scripts/update.sh`](../scripts/update.sh) pulls it, installs and migrates.
+
+> **Plan check (do this first).** In hPanel, confirm: PHP 8.3 available · SSH access available (Premium and above) · MySQL/MariaDB databases · Cron jobs. This setup needs SSH.
 
 ## 1. Requirements
 
@@ -11,9 +13,11 @@ This guide deploys Aloe & Soul to a Hostinger **Premium, Business or Cloud** hos
 | PHP | **8.3** (8.4 also works) for both the website **and** the SSH command line |
 | PHP extensions | bcmath, ctype, curl, dom, fileinfo, **gd**, **intl**, mbstring, openssl, pdo_mysql, tokenizer, xml, zip |
 | Database | MySQL 8 or MariaDB 10.6+ |
-| Composer | 2.x (installed on Hostinger shared hosting) |
+| Composer, git | Installed on Hostinger shared hosting |
 | Disk | ~150 MB for the app + uploads |
-| Locally | PHP 8.3, Composer, Node 22+, npm (to build the assets) |
+| GitHub | The repository, with Actions enabled (the default) |
+
+Hostinger disables PHP's `proc_open`. The project is built for that: `update.sh` runs Composer without its scripts, and the scheduled tasks run inside the scheduler process (`routes/console.php`).
 
 ## 2. One-time server setup
 
@@ -40,39 +44,68 @@ php -v                  # must now show 8.3.x
 ### 2.3 Database
 hPanel → *Databases* → **MySQL Databases**: create a database and a user with a strong password (e.g. `u123456789_aloe` / `u123456789_aloe`). Note the host (usually `localhost`). The user only needs rights on this database.
 
-### 2.4 Folder layout (keeps the code out of the web root)
+### 2.4 Read access to GitHub (deploy key)
+The server reads the repository with its own key, which can only read this one repository:
+
+```bash
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+ssh-keygen -t ed25519 -N "" -C "aloeandsoul-server" -f ~/.ssh/aloeandsoul_deploy
+printf 'Host github.com\n  IdentityFile ~/.ssh/aloeandsoul_deploy\n  IdentitiesOnly yes\n' >> ~/.ssh/config
+chmod 600 ~/.ssh/config
+cat ~/.ssh/aloeandsoul_deploy.pub
+```
+
+On GitHub: the repository → *Settings* → **Deploy keys** → *Add deploy key*: paste the line printed above, leave *Allow write access* **unticked**. Test with `ssh -T git@github.com` (answer `yes` the first time): it greets the repository by name.
+
+### 2.5 Folder layout (keeps the code out of the web root)
 
 ```
 ~/domains/aloeandsoul.com/
-├── public_html  →  symlink to aloeandsoul/current/public   (the ONLY public folder)
-└── aloeandsoul/
-    ├── current  →  releases/20261013120000
-    ├── releases/            (last 5 releases, for rollback)
-    └── shared/
-        ├── .env             (production configuration, created once)
-        └── storage/         (uploads, logs, sessions — persist across releases)
+├── public_html  →  symlink to aloeandsoul/public   (the ONLY public folder)
+└── aloeandsoul/                git clone of the `production` branch
+    ├── .env                    production configuration (not in git)
+    └── storage/app/public/     uploaded images (not in git)
 ```
+
+**Never** put the project itself into `public_html`: `.env`, `storage/` and the source would become downloadable.
+
+## 3. First deployment
+
+### 3.1 The production branch
+Push `main` to GitHub. On GitHub → **Actions**, the run *Build production branch* must finish with a green tick (about 2 minutes); the repository then has a `production` branch.
+
+### 3.2 Clone
 
 ```bash
 cd ~/domains/aloeandsoul.com
-mkdir -p aloeandsoul/releases aloeandsoul/shared/storage
-mv public_html public_html.old          # keep the old Zyro/Hostinger placeholder for now
+mv public_html public_html.old          # Hostinger's placeholder page
+git clone --depth 1 --branch production --single-branch git@github.com:Magueri09salah/aloeandsoul.git aloeandsoul
 ```
 
-The `public_html` symlink is created after the first release (§3.4). **Never** upload the whole project into `public_html`: `.env`, `storage/` and the source would become downloadable.
+### 3.3 Production `.env`
+Generate the application key:
 
-### 2.5 Production `.env`
-Create `~/domains/aloeandsoul.com/aloeandsoul/shared/.env` from `.env.example` and set at least:
+```bash
+php -r "echo 'base64:'.base64_encode(random_bytes(32)).PHP_EOL;"
+```
+
+**Keep a copy of the key in your password manager**: without it, encrypted sessions and two-factor secrets cannot be read after a restore. Never change it on a live site.
+
+Create `~/domains/aloeandsoul.com/aloeandsoul/.env` (`nano` works) with the key and at least these values. Use passwords made of letters and digits only.
 
 ```dotenv
+APP_NAME="Aloe & Soul"
 APP_ENV=production
+APP_KEY=base64:…
 APP_DEBUG=false
 APP_URL=https://aloeandsoul.com
-APP_KEY=            # generated below
+APP_DISPLAY_TIMEZONE=Africa/Casablanca
 LOG_CHANNEL=daily
 LOG_LEVEL=warning
 
+DB_CONNECTION=mysql
 DB_HOST=localhost
+DB_PORT=3306
 DB_DATABASE=u123456789_aloe
 DB_USERNAME=u123456789_aloe
 DB_PASSWORD=********
@@ -90,52 +123,25 @@ MAIL_HOST=smtp.hostinger.com
 MAIL_PORT=465
 MAIL_USERNAME=no-reply@aloeandsoul.com
 MAIL_PASSWORD=********
-MAIL_FROM_ADDRESS=no-reply@aloeandsoul.com
+MAIL_FROM_ADDRESS="no-reply@aloeandsoul.com"
+MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-Protect it: `chmod 600 ~/domains/aloeandsoul.com/aloeandsoul/shared/.env`.
+Protect it: `chmod 600 ~/domains/aloeandsoul.com/aloeandsoul/.env`.
 
-## 3. First deployment
-
-### 3.1 Build the release on your computer
+### 3.4 Install
 
 ```bash
-git pull
-./scripts/package-release.sh          # npm ci + npm run build + archive (no vendor)
+bash ~/domains/aloeandsoul.com/aloeandsoul/scripts/update.sh
 ```
 
-This produces `release-YYYYmmdd-HHMMSS.tar.gz` containing the code **and the compiled assets** (`public/build`). `.env`, `node_modules`, tests and local uploads are excluded. If the server cannot run Composer, use `./scripts/package-release.sh --vendor` (bundles production dependencies; build it with PHP 8.3).
+`update.sh` will: check PHP ≥ 8.3 → fetch the `production` branch → **back up the database** to `~/backups` → `php artisan down` (from the second run) → switch the code to the new version → `composer install --no-dev --optimize-autoloader --no-scripts` and `package:discover` → check that the compiled assets are there → `migrate --force` (additive migrations only) → `db:seed --force` (creates categories, draft products, policy pages and FAQs only if missing; no users, no prices) → link `public/storage` to the uploads → `optimize` → `up`. It ends with `✓ Now on …` and the command to go back.
 
-### 3.2 Upload
-
-```bash
-scp -P 65002 release-*.tar.gz scripts/deploy.sh scripts/rollback.sh u123456789@<server-ip>:~/
-```
-
-(or hPanel → *File Manager*, upload into your home directory).
-
-### 3.3 Generate the application key (first time only)
-
-```bash
-php -r "echo 'base64:'.base64_encode(random_bytes(32)).PHP_EOL;"
-```
-
-Paste the printed value into `shared/.env` as `APP_KEY=…`. **Keep a copy of the key in your password manager**: without it, encrypted sessions and two-factor secrets cannot be read after a restore. Never change it on a live site.
-
-### 3.4 Deploy
-
-```bash
-cd ~
-DOMAIN=aloeandsoul.com bash deploy.sh ~/release-YYYYmmdd-HHMMSS.tar.gz
-```
-
-`deploy.sh` will: check PHP ≥ 8.3 → extract into `releases/<timestamp>` → link the shared `.env` and `storage` → `composer install --no-dev --optimize-autoloader --no-scripts`, then `package:discover` (Hostinger disables `proc_open`, so Composer cannot run the package scripts itself) → **back up the database** to `~/backups` → `php artisan down` → `migrate --force` (additive migrations only) → `db:seed --force` (creates categories, draft products, policy pages and FAQs only if missing; no users, no prices) → link `public/storage` to the shared uploads → `optimize` → switch `current` atomically → `up` → keep the last 5 releases.
-
-Then point the web root at the release (first time only):
+Then point the web root at the app (first time only):
 
 ```bash
 cd ~/domains/aloeandsoul.com
-ln -s aloeandsoul/current/public public_html
+ln -s aloeandsoul/public public_html
 ```
 
 > If Hostinger refuses the symlink (rare on Cloud plans), use the fallback in §9.
@@ -143,7 +149,7 @@ ln -s aloeandsoul/current/public public_html
 ### 3.5 Create the owner account
 
 ```bash
-cd ~/domains/aloeandsoul.com/aloeandsoul/current
+cd ~/domains/aloeandsoul.com/aloeandsoul
 php artisan admin:create          # prompts for name, email and password (not echoed)
 ```
 
@@ -158,27 +164,27 @@ php artisan catalog:import --dry-run   # preview
 php artisan catalog:import             # takes several minutes (about 120 photos); products stay unpublished
 ```
 
-Only empty fields are filled (in each language), and products that already have photos keep them, so it is safe to run again. `--overwrite` replaces texts, prices and references (and removes sale prices); `--replace-images` replaces the photos. Five products get no price (C9 and four products missing from the Moroccan catalogue): the command lists them; set their prices in Admin → Products. Then review each product, add stock and publish.
+Only empty fields are filled (in each language), and products that already have photos keep them, so it is safe to run again. `--overwrite` replaces texts, prices and references (and removes sale prices); `--replace-images` replaces the photos. Five products get no price (C9 and four products missing from the Moroccan catalogue): the command lists them; set their prices in Admin → Products. Then review each product, add stock and publish. If it stops on memory, run `php -d memory_limit=512M artisan catalog:import`.
 
 ### 3.6 Cron (scheduler + queue)
-hPanel → *Advanced* → **Cron Jobs** → *Custom*, every minute:
+hPanel → *Advanced* → **Cron Jobs** → *Custom*, every minute. Use the path that `which php` prints (PHP 8.3) and your user name:
 
 ```
-* * * * * /opt/alt/php83/usr/bin/php /home/u123456789/domains/aloeandsoul.com/aloeandsoul/current/artisan schedule:run >> /dev/null 2>&1
+* * * * * /opt/alt/php83/usr/bin/php /home/u123456789/domains/aloeandsoul.com/aloeandsoul/artisan schedule:run >> /dev/null 2>&1
 ```
 
-The scheduler processes queued jobs (`queue:work --stop-when-empty`), prunes abandoned carts and old audit entries, clears expired password-reset tokens and deletes expired rate-limit rows. Check it: `php artisan schedule:list`.
+The scheduler works through queued jobs (one at a time, up to 50 seconds a minute), prunes abandoned carts and old audit entries, clears expired password-reset tokens and deletes expired rate-limit rows, all inside this one PHP process. Check it: `php artisan schedule:list`.
 
 ### 3.7 HTTPS
 hPanel → *Security* → **SSL**: install the free certificate and enable **Force HTTPS**. The app sends HSTS on HTTPS responses and secure-only cookies (`SESSION_SECURE_COOKIE=true`).
 
 ### 3.8 Hostinger CDN / proxy
-If you enable Hostinger CDN or Cloudflare, visitors' IPs arrive in forwarded headers. Set `TRUSTED_PROXIES` in `.env` to the proxy IP ranges (or `*` only if the origin is not reachable directly), otherwise rate limits apply to the proxy's IP.
+Keep Hostinger CDN off unless you configure this: with a CDN or Cloudflare in front, visitors' IPs arrive in forwarded headers. Set `TRUSTED_PROXIES` in `.env` to the proxy IP ranges (or `*` only if the origin is not reachable directly), otherwise rate limits apply to the proxy's IP and can block real customers.
 
 ## 4. Smoke tests after every deployment
 
 ```bash
-cd ~/domains/aloeandsoul.com/aloeandsoul/current
+cd ~/domains/aloeandsoul.com/aloeandsoul
 php artisan about --only=environment     # Environment: production, Debug Mode: OFF
 php artisan migrate:status | tail -5     # all "Ran"
 curl -sI https://aloeandsoul.com/up | head -1                       # 200
@@ -204,25 +210,29 @@ The admin dashboard shows a "Before you launch" list. In short:
 
 ## 6. Updating the site
 
+1. Commit and push to `main`.
+2. GitHub → **Actions**: wait for the green tick on *Build production branch*. If it fails, the server keeps the previous version; fix the build first.
+3. On the server:
+
 ```bash
-# locally
-./scripts/package-release.sh
-scp -P 65002 release-*.tar.gz u123456789@<server-ip>:~/
-# on the server
-DOMAIN=aloeandsoul.com bash ~/deploy.sh ~/release-…tar.gz
+bash ~/domains/aloeandsoul.com/aloeandsoul/scripts/update.sh
 ```
 
-`deploy.sh` runs the migrations and the safe `db:seed`, which only adds what is missing (for example French names and texts for the original categories, pages and FAQ, and never over an edit). After the update that added French, also run `php artisan catalog:import` once: it fills the empty French product information and leaves everything else as it is.
+Visitors see the maintenance page for the minute it takes. `.env`, uploaded images and logs are not in git and stay as they are.
 
-Migrations must be **additive** (new tables/columns, nullable or defaulted). Never run `migrate:fresh`, `migrate:reset`, `db:wipe`, `DemoSeeder` or `E2eSeeder` on production (the seeders refuse to run there).
+`update.sh` runs the migrations and the safe `db:seed`, which only adds what is missing (for example French names and texts for the original categories, pages and FAQ, and never over an edit).
+
+Migrations must be **additive** (new tables/columns, nullable or defaulted). Never run `migrate:fresh`, `migrate:reset`, `db:wipe`, `DemoSeeder` or `E2eSeeder` on production (the seeders refuse to run there). Never edit files on the server: the next update replaces them.
 
 ## 7. Rollback
 
+Each update ends with the command to go back, e.g.:
+
 ```bash
-DOMAIN=aloeandsoul.com bash ~/rollback.sh       # code back to the previous release
+bash ~/domains/aloeandsoul.com/aloeandsoul/scripts/update.sh 4acd126    # code back to that version
 ```
 
-If a migration caused the problem, restore the backup taken just before it:
+Earlier versions: `git -C ~/domains/aloeandsoul.com/aloeandsoul reflog`. Migrations are not reversed. If a migration caused the problem, restore the backup taken just before it:
 
 ```bash
 php artisan down
@@ -233,16 +243,14 @@ php artisan up
 ## 8. Backups and restore
 
 - **Automatic**: hPanel → *Files* → **Backups** (daily/weekly depending on plan) covers files and databases. Download one monthly and keep it off-site.
-- **Before each deploy**: `deploy.sh` writes `~/backups/db-<timestamp>.sql.gz` (last 10 kept).
-- **Uploads** live in `shared/storage/app/public`; include them in your off-site copy:
-  `tar -czf ~/backups/uploads-$(date +%F).tar.gz -C ~/domains/aloeandsoul.com/aloeandsoul/shared/storage app/public`
+- **Before each update**: `update.sh` writes `~/backups/db-<timestamp>.sql.gz` (last 10 kept).
+- **Uploads** live in `aloeandsoul/storage/app/public`; include them in your off-site copy:
+  `tar -czf ~/backups/uploads-$(date +%F).tar.gz -C ~/domains/aloeandsoul.com/aloeandsoul/storage app/public`
 - **Restore test** (do it once before launch): create a scratch database in hPanel, import a backup into it with `mysql … < dump.sql`, and check the row counts of `orders` and `products`.
 
-## 9. Without SSH, or if `public_html` cannot be a symlink
+## 9. If `public_html` cannot be a symlink
 
-*No symlink:* keep the app in `~/domains/aloeandsoul.com/aloeandsoul/current` as above, copy only the **contents** of `current/public/` into `public_html/`, then edit `public_html/index.php` so both `__DIR__.'/../…'` paths point to `__DIR__.'/../aloeandsoul/current/…'`. Re-copy `public/build` after each release, and create `public_html/storage` as a symlink (or set `FILESYSTEM_DISK`'s public root to `public_html/storage`). The application code still stays outside the web root.
-
-*No SSH:* build with `./scripts/package-release.sh --vendor`, upload and extract via File Manager, run migrations from hPanel's *Cron Jobs* with a one-off `php artisan migrate --force` command, then remove that job. This is fragile; prefer a plan with SSH.
+Keep the app in `~/domains/aloeandsoul.com/aloeandsoul` as above, copy only the **contents** of `aloeandsoul/public/` into `public_html/`, then edit `public_html/index.php` so both `__DIR__.'/../…'` paths point to `__DIR__.'/../aloeandsoul/…'`. Re-copy `public/build` after each update, and create `public_html/storage` as a symlink to `aloeandsoul/storage/app/public`. The application code still stays outside the web root.
 
 ## 10. VPS / plans with Node.js
 
@@ -260,11 +268,14 @@ Use the same `.env` settings; Redis can replace the database cache/queue (`CACHE
 
 | Symptom | Fix |
 |---|---|
-| 500 error, blank page | `tail -50 shared/storage/logs/laravel-*.log`; quote the request ID shown on the error page |
-| "Please provide a valid cache path" | `mkdir -p shared/storage/framework/{cache/data,sessions,views}` and check permissions (755 dirs, 644 files) |
-| Assets 404 | `public/build` missing: rebuild with `package-release.sh` |
-| Images 404 | In `current/`: `ln -sfn ~/domains/aloeandsoul.com/aloeandsoul/shared/storage/app/public public/storage` |
-| "The Process class relies on proc_open" | The host disables `proc_open`: run Composer with `--no-scripts`, then `php artisan package:discover` (`deploy.sh` does this) |
+| 500 error, blank page | `tail -50 aloeandsoul/storage/logs/laravel-*.log`; quote the request ID shown on the error page |
+| Maintenance page stays after an update | The update stopped: read its error, fix it, run `update.sh` again (or `php artisan up`) |
+| "Please provide a valid cache path" | `mkdir -p storage/framework/{cache/data,sessions,views}` in `aloeandsoul/` and check permissions (755 dirs, 644 files) |
+| `public/build is missing` / assets 404 | The server is not on a `production` build: check GitHub → Actions, then run `update.sh` again |
+| Images 404 | In `aloeandsoul/`: `ln -s ../storage/app/public public/storage` |
+| `Permission denied (publickey)` on fetch | The deploy key is missing on GitHub or in `~/.ssh/config` (§2.4) |
+| `connect to host github.com port 22: Connection timed out` | Add `Hostname ssh.github.com` and `Port 443` under `Host github.com` in `~/.ssh/config` |
+| "The Process class relies on proc_open" | Something ran Composer with its scripts, or a scheduled task as a separate command: use `update.sh`, and `Schedule::call` in `routes/console.php` |
 | Composer errors about PHP version | SSH `php` is not 8.3: see §2.2 |
 | Password reset emails not arriving | Check `MAIL_*` values; test with `php artisan tinker` → `Mail::raw('test', fn($m) => $m->to('you@example.com'))` |
 | Changes to `.env` ignored | `php artisan optimize:clear && php artisan optimize` |
