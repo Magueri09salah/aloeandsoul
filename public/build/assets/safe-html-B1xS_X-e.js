@@ -1,0 +1,1 @@
+import{n as e,t}from"./jsx-runtime-DOE44kDy.js";var n=t();function r({html:t,className:r}){return(0,n.jsx)(`div`,{className:e(r),dangerouslySetInnerHTML:{__html:t}})}export{r as t};

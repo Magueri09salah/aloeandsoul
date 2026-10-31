@@ -1,0 +1,1 @@
+import{n as e,t}from"./jsx-runtime-DOE44kDy.js";var n=t();function r({image:t,sizes:r,priority:i=!1,className:a,alt:o}){return(0,n.jsx)(`img`,{src:t.src,srcSet:t.srcset,sizes:r,width:t.width,height:t.height,alt:o??t.alt,loading:i?`eager`:`lazy`,decoding:i?`sync`:`async`,fetchPriority:i?`high`:`auto`,className:e(`h-full w-full object-cover`,a)})}export{r as t};

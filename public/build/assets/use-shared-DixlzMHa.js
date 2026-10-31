@@ -1,0 +1,1 @@
+import{c as e}from"./jsx-runtime-DOE44kDy.js";function t(){return e().props}export{t};
