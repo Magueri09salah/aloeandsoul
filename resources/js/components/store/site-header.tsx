@@ -1,10 +1,8 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { ChevronDown, Menu, Search, ShoppingBag } from 'lucide-react';
-import { NavigationMenu } from 'radix-ui';
+import { Menu, Search, ShoppingBag } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 import { Logo } from '@/components/brand/logo';
-import { Motif } from '@/components/brand/motif';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -21,7 +19,6 @@ export function SiteHeader() {
     const cartUi = useCartUi();
     const { t, tc, to } = useI18n();
     const links = [
-        { href: '/our-story', label: t('Our story') },
         { href: '/blog', label: t('Blog') },
         { href: '/faq', label: t('FAQ') },
         { href: '/contact', label: t('Contact') },
@@ -43,14 +40,31 @@ export function SiteHeader() {
         previous.current = count;
     }, [count]);
 
+    // Once the page scrolls, the category row folds away and only the top row stays.
+    const [compact, setCompact] = useState(false);
+    useEffect(() => {
+        const onScroll = () => setCompact(window.scrollY > 120);
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
     const isActive = (path: string) => {
         const href = to(path);
         return url === href || url.startsWith(`${href}/`) || url.startsWith(`${href}?`);
     };
+    const shopActive = url === to('/shop') || url.startsWith(`${to('/shop')}?`);
+    const searchTerm = new URLSearchParams(url.split('?')[1] ?? '').get('q') ?? '';
+
+    const navLink = (active: boolean) =>
+        cn(
+            'inline-flex h-12 items-center text-[0.95rem] font-medium whitespace-nowrap text-stone underline-offset-[6px] transition-colors hover:text-ink hover:underline',
+            active && 'text-ink underline decoration-dune',
+        );
 
     return (
-        <header className="sticky top-0 z-40 border-b border-line/70 bg-ivory/95 backdrop-blur supports-[backdrop-filter]:bg-ivory/85">
-            <div className="container-page flex h-[4.5rem] items-center gap-2 sm:gap-4">
+        <header className="sticky top-0 z-40 border-b border-line/70 bg-ivory/95 backdrop-blur supports-[backdrop-filter]:bg-ivory/90">
+            <div className="container-page flex h-[4.5rem] items-center gap-2 sm:gap-4 lg:h-20 lg:gap-8">
                 <button
                     type="button"
                     className="-ml-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-sand lg:hidden"
@@ -60,75 +74,32 @@ export function SiteHeader() {
                     <Menu className="size-5" aria-hidden="true" />
                 </button>
 
-                <Logo href={to('/')} className="mr-auto lg:mr-0" />
+                {/* Below 360px there is room for the mark only; the name returns from there up. */}
+                <Logo href={to('/')} className="mr-auto lg:mr-0" wordmarkClassName="max-[359px]:hidden" />
 
-                <NavigationMenu.Root className="relative ml-10 hidden flex-1 lg:block" aria-label={t('Main')}>
-                    <NavigationMenu.List className="flex items-center gap-1">
-                        <NavigationMenu.Item>
-                            <NavigationMenu.Trigger
-                                className={cn(
-                                    'group inline-flex h-10 items-center gap-1 rounded-full px-4 text-[0.95rem] hover:bg-sand data-[state=open]:bg-sand',
-                                    isActive('/shop') && 'text-aloe',
-                                )}
-                            >
-                                {t('Shop')}
-                                <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden="true" />
-                            </NavigationMenu.Trigger>
-                            <NavigationMenu.Content className="absolute top-full left-0 mt-3 w-[min(46rem,80vw)] rounded-lg border border-line bg-ivory p-3 shadow-overlay data-[motion^=from-]:animate-in data-[motion^=from-]:fade-in data-[motion^=to-]:animate-out data-[motion^=to-]:fade-out">
-                                <ul className="grid grid-cols-2 gap-1">
-                                    {navigation.map((category) => (
-                                        <li key={category.slug}>
-                                            <NavigationMenu.Link asChild>
-                                                <Link
-                                                    href={to(`/shop/${category.slug}`)}
-                                                    className="flex items-start gap-4 rounded-md p-3 transition-colors hover:bg-sand focus-visible:bg-sand"
-                                                >
-                                                    <span className="flex size-14 shrink-0 items-center justify-center rounded-full p-2.5 text-dune" style={{ backgroundColor: category.tint }}>
-                                                        <Motif name={category.motif} />
-                                                    </span>
-                                                    <span>
-                                                        <span className="block font-medium">{category.name}</span>
-                                                        {category.tagline && <span className="mt-0.5 block text-sm text-stone">{category.tagline}</span>}
-                                                    </span>
-                                                </Link>
-                                            </NavigationMenu.Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                                <div className="mt-2 border-t border-line px-3 pt-3 pb-1">
-                                    <NavigationMenu.Link asChild>
-                                        <Link href={to('/shop')} className="text-sm font-medium underline underline-offset-4 hover:text-aloe">
-                                            {t('See all products')}
-                                        </Link>
-                                    </NavigationMenu.Link>
-                                </div>
-                            </NavigationMenu.Content>
-                        </NavigationMenu.Item>
-                        {links.map((link) => (
-                            <NavigationMenu.Item key={link.href}>
-                                <NavigationMenu.Link asChild active={isActive(link.href)}>
-                                    <Link
-                                        href={to(link.href)}
-                                        className={cn(
-                                            'inline-flex h-10 items-center rounded-full px-4 text-[0.95rem] hover:bg-sand',
-                                            isActive(link.href) && 'text-aloe',
-                                        )}
-                                        aria-current={isActive(link.href) ? 'page' : undefined}
-                                    >
-                                        {link.label}
-                                    </Link>
-                                </NavigationMenu.Link>
-                            </NavigationMenu.Item>
-                        ))}
-                    </NavigationMenu.List>
-                </NavigationMenu.Root>
+                {/* Keyed by the term shown, so it follows the page (e.g. after "Clear filters"). */}
+                <HeaderSearch
+                    key={searchTerm}
+                    initial={searchTerm}
+                    className="mx-auto hidden max-w-xl flex-1 lg:flex"
+                />
 
-                <div className="flex shrink-0 items-center sm:gap-1">
-                    <LanguageToggle />
+                <div className="flex shrink-0 items-center sm:gap-1 lg:gap-2">
+                    <Link
+                        href={to('/our-story')}
+                        className={cn(
+                            'hidden px-2 text-[0.95rem] text-stone hover:text-ink lg:inline-block',
+                            isActive('/our-story') && 'text-ink',
+                        )}
+                        aria-current={isActive('/our-story') ? 'page' : undefined}
+                    >
+                        {t('Our story')}
+                    </Link>
+                    <LanguageToggle className="text-stone hover:text-ink" />
                     <button
                         type="button"
                         onClick={() => setSearchOpen(true)}
-                        className="inline-flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-sand"
+                        className="inline-flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-sand lg:hidden"
                         aria-label={t('Search products')}
                     >
                         <Search className="size-5" aria-hidden="true" />
@@ -136,14 +107,14 @@ export function SiteHeader() {
                     <button
                         type="button"
                         onClick={cartUi.open}
-                        className="relative -mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-sand"
+                        className="relative ml-1 inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-stone text-white transition-colors hover:bg-ink"
                         aria-label={tc('Open cart, :count item|Open cart, :count items', count)}
                     >
-                        <ShoppingBag className="size-5" aria-hidden="true" />
+                        <ShoppingBag className="size-[1.15rem]" aria-hidden="true" />
                         {count > 0 && (
                             <span
                                 className={cn(
-                                    'absolute top-1 right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-ink px-1 text-[0.7rem] font-semibold text-ivory tabular-nums',
+                                    'absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-dune-deep px-1 text-[0.7rem] font-semibold text-white tabular-nums ring-2 ring-ivory',
                                     pulse && 'motion-safe:animate-count-pulse',
                                 )}
                                 aria-hidden="true"
@@ -155,12 +126,62 @@ export function SiteHeader() {
                 </div>
             </div>
 
+            {/* Category row (desktop). Folded away once the page scrolls. */}
+            <div
+                className={cn(
+                    'hidden transition-[grid-template-rows] duration-300 ease-(--ease-out-soft) lg:grid',
+                    compact ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]',
+                )}
+                inert={compact}
+            >
+                <div className="overflow-hidden">
+                    <nav aria-label={t('Main')} className="container-page">
+                        <ul className="flex flex-wrap items-center justify-center gap-x-6 border-t border-line xl:gap-x-8">
+                            <li>
+                                <Link
+                                    href={to('/shop')}
+                                    className={navLink(shopActive)}
+                                    aria-current={shopActive ? 'page' : undefined}
+                                >
+                                    {t('All products')}
+                                </Link>
+                            </li>
+                            {navigation.map((category) => {
+                                const active = isActive(`/shop/${category.slug}`);
+                                return (
+                                    <li key={category.slug}>
+                                        <Link
+                                            href={to(`/shop/${category.slug}`)}
+                                            className={navLink(active)}
+                                            aria-current={active ? 'page' : undefined}
+                                        >
+                                            {category.name}
+                                        </Link>
+                                    </li>
+                                );
+                            })}
+                            {links.map((link) => (
+                                <li key={link.href}>
+                                    <Link
+                                        href={to(link.href)}
+                                        className={navLink(isActive(link.href))}
+                                        aria-current={isActive(link.href) ? 'page' : undefined}
+                                    >
+                                        {link.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
             <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
 
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetContent side="left" title={t('Menu')}>
                     <nav aria-label={t('Main')} className="flex-1 overflow-y-auto px-5 py-4">
-                        <p className="text-sm text-stone">{t('Shop')}</p>
+                        <p className="text-xs font-semibold tracking-[0.04em] text-stone uppercase">{t('Shop')}</p>
                         <ul className="mt-2 border-b border-line pb-4">
                             {navigation.map((c) => (
                                 <li key={c.slug}>
@@ -169,21 +190,37 @@ export function SiteHeader() {
                                         onClick={() => setMobileOpen(false)}
                                         className="flex items-center gap-3 py-2.5 text-lg"
                                     >
-                                        <span className="size-3 rounded-full" style={{ backgroundColor: c.tint }} aria-hidden="true" />
+                                        <span
+                                            className="size-3 rounded-full"
+                                            style={{ backgroundColor: c.tint }}
+                                            aria-hidden="true"
+                                        />
                                         {c.name}
                                     </Link>
                                 </li>
                             ))}
                             <li>
-                                <Link href={to('/shop')} onClick={() => setMobileOpen(false)} className="block py-2.5 text-lg underline underline-offset-4">
+                                <Link
+                                    href={to('/shop')}
+                                    onClick={() => setMobileOpen(false)}
+                                    className="block py-2.5 text-lg underline underline-offset-4"
+                                >
                                     {t('All products')}
                                 </Link>
                             </li>
                         </ul>
                         <ul className="mt-4 space-y-1">
-                            {[...links, { href: '/track-order', label: t('Track an order') }].map((l) => (
+                            {[
+                                { href: '/our-story', label: t('Our story') },
+                                ...links,
+                                { href: '/track-order', label: t('Track an order') },
+                            ].map((l) => (
                                 <li key={l.href}>
-                                    <Link href={to(l.href)} onClick={() => setMobileOpen(false)} className="block py-2 font-display text-2xl">
+                                    <Link
+                                        href={to(l.href)}
+                                        onClick={() => setMobileOpen(false)}
+                                        className="block py-2 font-display text-2xl"
+                                    >
                                         {l.label}
                                     </Link>
                                 </li>
@@ -206,6 +243,42 @@ export function SiteHeader() {
     );
 }
 
+/** The search bar in the header (desktop): searches the shop by product name. */
+function HeaderSearch({ initial, className }: { initial: string; className?: string }) {
+    const { t, to } = useI18n();
+    const [q, setQ] = useState(initial);
+
+    const submit = (e: FormEvent) => {
+        e.preventDefault();
+        const term = q.trim();
+        router.get(to('/shop'), term ? { q: term } : {});
+    };
+
+    return (
+        <form onSubmit={submit} role="search" className={cn('relative items-center', className)}>
+            <label htmlFor="header-search" className="sr-only">
+                {t('Search products')}
+            </label>
+            <input
+                id="header-search"
+                type="search"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder={t('Search')}
+                maxLength={100}
+                className="h-12 w-full rounded-full border border-stone/40 bg-transparent pr-14 pl-5 text-[0.95rem] placeholder:text-stone/80 focus-visible:border-stone focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aloe [&::-webkit-search-cancel-button]:hidden"
+            />
+            <button
+                type="submit"
+                className="absolute right-1.5 inline-flex size-9 items-center justify-center rounded-full bg-mist text-stone transition-colors hover:bg-sand hover:text-ink"
+                aria-label={t('Search')}
+            >
+                <Search className="size-4" aria-hidden="true" />
+            </button>
+        </form>
+    );
+}
+
 function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
     const [q, setQ] = useState('');
     const { t, to } = useI18n();
@@ -219,7 +292,11 @@ function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (op
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent title={t('Search')} description={t('Find a product by name.')} className="top-24 translate-y-0 sm:top-32">
+            <DialogContent
+                title={t('Search')}
+                description={t('Find a product by name.')}
+                className="top-24 translate-y-0 sm:top-32"
+            >
                 <form onSubmit={submit} role="search" className="flex gap-2">
                     <label htmlFor="site-search" className="sr-only">
                         {t('Search products')}

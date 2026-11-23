@@ -5,6 +5,7 @@ import type { PostCard as PostCardData, PostDetail } from '@/types';
 import { ResponsiveImage } from '@/components/ui/responsive-image';
 import { SafeHtml } from '@/components/ui/safe-html';
 import { PostCard, PostMeta } from '@/components/store/post-card';
+import { Accented } from '@/components/store/section-heading';
 import { useShared } from '@/hooks/use-shared';
 import { useI18n } from '@/lib/i18n';
 
@@ -39,27 +40,33 @@ export default function BlogShow({ post, blogHeading, more }: BlogShowProps) {
                     </ol>
                 </nav>
 
-                <header className="mx-auto mt-10 max-w-3xl text-center">
-                    <h1 className="font-display text-display text-balance">{post.title}</h1>
-                    <PostMeta post={post} className="mt-5" />
-                </header>
-
-                {post.cover && (
-                    <div className="mx-auto mt-10 max-w-5xl overflow-hidden bg-sand">
+                {post.cover ? (
+                    // The cover as a banner, with the title over it.
+                    <header className="relative isolate mt-6 overflow-hidden rounded-3xl bg-aloe">
                         <ResponsiveImage
                             image={post.cover}
-                            sizes="(min-width: 1024px) 64rem, 100vw"
+                            sizes="(min-width: 1320px) 1240px, 100vw"
                             priority
-                            className="h-auto"
+                            className="absolute inset-0 -z-10"
                         />
-                    </div>
+                        <div className="absolute inset-0 -z-10 bg-ink/45" aria-hidden="true" />
+                        <div className="flex min-h-[20rem] flex-col items-center justify-center px-6 py-14 text-center text-white sm:min-h-[26rem] lg:px-20">
+                            <h1 className="max-w-4xl font-display text-display text-balance">{post.title}</h1>
+                            <PostMeta post={post} className="mt-5 text-white/90" />
+                        </div>
+                    </header>
+                ) : (
+                    <header className="mx-auto mt-10 max-w-3xl text-center">
+                        <h1 className="font-display text-display text-balance">{post.title}</h1>
+                        <PostMeta post={post} className="mt-5" />
+                    </header>
                 )}
 
-                <div className="mx-auto mt-12 max-w-[44rem]">
+                <div className="mx-auto mt-12 max-w-[46rem] lg:mt-16">
                     <SafeHtml html={post.body_html} className="prose-editorial max-w-none" />
 
-                    <footer className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6 text-sm">
-                        <Link href={to('/blog')} className="underline underline-offset-4 hover:text-aloe">
+                    <footer className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6 text-sm font-semibold tracking-[0.03em] uppercase">
+                        <Link href={to('/blog')} className="underline underline-offset-4 hover:text-dune-deep">
                             {t('All posts')}
                         </Link>
                         {shareUrl && (
@@ -67,7 +74,7 @@ export default function BlogShow({ post, blogHeading, more }: BlogShowProps) {
                                 href={`https://wa.me/?text=${encodeURIComponent(`${post.title} ${shareUrl}`)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="underline underline-offset-4 hover:text-aloe"
+                                className="underline underline-offset-4 hover:text-dune-deep"
                             >
                                 {t('Share on WhatsApp')}
                             </a>
@@ -79,9 +86,9 @@ export default function BlogShow({ post, blogHeading, more }: BlogShowProps) {
             {more.length > 0 && (
                 <section aria-labelledby="more-heading" className="container-page border-t border-line pt-16">
                     <h2 id="more-heading" className="font-display text-display-sm">
-                        {t('More from the blog')}
+                        <Accented text={t('More from the blog')} />
                     </h2>
-                    <div className="mt-10 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-10 grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
                         {more.map((p) => (
                             <PostCard key={p.id} post={p} />
                         ))}

@@ -6,11 +6,11 @@ import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-    'inline-flex shrink-0 items-center justify-center gap-2 rounded-full font-sans font-medium whitespace-nowrap transition-[background-color,color,border-color,transform] duration-150 ease-(--ease-out-soft) select-none active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+    'inline-flex shrink-0 items-center justify-center gap-2 rounded-full font-sans [font-weight:var(--button-weight,500)] [letter-spacing:var(--button-tracking,normal)] whitespace-nowrap [text-transform:var(--button-case,none)] transition-[background-color,color,border-color,transform] duration-150 ease-(--ease-out-soft) select-none active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
     {
         variants: {
             variant: {
-                primary: 'bg-ink text-ivory hover:bg-aloe',
+                primary: 'bg-primary text-primary-foreground hover:bg-primary-hover',
                 secondary: 'border border-ink bg-transparent text-ink hover:bg-ink hover:text-ivory',
                 quiet: 'bg-sand text-ink hover:bg-line',
                 ghost: 'text-ink hover:bg-sand',
@@ -25,8 +25,21 @@ const buttonVariants = cva(
                 icon: 'size-11 [&_svg]:size-5',
                 'icon-sm': 'size-9 [&_svg]:size-4',
             },
+            /**
+             * Lets a long label (French, set in capitals on the storefront) break
+             * onto a second line instead of running out of a narrow box. The
+             * button keeps its usual height while the label fits on one line.
+             */
+            wrap: {
+                true: 'h-auto max-w-full text-center leading-tight text-balance whitespace-normal',
+            },
         },
-        compoundVariants: [{ variant: 'link', className: 'h-auto px-0' }],
+        compoundVariants: [
+            { variant: 'link', className: 'h-auto px-0' },
+            { wrap: true, size: 'sm', className: 'min-h-9 py-2' },
+            { wrap: true, size: 'md', className: 'min-h-11 py-2.5' },
+            { wrap: true, size: 'lg', className: 'min-h-13 py-3' },
+        ],
         defaultVariants: { variant: 'primary', size: 'md' },
     },
 );
@@ -36,13 +49,23 @@ export interface ButtonProps extends React.ComponentProps<'button'>, VariantProp
     loading?: boolean;
 }
 
-function Button({ className, variant, size, asChild = false, loading = false, disabled, children, ...props }: ButtonProps) {
+function Button({
+    className,
+    variant,
+    size,
+    wrap,
+    asChild = false,
+    loading = false,
+    disabled,
+    children,
+    ...props
+}: ButtonProps) {
     const Comp = asChild ? Slot.Root : 'button';
 
     return (
         <Comp
             data-slot="button"
-            className={cn(buttonVariants({ variant, size, className }))}
+            className={cn(buttonVariants({ variant, size, wrap, className }))}
             disabled={asChild ? undefined : disabled || loading}
             aria-busy={loading || undefined}
             {...props}

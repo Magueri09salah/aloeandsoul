@@ -73,7 +73,7 @@ export function ProductGallery({ images, tint, label, placeholder }: ProductGall
 
     if (count === 0) {
         return (
-            <div className="aspect-square overflow-hidden" style={{ backgroundColor: tint }}>
+            <div className="aspect-square overflow-hidden rounded-2xl" style={{ backgroundColor: tint }}>
                 {placeholder}
             </div>
         );
@@ -88,7 +88,7 @@ export function ProductGallery({ images, tint, label, placeholder }: ProductGall
                     onKeyDown={count > 1 ? onKeyDown : undefined}
                     tabIndex={count > 1 ? 0 : undefined}
                     aria-label={count > 1 ? t('Use the arrow keys to see the other images') : undefined}
-                    className="flex aspect-square snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aloe motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
+                    className="flex aspect-square snap-x snap-mandatory overflow-x-auto rounded-2xl overscroll-x-contain [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aloe motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
                     style={{ backgroundColor: tint }}
                 >
                     {images.map((image, i) => (
@@ -132,7 +132,7 @@ export function ProductGallery({ images, tint, label, placeholder }: ProductGall
                                 type="button"
                                 onClick={() => show(i)}
                                 className={cn(
-                                    'block size-16 overflow-hidden ring-offset-2 ring-offset-ivory transition sm:size-20',
+                                    'block size-16 overflow-hidden rounded-xl ring-offset-2 ring-offset-ivory transition sm:size-20',
                                     i === index ? 'ring-2 ring-ink' : 'opacity-75 hover:opacity-100',
                                 )}
                                 style={{ backgroundColor: tint }}

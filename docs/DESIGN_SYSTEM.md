@@ -4,6 +4,8 @@ Creative direction: **premium natural wellness × contemporary editorial lifesty
 
 Tokens live in [`resources/css/app.css`](../resources/css/app.css) (`@theme`) and are the single source of truth. This document explains them.
 
+> **November 2026: the storefront was restyled** in a calmer grocery-boutique layout (two-row header with a search bar, product rows with arrows, rounded product tiles, olive footer). Its values are in **§12** and replace §2–§11 on the storefront where they differ. The admin keeps the values below.
+
 ---
 
 ## 1. Sources
@@ -184,3 +186,44 @@ Same tokens and typefaces; different information architecture.
 - **Founder & lifestyle**: real photography supplied by the client. The current dunes portrait (from the client's existing site) is used on the home hero and story page and can be swapped in admin.
 - **Products**: official product images only (bundled Forever photographs, or the client's uploads). Without one, a neutral tinted placeholder with the leaf mark — never a fake packshot. Product tiles show the first image in a 4:5 frame; the product page shows every image whole (`object-contain`) in a square, swipeable carousel over the category tint, with arrows, a counter and thumbnails. Product information below it uses collapsible sections (native `<details>`), the description open.
 - **Formats**: uploads are re-encoded to WebP at 480 / 960 / 1600 px wide; originals are not served.
+
+---
+
+## 12. Storefront theme (November 2026)
+
+The storefront `<body class="storefront">` overrides the tokens in `app.css` (`body.storefront { … }`): same token names, new values, so every component follows and the admin (`body.admin`) keeps its own.
+
+### Colour
+
+| Token | Storefront value | Use |
+|---|---|---|
+| `ivory` | `#F8F6F0` | Page background |
+| `ink` | `#4A433D` warm brown-grey | Headings, main text, the cart button on hover |
+| `stone` | `#726A63` | Secondary text, outline buttons, the cart button |
+| `aloe` | `#5C5A31` logo olive | Announcement bar, footer, focus ring |
+| `dune` | `#9D823F` logo gold | Italic accent words in large headings, category motifs, active tab underline |
+| `dune-deep` / `primary` | `#85692E` deep gold (white text 5.2 : 1) | Primary buttons, category labels on cards, sale badge, current page |
+| `primary-hover` | `#6E5725` | Primary button hover |
+| `sand` / `panel` | `#EFEBE3` / `#F2EFE8` | Hero band, founder-story panel, delivery panel |
+| `mist` | `#EFEDE7` | Product photo frames (packshots are transparent) |
+| `leaf` | `#767849`, the green of the logo's aloe leaves (white text 4.6 : 1) | Home hero band |
+| `line` | `#E3DED5` | Borders and dividers |
+
+### Type
+
+- **DM Serif Display** (400 and italic) for headings; **Libre Franklin** (variable, with italics) for everything else, long texts included. Both self-hosted with `@fontsource`.
+- **Heading signature**: the last word of a section title is set in italic (`Accented` in `components/store/section-heading.tsx`), e.g. "Shop by *category*". One-word titles stay upright. In the philosophy and founder-story headings the italic word is gold.
+- Buttons, small labels (category on a card, badges, dates, "Read more") are **upper case** with slight tracking. In the admin buttons stay in sentence case (`--button-case`).
+- Capitals make French labels long (*DÉCOUVRIR LA COLLECTION*). A button that sits in a narrow box takes `wrap` (`<Button wrap>`): it keeps its height while the label fits and breaks onto a second line instead of running out of the box. Used on the product rows, hero, founder story, product page and product tiles; tiles also use smaller button text on phones.
+
+### Layout and components
+
+- **Header**: announcement bar (olive); top row with logo, a search bar, *Our story*, language and a round cart button; a centred second row with all products, the four categories, Blog, FAQ and Contact. The second row folds away once the page scrolls. On phones: menu, logo, language, search and cart; below 360px the logo shows the mark only.
+- **Product tile** (`ProductCard`): square photo frame with `rounded-2xl` on `mist`, badges top left (white pills; sale in gold), category in gold capitals, name, price, then a full-width outline button (*Add to cart*, *Choose an option* for products with options, or *Out of stock*).
+- **Product rows** (`ProductRail`): title, text, primary button and round arrows on the left (a 19.5rem column); cards in a horizontal scroll-snap row on the right. Below 1024px the button and arrows go under the cards; on phones the button is full width and the arrows are hidden (the row is swiped). Used for the founder's picks, the routine, bestsellers and related products.
+- **Home**: hero band (white text on the logo's leaf green, photo on the other half) → round category tiles → *How ordering works* (three icons, divided) → product rows → philosophy (heading left, text and *Our story* link right) → founder story panel → blog → collaborators → FAQ.
+- **Shop**: a banner in the category's own tint (the colour of its circle on the home page; sand for all products and search) with the breadcrumb, centred title, description, the category's animated motif on wide screens and the categories as underlined tabs; then a sticky toolbar (*Filters* · product count · sort; on phones the count moves above the grid), a 2/3/4-column grid. Filters open in a panel from the left with collapsible groups (search, availability, price) and *Clear filters* / *Apply*.
+- **Product page**: rounded gallery on the left (sticky on desktop); on the right category, name (sans), price and bestseller badge, quantity and *Add to cart*, *View similar products*, a panel with cash on delivery and delivery price, then the information sections as + / − accordions (description open, details, delivery areas).
+- **Blog**: banner of sand ripples (`public/brand/dunes-banner-1200.webp`, cut from the founder photograph by `build-brand-assets.php`) with the title in white; cards in three columns with a rounded 5:4 photo, date in capitals, title, three-line excerpt and *Read more*. A post with a cover shows it as a rounded banner with the title over it.
+- **Footer**: olive, the store tagline in large serif, newsletter (white field, gold button), three link columns, legal links, languages and a *Payment in cash on delivery* pill.
+- **Radius**: buttons and pills `rounded-full`; photos and panels `rounded-2xl` / `rounded-3xl`. No shadows except overlays.

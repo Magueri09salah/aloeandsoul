@@ -7,6 +7,10 @@
 @import '@fontsource/libre-caslon-text/400-italic.css';
 @import '@fontsource/libre-caslon-text/700.css';
 @import '@fontsource-variable/hanken-grotesk';
+@import '@fontsource/dm-serif-display/400.css';
+@import '@fontsource/dm-serif-display/400-italic.css';
+@import '@fontsource-variable/libre-franklin/wght.css';
+@import '@fontsource-variable/libre-franklin/wght-italic.css';
 
 @source '../views';
 @source '../js';
@@ -43,7 +47,11 @@
     --color-input: var(--color-line);
     --color-ring: var(--color-aloe);
     --color-primary: var(--color-ink);
+    --color-primary-hover: var(--color-aloe);
     --color-primary-foreground: var(--color-ivory);
+    --color-mist: #efede7;
+    /* The aloe leaves of the logo (white text on it: 4.6 : 1). */
+    --color-leaf: #767849;
     --color-destructive: var(--color-clay);
 
     /* Type scale (major third, 16px base) */
@@ -108,6 +116,46 @@
 
     body.admin {
         background-color: var(--color-panel);
+    }
+
+    /*
+     * Storefront theme (docs/DESIGN_SYSTEM.md §3): the same token names with
+     * the storefront's values, so the admin keeps the defaults above. Values
+     * that refer to other tokens are repeated here because a custom property
+     * resolves var() where it is declared.
+     */
+    body.storefront {
+        --font-display: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+        --font-serif: 'Libre Franklin Variable', 'Libre Franklin', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        --font-sans: 'Libre Franklin Variable', 'Libre Franklin', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+        --color-ivory: #f8f6f0;
+        --color-ink: #4a433d;
+        --color-stone: #726a63;
+        --color-aloe: #5c5a31;
+        --color-aloe-soft: #dcdbc8;
+        --color-dune: #9d823f;
+        --color-dune-deep: #85692e;
+        --color-sand: #efebe3;
+        --color-line: #e3ded5;
+        --color-panel: #f2efe8;
+        --color-mist: #efede7;
+        --color-primary: #85692e;
+        --color-primary-hover: #6e5725;
+        --color-primary-foreground: #ffffff;
+
+        --text-display-sm--letter-spacing: -0.02em;
+        --text-display--letter-spacing: -0.02em;
+        --text-display-xl--letter-spacing: -0.025em;
+
+        /* Storefront buttons: upper case, like the shop's labels. */
+        --button-case: uppercase;
+        --button-tracking: 0.03em;
+        --button-weight: 600;
+
+        background-color: var(--color-ivory);
+        color: var(--color-ink);
+        font-family: var(--font-sans);
     }
 
     :focus-visible {
@@ -191,6 +239,29 @@
         }
     }
 
+    .storefront .prose-editorial {
+        font-size: 1.0625rem;
+        line-height: 1.8;
+        color: var(--color-stone);
+
+        & h2 {
+            color: var(--color-ink);
+            font-size: 1.75rem;
+            letter-spacing: -0.015em;
+            margin-top: 1.6em;
+        }
+        & h3 {
+            color: var(--color-ink);
+        }
+        & strong {
+            color: var(--color-ink);
+            font-weight: 600;
+        }
+        & a {
+            color: var(--color-dune-deep);
+        }
+    }
+
     .prose-compact {
         font-family: var(--font-sans);
         font-size: 1rem;
@@ -255,6 +326,81 @@
         & td:last-child {
             padding-right: 0;
         }
+    }
+}
+
+/*
+ * Category motifs in slow motion (Motif with `animated`). Only when the
+ * visitor has not asked for reduced motion; at rest each shape is the
+ * static motif.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    .motif-sun {
+        animation: motif-sunrise 7s ease-in-out infinite alternate;
+    }
+
+    .motif-ring {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: motif-ripple 3.6s ease-in-out infinite;
+    }
+
+    .motif-wave {
+        animation: motif-flow 6s linear infinite;
+    }
+
+    .motif-leaf {
+        transform-origin: 58px 108px;
+        animation: motif-sway 5s ease-in-out infinite alternate;
+    }
+}
+
+@keyframes motif-sunrise {
+    from {
+        transform: translateY(16px);
+    }
+    to {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes motif-ripple {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.08);
+        opacity: 0.5;
+    }
+}
+
+/* One full wave (68 units) to the left, so the loop is seamless. */
+@keyframes motif-flow {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-68px);
+    }
+}
+
+@keyframes motif-sway {
+    from {
+        transform: rotate(-5deg);
+    }
+    to {
+        transform: rotate(5deg);
+    }
+}
+
+/* Hide a scroller's bar while keeping it scrollable (carousels, tab rows). */
+@utility no-scrollbar {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
     }
 }
 

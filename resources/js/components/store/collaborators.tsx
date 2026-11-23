@@ -1,6 +1,7 @@
 import type { Collaborator } from '@/types';
 
 import { ResponsiveImage } from '@/components/ui/responsive-image';
+import { Accented } from '@/components/store/section-heading';
 import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -38,7 +39,7 @@ export function Collaborators({ heading, intro, items }: { heading: string; intr
         <section aria-labelledby="collaborators-heading" className="container-page pt-20 lg:pt-28">
             <div className="mx-auto max-w-2xl text-center">
                 <h2 id="collaborators-heading" className="font-display text-display-sm">
-                    {heading}
+                    <Accented text={heading} />
                 </h2>
                 {intro && <p className="mt-3 text-lg text-stone">{intro}</p>}
             </div>

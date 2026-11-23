@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 export function PostMeta({ post, className }: { post: Pick<PostCardData, 'published_at' | 'reading_minutes'>; className?: string }) {
     const { t, date } = useI18n();
     return (
-        <p className={cn('text-sm text-stone', className)}>
+        <p className={cn('text-xs font-semibold tracking-[0.06em] text-stone uppercase', className)}>
             <time dateTime={post.published_at ?? undefined}>{date(post.published_at)}</time>, {t(':count min read', { count: post.reading_minutes })}
         </p>
     );
@@ -19,14 +19,14 @@ export function PostMeta({ post, className }: { post: Pick<PostCardData, 'publis
 
 export function PostCover({ post, sizes, priority = false, className }: { post: PostCardData; sizes: string; priority?: boolean; className?: string }) {
     return (
-        <div className={cn('overflow-hidden bg-sand', className)}>
+        <div className={cn('overflow-hidden rounded-2xl bg-sand', className)}>
             {post.cover ? (
                 <ResponsiveImage
                     image={post.cover}
                     sizes={sizes}
                     priority={priority}
                     alt=""
-                    className="transition-transform duration-700 ease-(--ease-out-soft) motion-safe:group-hover:scale-[1.03]"
+                    className="transition-transform duration-700 ease-(--ease-out-soft) motion-safe:group-hover:scale-[1.04]"
                 />
             ) : (
                 <div className="flex h-full w-full items-center justify-center text-dune">
@@ -39,31 +39,27 @@ export function PostCover({ post, sizes, priority = false, className }: { post: 
     );
 }
 
-export function PostCard({ post, featured = false }: { post: PostCardData; featured?: boolean }) {
+/** Journal card: rounded photo, date, title, excerpt and "Read more". */
+export function PostCard({ post, priority = false, headingLevel: Heading = 'h3' }: { post: PostCardData; priority?: boolean; headingLevel?: 'h2' | 'h3' }) {
     const { t, to } = useI18n();
+    const href = to(`/blog/${post.slug}`);
 
     return (
-        <article className={cn('group', featured && 'grid gap-6 md:grid-cols-12 md:items-center md:gap-10')}>
-            <Link href={to(`/blog/${post.slug}`)} className={cn('block', featured && 'md:col-span-7')} tabIndex={-1} aria-hidden="true">
-                <PostCover
-                    post={post}
-                    sizes={featured ? '(min-width: 768px) 58vw, 100vw' : '(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw'}
-                    priority={featured}
-                    className={featured ? 'aspect-[16/10]' : 'aspect-[4/3]'}
-                />
+        <article className="group flex flex-col">
+            <Link href={href} className="block" tabIndex={-1} aria-hidden="true">
+                <PostCover post={post} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw" priority={priority} className="aspect-[5/4]" />
             </Link>
-            <div className={cn(featured ? 'md:col-span-5' : 'mt-4')}>
-                <PostMeta post={post} />
-                <h2 className={cn('mt-2 font-display leading-tight', featured ? 'text-display-sm' : 'text-2xl')}>
-                    <Link href={to(`/blog/${post.slug}`)} className="hover:text-aloe">
-                        {post.title}
-                    </Link>
-                </h2>
-                <p className={cn('mt-3 text-stone', featured && 'text-lg')}>{post.excerpt}</p>
-                <Link href={to(`/blog/${post.slug}`)} className="mt-4 inline-block text-sm font-medium underline underline-offset-4 hover:text-aloe">
-                    {t('Read the post')}<span className="sr-only">: {post.title}</span>
+            <PostMeta post={post} className="mt-6" />
+            <Heading className="mt-2.5 text-xl leading-snug font-semibold text-ink">
+                <Link href={href} className="hover:text-dune-deep">
+                    {post.title}
                 </Link>
-            </div>
+            </Heading>
+            {post.excerpt && <p className="mt-3 line-clamp-3 text-stone">{post.excerpt}</p>}
+            <Link href={href} className="mt-5 self-start text-sm font-semibold tracking-[0.03em] uppercase underline underline-offset-4 hover:text-dune-deep">
+                {t('Read more')}
+                <span className="sr-only">: {post.title}</span>
+            </Link>
         </article>
     );
 }

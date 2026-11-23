@@ -80,6 +80,9 @@ foreach ([480, 960, 1200] as $w) {
     $manager->read("{$src}/founder-dunes.jpg")->scaleDown(width: $w)->toWebp(quality: 78)->save("{$out}/founder-dunes-{$w}.webp");
 }
 
+// Blog banner: the strip of sand ripples below the founder's feet.
+$manager->read("{$src}/founder-dunes.jpg")->crop(1200, 175, 0, 1425)->toWebp(quality: 80)->save("{$out}/dunes-banner-1200.webp");
+
 $logo = imagecreatefromjpeg("{$src}/logo.jpg");
 
 // Mark: the aloe, the figure and the sun, without the circle around them.

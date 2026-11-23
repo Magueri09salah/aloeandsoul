@@ -35,7 +35,7 @@ export function NewsletterForm({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
                     aria-describedby={form.errors.email ? `${id}-error` : undefined}
                     className={
                         dark
-                            ? 'h-11 w-full rounded-full border border-ivory/30 bg-transparent px-5 text-ivory placeholder:text-ivory/50 focus-visible:border-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ivory'
+                            ? 'h-12 w-full rounded-full border border-transparent bg-white px-5 text-ink placeholder:text-stone/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'
                             : 'h-11 w-full rounded-full border border-line bg-white px-5 placeholder:text-stone/70'
                     }
                 />
@@ -50,7 +50,7 @@ export function NewsletterForm({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
                     className="hidden"
                     aria-hidden="true"
                 />
-                <Button type="submit" loading={form.processing} variant={dark ? 'quiet' : 'primary'} className="shrink-0">
+                <Button type="submit" loading={form.processing} className={dark ? 'h-12 shrink-0' : 'shrink-0'}>
                     {t('Subscribe')}
                 </Button>
             </div>
@@ -60,9 +60,9 @@ export function NewsletterForm({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
                     checked={form.data.consent}
                     onCheckedChange={(v) => form.setData('consent', v === true)}
                     aria-invalid={form.errors.consent ? true : undefined}
-                    className={dark ? 'border-ivory/50 bg-transparent data-[state=checked]:border-ivory data-[state=checked]:bg-ivory data-[state=checked]:text-ink' : undefined}
+                    className={dark ? 'border-white/60 bg-transparent data-[state=checked]:border-white data-[state=checked]:bg-white data-[state=checked]:text-aloe' : undefined}
                 />
-                <label htmlFor={`${id}-consent`} className={dark ? 'text-sm text-ivory/75' : 'text-sm text-stone'}>
+                <label htmlFor={`${id}-consent`} className={dark ? 'text-sm text-white/80' : 'text-sm text-stone'}>
                     {/* Same wording as NewsletterRequest::CONSENT_TEXT, which is stored as the record of consent. */}
                     {t('I agree to receive occasional emails from Aloe & Soul. I can unsubscribe at any time.')}
                 </label>

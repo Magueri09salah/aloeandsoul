@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { Banknote, Plus, Truck } from 'lucide-react';
+import { Banknote, Minus, Plus, Truck } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 
 import type { Breadcrumb, ProductCard as ProductCardData, ProductDetail } from '@/types';
@@ -10,10 +10,10 @@ import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { SafeHtml } from '@/components/ui/safe-html';
 import { Breadcrumbs } from '@/components/store/breadcrumbs';
 import { useCartUi } from '@/components/store/cart-context';
-import { MOTIF_BY_CATEGORY, ProductCard } from '@/components/store/product-card';
+import { MOTIF_BY_CATEGORY } from '@/components/store/product-card';
 import { ProductGallery } from '@/components/store/product-gallery';
 import { ProductPlaceholder } from '@/components/store/product-placeholder';
-import { SectionHeading } from '@/components/store/section-heading';
+import { ProductRail } from '@/components/store/product-rail';
 import { useShared } from '@/hooks/use-shared';
 import { useI18n } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -42,7 +42,9 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
 
     const variant = product.variants.find((v) => v.id === variantId) ?? firstAvailable;
     const hasOptions = product.variants.length > 1;
-    const reference = [variant?.sku ? t('Ref. :sku', { sku: variant.sku }) : null, product.size].filter(Boolean).join(' – ');
+    const reference = [variant?.sku ? t('Ref. :sku', { sku: variant.sku }) : null, product.size]
+        .filter(Boolean)
+        .join(' – ');
     const hasDetails = product.specifications.length > 0 || Boolean(variant?.sku);
 
     const add = () => {
@@ -70,36 +72,58 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                 <Breadcrumbs items={breadcrumbs} />
             </div>
 
-            {/* Mobile: images, purchase panel, information. Desktop: information under the images, panel alongside. */}
-            <div className="container-page grid gap-10 pt-6 pb-16 lg:grid-cols-12 lg:gap-x-12">
-                <div className="lg:col-span-7">
-                    <ProductGallery
-                        images={product.images}
-                        tint={product.category.tint}
-                        label={t(':name images', { name: product.name })}
-                        placeholder={<ProductPlaceholder tint={product.category.tint} motif={MOTIF_BY_CATEGORY[product.category.slug]} />}
-                    />
+            <div className="container-page grid gap-10 pt-6 pb-16 lg:grid-cols-12 lg:gap-x-14">
+                <div className="lg:col-span-6 xl:col-span-7">
+                    <div className="lg:sticky lg:top-28">
+                        <ProductGallery
+                            images={product.images}
+                            tint="var(--color-mist)"
+                            label={t(':name images', { name: product.name })}
+                            placeholder={
+                                <ProductPlaceholder
+                                    tint={product.category.tint}
+                                    motif={MOTIF_BY_CATEGORY[product.category.slug]}
+                                />
+                            }
+                        />
+                    </div>
                 </div>
 
-                {/* Purchase panel */}
-                <section aria-labelledby="product-title" className="lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
-                    <div className="lg:sticky lg:top-28">
-                        <Link href={to(`/shop/${product.category.slug}`)} className="text-sm text-dune-deep hover:underline hover:underline-offset-4">
+                <div className="lg:col-span-6 xl:col-span-5">
+                    {/* Purchase panel */}
+                    <section aria-labelledby="product-title">
+                        <Link
+                            href={to(`/shop/${product.category.slug}`)}
+                            className="text-xs font-semibold tracking-[0.04em] text-dune-deep uppercase underline underline-offset-4 hover:text-aloe"
+                        >
                             {product.category.name}
                         </Link>
-                        <h1 id="product-title" className="mt-2 font-display text-display-sm">
+                        <h1
+                            id="product-title"
+                            className="mt-3 text-[1.75rem] leading-tight font-medium text-ink sm:text-[2rem]"
+                        >
                             {product.name}
                         </h1>
-                        <p className="mt-4 text-xl">
-                            {variant ? <Price amount={variant.price_minor} regular={variant.regular_price_minor} /> : null}
+                        <p className="mt-5 flex flex-wrap items-center gap-3 text-2xl font-semibold">
+                            {variant ? (
+                                <Price amount={variant.price_minor} regular={variant.regular_price_minor} />
+                            ) : null}
+                            {product.is_bestseller && (
+                                <span className="rounded-full bg-sand px-3 py-1 text-[0.7rem] font-semibold tracking-[0.04em] text-stone uppercase">
+                                    {t('Bestseller')}
+                                </span>
+                            )}
                         </p>
-                        {reference && <p className="mt-1 text-sm text-stone">{reference}</p>}
-                        {product.summary && <p className="mt-4 text-lg text-stone">{product.summary}</p>}
+                        {reference && <p className="mt-2 text-sm text-stone">{reference}</p>}
+                        {product.summary && (
+                            <p className="mt-5 text-[1.05rem] leading-relaxed text-stone">{product.summary}</p>
+                        )}
 
                         {hasOptions && (
                             <fieldset className="mt-8">
                                 <legend className="mb-3 text-sm font-medium">
-                                    {t(':label:', { label: product.option_label ?? t('Option') })} <span className="font-normal text-stone">{variant?.name}</span>
+                                    {t(':label:', { label: product.option_label ?? t('Option') })}{' '}
+                                    <span className="font-normal text-stone">{variant?.name}</span>
                                 </legend>
                                 <div className="flex flex-wrap gap-2">
                                     {product.variants.map((v) => (
@@ -107,7 +131,9 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                                             key={v.id}
                                             className={cn(
                                                 'relative inline-flex h-11 cursor-pointer items-center rounded-full border px-5 text-[0.95rem] transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-aloe',
-                                                v.id === variant?.id ? 'border-ink bg-ink text-ivory' : 'border-line bg-white hover:border-ink',
+                                                v.id === variant?.id
+                                                    ? 'border-dune-deep bg-dune-deep text-white'
+                                                    : 'border-line bg-white hover:border-ink',
                                                 !v.in_stock && 'text-stone line-through decoration-1',
                                             )}
                                         >
@@ -134,85 +160,96 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                             {variant?.in_stock ? (
                                 <>
                                     <div className="flex flex-wrap items-center gap-3">
-                                        <QuantityStepper label={t('Quantity')} value={quantity} max={variant.max_quantity} onChange={setQuantity} />
-                                        <Button size="lg" className="min-w-52 flex-1" loading={adding} onClick={add} disabled={!orderingEnabled}>
+                                        <QuantityStepper
+                                            label={t('Quantity')}
+                                            value={quantity}
+                                            max={variant.max_quantity}
+                                            onChange={setQuantity}
+                                        />
+                                        <Button
+                                            size="lg"
+                                            wrap
+                                            className="min-w-52 flex-1"
+                                            loading={adding}
+                                            onClick={add}
+                                            disabled={!orderingEnabled}
+                                        >
                                             {t('Add to cart')}
                                         </Button>
                                     </div>
-                                    {variant.low_stock && <p className="mt-3 text-sm text-dune-deep">{t('Only a few left.')}</p>}
+                                    {variant.low_stock && (
+                                        <p className="mt-3 text-sm text-dune-deep">{t('Only a few left.')}</p>
+                                    )}
                                     {errors.quantity && (
                                         <p className="mt-3 text-sm text-clay" role="alert">
                                             {errors.quantity}
                                         </p>
                                     )}
-                                    {!orderingEnabled && <p className="mt-3 text-sm text-stone">{t('Online ordering is paused at the moment.')}</p>}
+                                    {!orderingEnabled && (
+                                        <p className="mt-3 text-sm text-stone">
+                                            {t('Online ordering is paused at the moment.')}
+                                        </p>
+                                    )}
                                 </>
                             ) : (
-                                <p className="rounded-(--radius-control) bg-sand px-4 py-3 text-stone">
-                                    {hasOptions ? t('This option is out of stock.') : t('This product is out of stock.')} {t('Please check back soon or')}{' '}
+                                <p className="rounded-2xl bg-sand px-5 py-4 text-stone">
+                                    {hasOptions
+                                        ? t('This option is out of stock.')
+                                        : t('This product is out of stock.')}{' '}
+                                    {t('Please check back soon or')}{' '}
                                     <Link href={to('/contact')} className="underline underline-offset-4">
                                         {t('contact us')}
                                     </Link>
                                     .
                                 </p>
                             )}
+                            <Button
+                                asChild
+                                size="lg"
+                                variant="secondary"
+                                wrap
+                                className="mt-3 w-full border-stone text-stone"
+                            >
+                                <Link href={to(`/shop/${product.category.slug}`)}>{t('View similar products')}</Link>
+                            </Button>
                         </div>
 
-                        <div className="mt-8 divide-y divide-line border-y border-line text-[0.95rem]">
-                            <div className="flex gap-4 py-4">
-                                <Banknote className="mt-0.5 size-5 shrink-0 text-dune" strokeWidth={1.5} aria-hidden="true" />
-                                <div>
-                                    <p className="font-medium">{t('Cash on delivery')}</p>
-                                    <p className="text-stone">{delivery.cod_instructions}</p>
-                                </div>
-                            </div>
-                            {delivery.zones.length > 0 && (
-                                <details className="group py-4">
-                                    <summary className="flex cursor-pointer list-none gap-4 [&::-webkit-details-marker]:hidden">
-                                        <Truck className="mt-0.5 size-5 shrink-0 text-dune" strokeWidth={1.5} aria-hidden="true" />
-                                        <span className="flex-1">
-                                            <span className="block font-medium">{t('Delivery')}</span>
-                                            <span className="text-stone">
-                                                {delivery.min_fee_minor !== null && `${t('From :amount.', { amount: money(delivery.min_fee_minor) })} `}
-                                                <span className="underline underline-offset-4 group-open:hidden">{t('See delivery areas')}</span>
-                                            </span>
-                                        </span>
-                                    </summary>
-                                    <ul className="mt-3 ml-9 space-y-1.5 text-stone">
-                                        {delivery.zones.map((z) => (
-                                            <li key={z.name} className="flex justify-between gap-4">
-                                                <span>
-                                                    {z.name}
-                                                    {z.estimate && <span className="text-stone/80"> · {z.estimate}</span>}
-                                                </span>
-                                                <span className="text-right tabular-nums">
-                                                    {money(z.fee_minor)}
-                                                    {z.free_over_minor !== null && (
-                                                        <span className="block text-xs">{t('free over :amount', { amount: money(z.free_over_minor) })}</span>
-                                                    )}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    {delivery.info && <p className="mt-3 ml-9 text-stone">{delivery.info}</p>}
-                                </details>
-                            )}
-                        </div>
+                        <ul className="mt-8 grid gap-5 rounded-2xl bg-panel p-6 sm:grid-cols-2">
+                            <li className="flex gap-4 sm:flex-col sm:items-center sm:text-center">
+                                <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white text-dune-deep">
+                                    <Banknote className="size-5" strokeWidth={1.5} aria-hidden="true" />
+                                </span>
+                                <span>
+                                    <span className="block font-semibold">{t('Cash on delivery')}</span>
+                                    <span className="mt-1 block text-sm text-stone">{delivery.cod_instructions}</span>
+                                </span>
+                            </li>
+                            <li className="flex gap-4 sm:flex-col sm:items-center sm:text-center">
+                                <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white text-dune-deep">
+                                    <Truck className="size-5" strokeWidth={1.5} aria-hidden="true" />
+                                </span>
+                                <span>
+                                    <span className="block font-semibold">{t('Delivery')}</span>
+                                    <span className="mt-1 block text-sm text-stone">
+                                        {delivery.min_fee_minor !== null
+                                            ? t('From :amount.', { amount: money(delivery.min_fee_minor) })
+                                            : delivery.info}
+                                    </span>
+                                </span>
+                            </li>
+                        </ul>
+                    </section>
 
-                    </div>
-                </section>
-
-                {/* Product information */}
-                {(product.sections.length > 0 || hasDetails) && (
-                    <section aria-label={t('Product information')} className="border-t border-line lg:col-span-7 lg:row-start-2">
+                    {/* Product information */}
+                    <section aria-label={t('Product information')} className="mt-10 border-t border-line">
                         {product.sections.map((section, i) => (
                             <InfoSection key={section.id} title={section.title} open={i === 0}>
-                                <SafeHtml html={section.html} className="prose-compact text-ink/90" />
+                                <SafeHtml html={section.html} className="prose-compact text-stone" />
                             </InfoSection>
                         ))}
                         {hasDetails && (
                             <InfoSection title={t('Details')} open={product.sections.length === 0}>
-                                <dl className="max-w-[70ch] divide-y divide-line border-y border-line">
+                                <dl className="divide-y divide-line border-y border-line">
                                     {product.specifications.map((s) => (
                                         <div key={s.label} className="grid grid-cols-3 gap-4 py-3 text-[0.95rem]">
                                             <dt className="text-stone">{s.label}</dt>
@@ -228,19 +265,41 @@ export default function ProductShow({ product, related, breadcrumbs, delivery }:
                                 </dl>
                             </InfoSection>
                         )}
+                        {delivery.zones.length > 0 && (
+                            <InfoSection title={t('Delivery areas')} open={false}>
+                                <ul className="space-y-2 text-[0.95rem] text-stone">
+                                    {delivery.zones.map((z) => (
+                                        <li key={z.name} className="flex justify-between gap-4">
+                                            <span>
+                                                {z.name}
+                                                {z.estimate && <span className="text-stone/80"> · {z.estimate}</span>}
+                                            </span>
+                                            <span className="text-right tabular-nums">
+                                                {money(z.fee_minor)}
+                                                {z.free_over_minor !== null && (
+                                                    <span className="block text-xs">
+                                                        {t('free over :amount', { amount: money(z.free_over_minor) })}
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                {delivery.info && <p className="mt-4 text-[0.95rem] text-stone">{delivery.info}</p>}
+                            </InfoSection>
+                        )}
                     </section>
-                )}
+                </div>
             </div>
 
             {related.length > 0 && (
-                <section className="container-page border-t border-line pt-16">
-                    <SectionHeading title={t('More from :category', { category: product.category.name })} link={{ href: to(`/shop/${product.category.slug}`), label: t('See all') }} />
-                    <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
-                        {related.map((p) => (
-                            <ProductCard key={p.id} product={p} />
-                        ))}
-                    </div>
-                </section>
+                <ProductRail
+                    id="related-heading"
+                    title={t('More from :category', { category: product.category.name })}
+                    products={related}
+                    link={{ href: to(`/shop/${product.category.slug}`), label: t('See all') }}
+                    className="border-t border-line"
+                />
             )}
         </>
     );
@@ -251,10 +310,15 @@ function InfoSection({ title, open, children }: { title: string; open: boolean; 
     return (
         <details className="group border-b border-line" open={open}>
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 [&::-webkit-details-marker]:hidden">
-                <h2 className="font-display text-2xl">{title}</h2>
-                <Plus className="size-5 shrink-0 text-dune transition-transform duration-200 group-open:rotate-45" strokeWidth={1.5} aria-hidden="true" />
+                <h2 className="text-lg font-medium text-ink">{title}</h2>
+                <Plus className="size-5 shrink-0 text-stone group-open:hidden" strokeWidth={1.5} aria-hidden="true" />
+                <Minus
+                    className="hidden size-5 shrink-0 text-stone group-open:block"
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                />
             </summary>
-            <div className="pb-8">{children}</div>
+            <div className="pb-7">{children}</div>
         </details>
     );
 }
